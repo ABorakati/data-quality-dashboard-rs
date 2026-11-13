@@ -1,0 +1,3 @@
+# Parity fixtures depend on exact bytes (including 
+). Never convert line endings.
+* -text

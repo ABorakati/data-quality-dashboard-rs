@@ -1,0 +1,9 @@
+2026-10-07 21:10:33	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: cdmTable
+2026-10-07 21:10:33	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: measurePersonCompleteness
+2026-10-07 21:10:34	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: cdmField
+2026-10-07 21:10:35	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: isRequired
+2026-10-07 21:10:36	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: measureValueCompleteness
+2026-10-07 21:10:37	[Main thread]	INFO	DataQualityDashboard	.writeResultsToJson	Writing results to file: C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/postgres/clean/results/results.json
+2026-10-07 21:10:37	[Main thread]	INFO	DataQualityDashboard		Execution Complete
+2026-10-07 21:10:37	[Main thread]	INFO	DataQualityDashboard	.writeResultsToCsv	Writing results to CSV file C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/postgres/clean/results/results.csv
+2026-10-07 21:10:37	[Main thread]	INFO	DataQualityDashboard	.writeResultsToCsv	Finished writing to CSV file

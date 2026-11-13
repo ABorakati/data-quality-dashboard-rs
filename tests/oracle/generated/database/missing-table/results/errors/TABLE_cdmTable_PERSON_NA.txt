@@ -1,0 +1,59 @@
+DBMS:
+sqlite
+
+Error:
+no such table: main.PERSON
+
+SQL:
+/*********
+CDM_TABLE
+Verify the table exists.
+Parameters used in this template:
+schema = main
+cdmTableName = PERSON
+**********/
+SELECT 
+    num_violated_rows, 
+    CASE 
+        WHEN denominator.num_rows = 0 THEN 0 
+        ELSE 1.0*num_violated_rows/denominator.num_rows 
+    END AS pct_violated_rows, 
+    denominator.num_rows AS num_denominator_rows
+FROM
+(
+    SELECT 
+        num_violated_rows 
+    FROM
+    (
+        SELECT
+            CASE 
+                WHEN COUNT(*) = 0 THEN 0
+                ELSE 0
+            END AS num_violated_rows
+        FROM main.PERSON cdmTable
+    ) violated_rows
+) violated_row_count,
+( 
+    SELECT 1 AS num_rows
+) denominator
+;
+
+
+R version:
+R version 4.5.2 (2025-10-31 ucrt)
+
+Platform:
+x86_64-w64-mingw32
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- DataQualityDashboard (2.9.0)
+- DatabaseConnector (8.0.0)

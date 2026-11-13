@@ -1,0 +1,64 @@
+DBMS:
+sqlite
+
+Error:
+no such column: cdmTable2.person_id
+
+SQL:
+/*********
+Table Level:  
+MEASURE_PERSON_COMPLETENESS
+Determine what #/% of persons have at least one record in the cdmTable
+Parameters used in this template:
+schema = main
+cdmTableName = PERSON
+**********/
+SELECT 
+	num_violated_rows, 
+	CASE 
+		WHEN denominator.num_rows = 0 THEN 0 
+		ELSE 1.0*num_violated_rows/denominator.num_rows 
+	END AS pct_violated_rows, 
+    denominator.num_rows AS num_denominator_rows
+FROM
+(
+	SELECT 
+		COUNT(violated_rows.person_id) AS num_violated_rows
+	FROM
+	(
+		/*violatedRowsBegin*/
+		SELECT 
+			cdmTable.* 
+		FROM main.person cdmTable
+			LEFT JOIN main.PERSON cdmTable2 
+			    ON cdmTable.person_id = cdmTable2.person_id
+		WHERE cdmTable2.person_id IS NULL
+		/*violatedRowsEnd*/
+	) violated_rows
+) violated_row_count,
+( 
+	SELECT 
+		COUNT(*) AS num_rows
+	FROM main.person cdmTable
+) denominator
+;
+
+
+R version:
+R version 4.5.2 (2025-10-31 ucrt)
+
+Platform:
+x86_64-w64-mingw32
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- DataQualityDashboard (2.9.0)
+- DatabaseConnector (8.0.0)

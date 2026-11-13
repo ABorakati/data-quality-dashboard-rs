@@ -1,0 +1,24 @@
+# Changelog
+
+## Unreleased
+
+- Remove Java entirely. SQL rendering, translation, and splitting run in-process through the `dqd-sqlrender` crate (a Rust port of SqlRender 1.19.7). Database access uses native drivers through the `dqd-db` crate. The `java/` bridge and `SqlRender.jar` are gone.
+- Support only `dbms` `sqlite` and `postgresql`. Other values, including in SQL-only mode, fail with an error. The `dialects` command lists only these.
+- Replace the JDBC connection fields. `connection` now takes `sqlitePath`, `server` (`host/database`), `port`, `user`, and `password`. `jdbcUrl`, `driverClass`, and the options `java` and `driverClasspath` are removed, along with `--jdbc-url`, `--driver-class`, `--java`, and `--driver-classpath`. Add `--server` and `--port`.
+- Parity tests compare rendering for `sql server`, `sqlite`, and `postgresql`, and add PostgreSQL scenarios (`DQD_PG_PORT`) and full Eunomia GiBleed runs on SQLite and PostgreSQL. `scripts/parity.ps1` needs Java only for fixture generation and gains `-Postgres`.
+- Record the differential evidence for the removed Java bridge. Before it was deleted, `dqd-db` matched it byte for byte on 5727 of 5727 SQLite and 501 of 501 PostgreSQL differential cases, and `dqd-sqlrender` matched SqlRender 1.19.7 on all 162 render, translate, and split cases for `sql server`, `sqlite`, and `postgresql`. The bridge-driven differential suites were removed with it; their expected values live on in `crates/db/tests/native.rs` and `tests/oracle/generated/render.json`.
+- Provide `charindex` on SQLite connections, as RSQLite's bundled extension functions do for DatabaseConnector. DQD's SQLite `cdmDatatype` SQL needs it; without it 154 GiBleed checks errored.
+- Write result CSV files as R does: doubles with 15 significant digits in R's fixed or scientific notation, and `\n` as `\r\n` on Windows (so an embedded `\r\n` becomes `\r\r\n`).
+- Fail like upstream when `writeToCsv` is set with an empty `csvFile`: after the JSON and table writes, return the error `a character vector argument expected`, as `basename(allResults$outputFile)` does in R.
+- Report a failed `cdm_source` metadata query as DatabaseConnector does: `Error executing SQL:` plus the driver message and an `errorReportSql.txt` path in the current directory. Strip the `[SQLSTATE=…; vendorCode=…]` suffix from PostgreSQL error text in recorded check errors.
+
+## 2.9.0
+
+- Pin the port to OHDSI DataQualityDashboard 2.9.0 commit `b9d2a9b4a4736f7ea81415d974c72119b6f0bd11`.
+- Add the Rust library and `dqd` CLI for check execution, raw check listing, and SQL-only output.
+- Add result conversion, threshold reevaluation, CSV export, database table import/export, and viewer commands.
+- Retain upstream check catalogs, SQL templates, SqlRender assets, and dashboard browser assets with provenance records.
+- Match upstream JSON serialization for null fields and threshold reevaluation.
+- Preserve upstream SQLite result-table naming behavior.
+- Match upstream SQL-only DDL file termination.
+- Keep parity claims contingent on differential verification against the pinned upstream R package.

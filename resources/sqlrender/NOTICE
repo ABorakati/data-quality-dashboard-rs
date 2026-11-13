@@ -1,0 +1,7 @@
+OHDSI SqlRender 1.19.7
+
+Copyright 2026 Observational Health Data Sciences and Informatics.
+
+The unmodified replacementPatterns.csv and supportedDialects.csv are redistributed from the CRAN SqlRender 1.19.7 package under the Apache License, Version 2.0. The complete license text is available at https://www.apache.org/licenses/LICENSE-2.0. The source package is archived at https://cran.r-project.org/src/contrib/Archive/SqlRender/SqlRender_1.19.7.tar.gz. SHA-256 hashes and source member paths appear in provenance.json.
+
+The Rust crate crates/sqlrender is a port of SqlRender 1.19.7's rendering, translation, and SQL-splitting logic (SqlRender.java, SqlTranslate.java, SqlSplit.java, StringUtils.java), which are Apache License 2.0 sources. It is a derivative work of those files, not a modified copy.

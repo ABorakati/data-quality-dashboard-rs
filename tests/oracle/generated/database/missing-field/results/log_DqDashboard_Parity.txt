@@ -1,0 +1,13 @@
+2026-10-07 19:13:54	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: cdmTable
+2026-10-07 19:13:54	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: measurePersonCompleteness
+2026-10-07 19:13:55	[Main thread]	ERROR	DataQualityDashboard	3	[Level: TABLE] [Check: measurePersonCompleteness] [CDM Table: PERSON] [CDM Field: NA] Error executing SQL: no such column: cdmTable2.person_id An error report has been created at  C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/database/missing-field/results/errors/TABLE_measurePersonCompleteness_PERSON_NA.txt
+2026-10-07 19:13:55	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: cdmField
+2026-10-07 19:13:55	[Main thread]	ERROR	DataQualityDashboard	3	[Level: FIELD] [Check: cdmField] [CDM Table: PERSON] [CDM Field: PERSON_ID] Error executing SQL: no such column: PERSON_ID An error report has been created at  C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/database/missing-field/results/errors/FIELD_cdmField_PERSON_PERSON_ID.txt
+2026-10-07 19:13:55	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: isRequired
+2026-10-07 19:13:55	[Main thread]	ERROR	DataQualityDashboard	3	[Level: FIELD] [Check: isRequired] [CDM Table: PERSON] [CDM Field: PERSON_ID] Error executing SQL: no such column: cdmTable.PERSON_ID An error report has been created at  C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/database/missing-field/results/errors/FIELD_isRequired_PERSON_PERSON_ID.txt
+2026-10-07 19:13:55	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: measureValueCompleteness
+2026-10-07 19:13:56	[Main thread]	ERROR	DataQualityDashboard	3	[Level: FIELD] [Check: measureValueCompleteness] [CDM Table: PERSON] [CDM Field: PERSON_ID] Error executing SQL: no such column: cdmTable.PERSON_ID An error report has been created at  C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/database/missing-field/results/errors/FIELD_measureValueCompleteness_PERSON_PERSON_ID.txt
+2026-10-07 19:13:56	[Main thread]	INFO	DataQualityDashboard	.writeResultsToJson	Writing results to file: C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/database/missing-field/results/results.json
+2026-10-07 19:13:56	[Main thread]	INFO	DataQualityDashboard		Execution Complete
+2026-10-07 19:13:56	[Main thread]	INFO	DataQualityDashboard	.writeResultsToCsv	Writing results to CSV file C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/database/missing-field/results/results.csv
+2026-10-07 19:13:56	[Main thread]	INFO	DataQualityDashboard	.writeResultsToCsv	Finished writing to CSV file

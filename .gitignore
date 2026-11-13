@@ -1,0 +1,16 @@
+# Build output (CARGO_TARGET_DIR is shared; this guards a stray local target/)
+/target/
+**/target/
+
+# Run outputs dropped in the working directory
+/results.csv
+/results.json
+/errorReportSql.txt
+/log_*.txt
+hs_err_pid*.log
+
+# Fuzz harness scratch output (reproducers are kept under fuzz/reproducers)
+/fuzz/work/
+/fuzz/corpus/
+/fuzz/artifacts/
+/fuzz/coverage/

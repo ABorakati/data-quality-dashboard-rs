@@ -1,0 +1,2 @@
+2026-10-07 19:12:35	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: cdmTable
+2026-10-07 19:12:38	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: isRequired

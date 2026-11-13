@@ -1,0 +1,18 @@
+[package]
+name = "dqd-db"
+version = "2.9.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "Native SQLite and PostgreSQL connections reproducing DatabaseConnector behavior for DQD"
+
+[dependencies]
+anyhow = "1"
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+dqd-sqlrender = { path = "../sqlrender" }
+# rusqlite 0.37 bundles SQLite 3.50.2, the closest crates.io release to sqlite-jdbc 3.50.3.0's SQLite 3.50.3.
+rusqlite = { version = "=0.37.0", features = ["bundled"] }
+postgres = "0.19"
+regex = "1"
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+chrono-tz = "0.10"
+iana-time-zone = "0.1"

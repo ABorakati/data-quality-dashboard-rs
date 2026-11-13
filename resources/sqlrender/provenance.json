@@ -1,0 +1,21 @@
+{
+  "package": "OHDSI SqlRender",
+  "version": "1.19.7",
+  "license": "Apache-2.0",
+  "upstream": "https://github.com/OHDSI/SqlRender",
+  "origin": "CRAN binary R package, package Version=1.19.7. Files retained verbatim. The Rust crate crates/sqlrender is a port of the package's Java sources; replacementPatterns.csv is the verbatim pattern table it embeds.",
+  "files": [
+    {
+      "path": "replacementPatterns.csv",
+      "sha256": "33c737a83c978193ef37174742f572e85b91d3ab04da73b235641e9c590c58cc",
+      "source": "https://cran.r-project.org/src/contrib/Archive/SqlRender/SqlRender_1.19.7.tar.gz",
+      "sourceMember": "SqlRender/inst/csv/replacementPatterns.csv"
+    },
+    {
+      "path": "supportedDialects.csv",
+      "sha256": "a3712cefa122416a35720aad9db8fb61b6511bc3e600155970eb3acc2627491f",
+      "source": "https://cran.r-project.org/src/contrib/Archive/SqlRender/SqlRender_1.19.7.tar.gz",
+      "sourceMember": "SqlRender/inst/csv/supportedDialects.csv"
+    }
+  ]
+}

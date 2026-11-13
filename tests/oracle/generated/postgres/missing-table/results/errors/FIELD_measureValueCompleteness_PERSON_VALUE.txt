@@ -1,0 +1,64 @@
+DBMS:
+postgresql
+
+Error:
+org.postgresql.util.PSQLException: ERROR: relation "missing_table.person" does not exist
+  Position: 402
+
+SQL:
+/*********
+MEASURE_VALUE_COMPLETENESS
+Computing number of null values and the proportion to total records per field
+Parameters used in this template:
+schema = missing_table
+cdmTableName = PERSON
+cdmFieldName = VALUE
+**********/
+SELECT 
+	num_violated_rows, 
+	CASE 
+		WHEN denominator.num_rows = 0 THEN 0 
+		ELSE 1.0*num_violated_rows/denominator.num_rows 
+	END AS pct_violated_rows, 
+    denominator.num_rows AS num_denominator_rows
+FROM
+(
+	SELECT 
+		COUNT(violated_rows.violating_field) AS num_violated_rows
+	FROM
+	(
+		/*violatedRowsBegin*/
+		SELECT 
+			'PERSON.VALUE' AS violating_field, 
+			cdmTable.* 
+		FROM missing_table.PERSON cdmTable
+		WHERE cdmTable.VALUE IS NULL
+		/*violatedRowsEnd*/
+	) violated_rows
+) violated_row_count,
+( 
+	SELECT 
+		COUNT(*) AS num_rows
+	FROM missing_table.PERSON cdmTable
+) denominator
+;
+
+
+R version:
+R version 4.5.2 (2025-10-31 ucrt)
+
+Platform:
+x86_64-w64-mingw32
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- DataQualityDashboard (2.9.0)
+- DatabaseConnector (8.0.0)

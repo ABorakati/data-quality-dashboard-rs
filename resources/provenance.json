@@ -1,0 +1,26 @@
+{
+  "upstream": "https://github.com/OHDSI/DataQualityDashboard",
+  "version": "2.9.0",
+  "commit": "b9d2a9b4a4736f7ea81415d974c72119b6f0bd11",
+  "license": "Apache-2.0",
+  "source_paths": {
+    "csv/OMOP_CDMv5.2_*.csv": "inst/csv/OMOP_CDMv5.2_*.csv",
+    "csv/OMOP_CDMv5.3_*.csv": "inst/csv/OMOP_CDMv5.3_*.csv",
+    "csv/OMOP_CDMv5.4_*.csv": "inst/csv/OMOP_CDMv5.4_*.csv",
+    "csv/OMOP_CDMv5.5_*.csv": "inst/csv/OMOP_CDMv5.5_*.csv",
+    "sql/sql_server/**": "inst/sql/sql_server/**",
+    "viewer/index.html": "inst/shinyApps/www/index.html",
+    "viewer/favicon.ico": "inst/shinyApps/www/favicon.ico",
+    "viewer/css/resume.css": "inst/shinyApps/www/css/resume.css",
+    "viewer/js/loadResults.js": "inst/shinyApps/www/js/loadResults.js",
+    "viewer/img/**": "inst/shinyApps/www/img/**",
+    "viewer/htmlwidgets/**": "inst/shinyApps/www/htmlwidgets/**",
+    "viewer/vendor/**": "inst/shinyApps/www/vendor/**"
+  },
+  "port_additions": [
+    "viewer/css/bridge.css",
+    "viewer/js/bridge.js",
+    "viewer/js/resume.js"
+  ],
+  "copy_policy": "CSV and SQL assets listed above retain upstream bytes. Viewer assets are mapped to upstream paths; bridge.css, bridge.js, and resume.js implement the Rust host."
+}

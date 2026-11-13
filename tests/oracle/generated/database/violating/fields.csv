@@ -1,0 +1,3 @@
+"cdmTableName","cdmFieldName","cdmField","isRequired","isRequiredThreshold","measureValueCompleteness","measureValueCompletenessThreshold"
+"PERSON","person_id","Yes","Yes","0","Yes","0"
+"PERSON","value","Yes","Yes","0","Yes","0"

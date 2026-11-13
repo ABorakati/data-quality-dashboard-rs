@@ -1,0 +1,33 @@
+[workspace]
+members = [".", "crates/sqlrender", "crates/db"]
+
+[package]
+name = "data-quality-dashboard"
+version = "2.9.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "Rust execution engine for OHDSI DataQualityDashboard with upstream SQL and result compatibility"
+
+[lib]
+name = "data_quality_dashboard"
+path = "src/lib.rs"
+
+[[bin]]
+name = "dqd"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4", features = ["derive"] }
+csv = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+sha2 = "0.10"
+tempfile = "3"
+tiny_http = "0.12"
+dqd-sqlrender = { path = "crates/sqlrender" }
+dqd-db = { path = "crates/db" }
+
+[dev-dependencies]
+pretty_assertions = "1"

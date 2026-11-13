@@ -1,0 +1,12 @@
+[package]
+name = "dqd-sqlrender"
+version = "1.19.7"
+edition = "2024"
+license = "Apache-2.0"
+description = "Native Rust port of OHDSI SqlRender 1.19.7 render, split, and SQLite/PostgreSQL translation"
+
+[dependencies]
+regex = "1"
+
+[dev-dependencies]
+serde_json = { version = "1", features = ["preserve_order"] }

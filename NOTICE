@@ -1,0 +1,9 @@
+DataQualityDashboard Rust port
+
+This project implements behavior from OHDSI DataQualityDashboard 2.9.0, pinned at commit b9d2a9b4a4736f7ea81415d974c72119b6f0bd11.
+Upstream project: https://github.com/OHDSI/DataQualityDashboard
+Upstream license: Apache License 2.0
+
+Files copied from the upstream package are identified in resources/provenance.json. Retained upstream dashboard assets are distributed with their upstream notices where provided. This NOTICE does not replace those notices.
+
+crates/sqlrender is a Rust port of OHDSI SqlRender 1.19.7 (https://github.com/OHDSI/SqlRender, Apache License 2.0). It uses the unmodified replacementPatterns.csv and supportedDialects.csv from that release; see resources/sqlrender/NOTICE.

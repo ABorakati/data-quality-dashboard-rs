@@ -1,0 +1,61 @@
+DBMS:
+sqlite
+
+Error:
+no such table: main.PERSON
+
+SQL:
+/*********
+FIELD_IS_REQUIRED
+Check that values in fields where isRequired == TRUE are non-null
+Parameters used in this template:
+schema = main
+cdmTableName = PERSON
+cdmFieldName = PERSON_ID
+**********/
+SELECT 
+    num_violated_rows, 
+    CASE 
+        WHEN denominator.num_rows = 0 THEN 0 
+        ELSE 1.0*num_violated_rows/denominator.num_rows
+    END AS pct_violated_rows, 
+    denominator.num_rows AS num_denominator_rows
+FROM (
+    SELECT 
+        COUNT(violated_rows.violating_field) AS num_violated_rows
+    FROM (
+        /*violatedRowsBegin*/
+        SELECT 
+            'PERSON.PERSON_ID' AS violating_field, 
+            cdmTable.* 
+        FROM main.PERSON cdmTable
+        WHERE cdmTable.PERSON_ID IS NULL
+        /*violatedRowsEnd*/
+    ) violated_rows
+) violated_row_count,
+( 
+    SELECT 
+        COUNT(*) AS num_rows
+    FROM main.PERSON cdmTable
+) denominator
+;
+
+
+R version:
+R version 4.5.2 (2025-10-31 ucrt)
+
+Platform:
+x86_64-w64-mingw32
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- DataQualityDashboard (2.9.0)
+- DatabaseConnector (8.0.0)
