@@ -1,0 +1,76 @@
+tests/oracle/upstream-testthat-cases.R
+  s_ba8ea0ff7052c6::t_89b4474a09301d 72,74
+  s_ba8ea0ff7052c6::t_435425ef73e216 1-71,73,75-79,82-306
+  s_ba8ea0ff7052c6::t_76329a6c86e290 80-81
+tests/upstream.rs
+  s_ba8ea0ff7052c6::t_7e92fe8012b772 581
+  s_ba8ea0ff7052c6::t_1ddf7a725263ec 371-376
+  s_ba8ea0ff7052c6::t_627fe8099eb725 684,689
+  s_ba8ea0ff7052c6::t_85f944d8158f95 852
+  s_ba8ea0ff7052c6::t_abb2ecad81976a 352-353
+  s_ba8ea0ff7052c6::t_a7c5b4ce36aca3 498,502-505
+  s_ba8ea0ff7052c6::t_7f87b8d9f0b484 559-569
+  s_ba8ea0ff7052c6::t_715a3dd0ac9f32 1-351,354-370,377-467,471,475,485-497,499-501,506-558,570-580,582-675,677-683,685-688,690-738,740-851,853-863
+  s_ba8ea0ff7052c6::t_9267d9d26111e3 468-470,472-474,476-484
+  s_ba8ea0ff7052c6::t_0de15787dc6b8d 676
+  s_ba8ea0ff7052c6::t_b81ab87e6e8095 739
+tests/parity.rs
+  s_ba8ea0ff7052c6::t_0f12de200efb5a 14-15
+  s_ba8ea0ff7052c6::t_6f342180eac2bf 521-522,527
+  s_ba8ea0ff7052c6::t_9f17a87e7237b4 783-786,788
+src/runner.rs
+  s_ba8ea0ff7052c6::t_a3b945dbb00b2d 697-703
+  s_ba8ea0ff7052c6::t_6f85e6ae9b259b 657-696,704-720
+  s_ba8ea0ff7052c6::t_f3f9052f351767 516-523,526-537,545-549
+  s_ba8ea0ff7052c6::t_0b7dc8696fc9af 430-482
+  s_ba8ea0ff7052c6::t_ffc1f11eb3b7a2 591-595
+src/evaluate.rs
+  s_ba8ea0ff7052c6::t_19eabb69a373ae 313-337
+  s_ba8ea0ff7052c6::t_e0ee7010cf7c9f 356
+  s_ba8ea0ff7052c6::t_67b72b4b5b3f45 90-91
+docs/upstream-test-coverage.md
+  s_ba8ea0ff7052c6::t_ad6db27350c9d1 1-165
+tests/common/mod.rs
+  s_ba8ea0ff7052c6::t_0181cb6e75a50d 131
+  s_ba8ea0ff7052c6::t_8d520bbe665e19 1-130,132-170
+tests/oracle/generated/upstream/manifest.json
+  s_ba8ea0ff7052c6::t_ffbee4158e263f 1
+CHANGELOG.md
+  s_ba8ea0ff7052c6::t_768ee4657b5e11 5-10
+src/sql_only.rs
+  s_ba8ea0ff7052c6::t_5e70e1dd8efaee 253,311,349
+  s_ba8ea0ff7052c6::t_9bfb91ced10ab9 237-244
+  s_ba8ea0ff7052c6::t_44c401cb0269a1 350
+src/results.rs
+  s_ba8ea0ff7052c6::t_4bb52aa6bc39ee 1-6
+  s_ba8ea0ff7052c6::t_44c8ec3f15b968 707-709,718,720-745
+  s_ba8ea0ff7052c6::t_31da482ecf5c67 746-756
+  s_ba8ea0ff7052c6::t_9a4f910a5194da 492,586,803,853
+  s_ba8ea0ff7052c6::t_7e8ef9335c086e 652-657,659-664
+  s_ba8ea0ff7052c6::t_d0d326578c5519 472
+  s_ba8ea0ff7052c6::t_8048340fa34ac9 658
+  s_ba8ea0ff7052c6::t_baa98ea9bf6d35 710-717,719
+  s_ba8ea0ff7052c6::t_6f85e6ae9b259b 980-1011
+  s_ba8ea0ff7052c6::t_24b127057365eb 72-96
+  s_ba8ea0ff7052c6::t_a2795d550eb40b 311-313
+tests/oracle/generated/upstream/expected.json
+  s_ba8ea0ff7052c6::t_efff5d881c2d76 1
+tests/oracle/generated/upstream/unittest_OMOP_CDMv5.3_Concept_Level.csv
+  s_ba8ea0ff7052c6::t_79b7c26d994700 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "461b54e0eebaa3d21dabafd84994f63b179d96f5",
+  "prompts": {},
+  "sessions": {
+    "s_ba8ea0ff7052c6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5283c514-85a1-4bb1-891a-eaf3ba84c090",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "ABorakati <ABorakati@users.noreply.github.com>"
+    }
+  }
+}
