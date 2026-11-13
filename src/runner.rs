@@ -427,6 +427,59 @@ fn warn_selected(descriptions: &[Row]) {
     }
 }
 
+/// Adds the `_row` field jsonlite writes for R's row names, which upstream's results keep only
+/// when `.evaluateThresholds` skips the Not Applicable join (that dplyr join resets row names).
+///
+/// `do.call(rbind, resultsList)` names each row after its check description's position `k` in
+/// the selected descriptions: `k.j` for the j-th row of a description with several rows, `k` for
+/// a description with one row. jsonlite writes `_row`, as the last field of every row, only when
+/// some row name is not all digits, that is when some description produced more than one row.
+fn add_r_row_names(rows: &mut Value, descriptions: &[Row]) {
+    let Some(rows) = rows.as_array_mut() else {
+        return;
+    };
+    let position = |row: &Value| {
+        descriptions.iter().position(|description| {
+            description.get("checkName") == row.get("checkName")
+                && description.get("checkLevel") == row.get("checkLevel")
+        })
+    };
+    let positions: Vec<Option<usize>> = rows.iter().map(position).collect();
+    let mut names = Vec::with_capacity(rows.len());
+    let mut start = 0;
+    while start < positions.len() {
+        let end = positions[start..]
+            .iter()
+            .position(|p| *p != positions[start])
+            .map_or(positions.len(), |offset| start + offset);
+        let Some(index) = positions[start] else {
+            // A row that matches no selected description cannot come from rbind; leave R's
+            // automatic row names, which jsonlite does not write.
+            return;
+        };
+        let count = end - start;
+        for j in 1..=count {
+            names.push(if count == 1 {
+                format!("{}", index + 1)
+            } else {
+                format!("{}.{j}", index + 1)
+            });
+        }
+        start = end;
+    }
+    if names
+        .iter()
+        .all(|name| name.bytes().all(|b| b.is_ascii_digit()))
+    {
+        return;
+    }
+    for (row, name) in rows.iter_mut().zip(names) {
+        if let Some(row) = row.as_object_mut() {
+            row.insert("_row".into(), Value::String(name));
+        }
+    }
+}
+
 fn default_filename(metadata: &[Row], end: chrono::DateTime<Local>) -> String {
     let abbreviation = metadata
         .first()
@@ -460,8 +513,28 @@ pub fn execute_dq_checks(options: &Options) -> Result<Value> {
         fs::remove_dir_all(&error_folder)?;
     }
     fs::create_dir_all(&error_folder)?;
+    // Upstream deletes the previous log, then its file logger records the run (in SQL-only mode
+    // too), so the log file always exists afterwards.
+    let log = &options.cdm_source_name;
+    let _ = fs::remove_file(
+        options
+            .output_folder
+            .join(format!("log_DqDashboard_{log}.txt")),
+    );
     let start = Local::now();
     let raw = Catalog::load(options)?;
+    if !options.tables_to_exclude.is_empty() {
+        let skipped: Vec<String> = options
+            .tables_to_exclude
+            .iter()
+            .map(|table| table.to_uppercase())
+            .collect();
+        log_line(
+            &options.output_folder,
+            log,
+            &format!("CDM Tables skipped: {}", skipped.join(", ")),
+        );
+    }
     let catalog = raw.prepared(options)?;
     let descriptions = catalog.selected_descriptions(options)?;
     warn_selected(&descriptions);
@@ -469,6 +542,11 @@ pub fn execute_dq_checks(options: &Options) -> Result<Value> {
     for description in &descriptions {
         let name = text(description, "checkName");
         let level = text(description, "checkLevel");
+        log_line(
+            &options.output_folder,
+            log,
+            &format!("Processing check description: {name}"),
+        );
         if !checks.iter().any(|check| {
             text(&check.description, "checkName") == name
                 && text(&check.description, "checkLevel") == level
@@ -510,7 +588,11 @@ pub fn execute_dq_checks(options: &Options) -> Result<Value> {
         json!([format!("{} secs", seconds.round() as i64)]),
     );
     output.insert("executionTimeSeconds".into(), json!([seconds]));
-    output.insert("CheckResults".into(), json_rows(&check_results));
+    let mut result_rows = json_rows(&check_results);
+    if !evaluate::has_na_checks(&check_results) {
+        add_r_row_names(&mut result_rows, &descriptions);
+    }
+    output.insert("CheckResults".into(), result_rows);
     output.insert("Metadata".into(), json_rows(&metadata));
     output.insert(
         "Overview".into(),
@@ -571,4 +653,68 @@ pub fn execute_dq_checks(options: &Options) -> Result<Value> {
         }
     }
     Ok(Value::Object(output))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn row(level: &str, name: &str) -> Value {
+        json!({"checkLevel": level, "checkName": name})
+    }
+
+    fn description(level: &str, name: &str) -> Row {
+        row(level, name).as_object().unwrap().clone()
+    }
+
+    fn names(rows: &Value) -> Vec<Option<&str>> {
+        rows.as_array()
+            .unwrap()
+            .iter()
+            .map(|row| row.get("_row").and_then(Value::as_str))
+            .collect()
+    }
+
+    #[test]
+    fn r_row_names_follow_rbind_naming_by_description_position() {
+        // Description 2 produced no rows; description 3 produced one.
+        let descriptions = [
+            description("TABLE", "a"),
+            description("TABLE", "b"),
+            description("FIELD", "c"),
+            description("FIELD", "d"),
+        ];
+        let mut rows = json!([
+            row("TABLE", "a"),
+            row("TABLE", "a"),
+            row("FIELD", "c"),
+            row("FIELD", "d"),
+            row("FIELD", "d"),
+        ]);
+        add_r_row_names(&mut rows, &descriptions);
+        assert_eq!(
+            names(&rows),
+            [
+                Some("1.1"),
+                Some("1.2"),
+                Some("3"),
+                Some("4.1"),
+                Some("4.2")
+            ]
+        );
+        assert_eq!(
+            rows[0].as_object().unwrap().keys().last().unwrap(),
+            "_row",
+            "jsonlite writes _row last"
+        );
+    }
+
+    #[test]
+    fn all_digit_r_row_names_are_not_written() {
+        // One row per description gives row names "1", "2": jsonlite omits them.
+        let descriptions = [description("TABLE", "a"), description("TABLE", "b")];
+        let mut rows = json!([row("TABLE", "a"), row("TABLE", "b")]);
+        add_r_row_names(&mut rows, &descriptions);
+        assert_eq!(names(&rows), [None, None]);
+    }
 }

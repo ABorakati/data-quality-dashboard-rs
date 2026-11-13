@@ -1,4 +1,9 @@
-use std::{collections::HashSet, fs, io::Write, path::Path};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    io::Write,
+    path::Path,
+};
 
 use anyhow::{Context, Result, bail};
 use chrono::Utc;
@@ -62,6 +67,31 @@ pub fn check_results(value: &Value) -> Result<Vec<Row>> {
         })
         .collect::<Result<_>>()?;
     Ok(normalize_dataframe_rows(rows))
+}
+
+/// CheckResults as upstream's `jsonlite::read_json` + `as.data.frame(cr)` + `plyr::rbind.fill`
+/// readers see them (`reEvaluateThresholds`, `writeJsonResultsToCsv`, `writeJsonResultsToTable`).
+/// `as.data.frame` applies `make.names`, so the `_row` field that jsonlite writes for R row names
+/// becomes an ordinary column `X_row`.
+fn data_frame_rows(value: &Value) -> Result<Vec<Row>> {
+    Ok(check_results(value)?
+        .into_iter()
+        .map(|row| {
+            row.into_iter()
+                .map(|(name, value)| (r_make_name(name), value))
+                .collect()
+        })
+        .collect())
+}
+
+/// R `make.names` for the result field names that can occur: a name that starts with `_` or a
+/// digit is not syntactic and gains an `X` prefix. (CheckResults names are otherwise syntactic.)
+fn r_make_name(name: String) -> String {
+    if name.starts_with('_') || name.starts_with(|c: char| c.is_ascii_digit()) {
+        format!("X{name}")
+    } else {
+        name
+    }
 }
 
 /// jsonlite simplifies mixed atomic columns to one R vector type. In particular,
@@ -278,7 +308,9 @@ fn rename_rows(value: &mut Value, target_case: &str, preserve_check_id: bool) ->
             .context("Results section entries must be objects")?;
         let previous = std::mem::take(row);
         for (key, value) in previous {
-            let renamed = if preserve_check_id && key == "checkId" {
+            // jsonlite::fromJSON turns `_row` back into R row names, which rename_with leaves
+            // alone and toJSON writes again as `_row`.
+            let renamed = if (preserve_check_id && key == "checkId") || key == "_row" {
                 key
             } else if target_case == "camel" {
                 snake_case_to_camel_case(&key)
@@ -437,7 +469,7 @@ fn r_double_text(value: f64) -> String {
 }
 
 /// R writes CSV files in text mode, which turns every `\n` into `\r\n` on Windows.
-fn text_mode_newlines(text: String) -> String {
+pub(crate) fn text_mode_newlines(text: String) -> String {
     if cfg!(windows) {
         text.replace('\n', "\r\n")
     } else {
@@ -457,7 +489,7 @@ pub fn write_json_results_to_csv(
     delimiter: u8,
 ) -> Result<()> {
     let result = (|| {
-        let rows = check_results(&read_results(json_path)?)?;
+        let rows = data_frame_rows(&read_results(json_path)?)?;
         write_results_to_csv_inner(&rows, csv_path, columns, delimiter)
     })();
     if let Err(error) = result {
@@ -551,7 +583,7 @@ pub fn re_evaluate_thresholds(
     options: &Options,
 ) -> Result<Value> {
     let mut results = read_results(json_file_path)?;
-    let mut rows = check_results(&results)?;
+    let mut rows = data_frame_rows(&results)?;
     for row in &mut rows {
         for field in ["cdmFieldName", "error", "conceptId", "unitConceptId"] {
             row.entry(field).or_insert(Value::Null);
@@ -617,6 +649,19 @@ fn quote_sqlite_identifier(identifier: &str) -> String {
     format!("\"{}\"", identifier.replace('"', "\"\""))
 }
 
+/// RSQLite's column type for an R column holding these JSON values: character -> TEXT,
+/// double -> REAL, integer -> INTEGER; an all-NA column is logical, stored as INTEGER.
+fn r_sqlite_type(rows: &[Row], column: &str) -> &'static str {
+    let values = || rows.iter().filter_map(|row| row.get(column));
+    if values().any(Value::is_string) {
+        "TEXT"
+    } else if values().any(Value::is_f64) {
+        "REAL"
+    } else {
+        "INTEGER"
+    }
+}
+
 fn write_results_to_table_named(
     rows: &[Row],
     connection: &mut dyn Connection,
@@ -659,9 +704,56 @@ fn write_results_to_table_named(
                     )
                 })
                 .unwrap_or_else(|| quote_sqlite_identifier(table_name));
-            connection.execute(&format!(
-                "CREATE TABLE IF NOT EXISTS {literal_table_name} AS SELECT * FROM {source_table_name} WHERE 0"
-            ))?;
+            // RSQLite's dbWriteTable(append = TRUE) creates the missing table from the data
+            // frame's own columns, not from the DDL: a results JSON without some fields (all-NA
+            // columns are absent there) or with `X_row` yields a different column set.
+            let pragma = match table_name.split_once('.') {
+                Some((schema, table)) => format!(
+                    "PRAGMA {}.table_info({})",
+                    quote_sqlite_identifier(schema),
+                    quote_sqlite_identifier(table)
+                ),
+                None => format!("PRAGMA table_info({literal_table_name})"),
+            };
+            let ddl_types: HashMap<String, String> = connection
+                .query(&pragma)?
+                .into_iter()
+                .filter_map(|row| {
+                    Some((
+                        row.get("name")?.as_str()?.to_owned(),
+                        row.get("type")?.as_str()?.to_owned(),
+                    ))
+                })
+                .collect();
+            let mut columns: Vec<&str> = Vec::new();
+            for row in &database_rows {
+                for column in row.keys() {
+                    if !columns.contains(&column.as_str()) {
+                        columns.push(column);
+                    }
+                }
+            }
+            let definitions: Vec<String> = columns
+                .iter()
+                .map(|column| {
+                    let declared = ddl_types
+                        .get(*column)
+                        .cloned()
+                        .unwrap_or_else(|| r_sqlite_type(&database_rows, column).to_owned());
+                    format!("{} {declared}", quote_sqlite_identifier(column))
+                })
+                .collect();
+            if definitions.is_empty() {
+                // No rows, hence no column names here (R would still have them): use the DDL's.
+                connection.execute(&format!(
+                    "CREATE TABLE IF NOT EXISTS {literal_table_name} AS SELECT * FROM {source_table_name} WHERE 0"
+                ))?;
+            } else {
+                connection.execute(&format!(
+                    "CREATE TABLE IF NOT EXISTS {literal_table_name} ({})",
+                    definitions.join(", ")
+                ))?;
+            }
             literal_table_name
         } else {
             table_name.to_owned()
@@ -708,7 +800,7 @@ pub fn write_json_results_to_table(
     cohort_definition_id: Option<i64>,
     single_table: bool,
 ) -> Result<()> {
-    let rows = check_results(&read_results(json_file_path)?)?;
+    let rows = data_frame_rows(&read_results(json_file_path)?)?;
     if single_table {
         return write_results_to_table(
             &rows,
@@ -758,7 +850,7 @@ pub fn write_json_results_to_table_for_cohorts(
     cohort_ids: &[Value],
     single_table: bool,
 ) -> Result<()> {
-    let rows = check_results(&read_results(json_file_path)?)?;
+    let rows = data_frame_rows(&read_results(json_file_path)?)?;
     let levels: &[(&str, &str)] = if single_table {
         &[("", "")]
     } else {
@@ -884,4 +976,36 @@ pub fn write_db_results_to_json(
         "Overview": Value::Object(evaluate::summarize(&rows).into_iter().map(|(name, value)| (name, Value::Array(vec![value]))).collect::<Map<String, Value>>()),
     });
     write_results_to_json(&results, output_folder, output_file)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn as_data_frame_names_rename_the_jsonlite_row_names_field() {
+        let value = json!({"CheckResults": [{"checkId": "x", "_row": "1.1"}]});
+        let rows = data_frame_rows(&value).unwrap();
+        assert_eq!(
+            rows[0].keys().collect::<Vec<_>>(),
+            ["checkId", "X_row"],
+            "as.data.frame applies make.names in place"
+        );
+        assert_eq!(camel_case_to_snake_case("X_row"), "_x_row");
+    }
+
+    #[test]
+    fn r_sqlite_types_follow_the_r_column_class() {
+        let rows: Vec<Row> = vec![
+            json!({"a": "text", "b": 1, "c": 0.5, "d": null})
+                .as_object()
+                .unwrap()
+                .clone(),
+            json!({"a": 2, "b": 3, "c": 1}).as_object().unwrap().clone(),
+        ];
+        assert_eq!(r_sqlite_type(&rows, "a"), "TEXT");
+        assert_eq!(r_sqlite_type(&rows, "b"), "INTEGER");
+        assert_eq!(r_sqlite_type(&rows, "c"), "REAL");
+        assert_eq!(r_sqlite_type(&rows, "d"), "INTEGER");
+    }
 }

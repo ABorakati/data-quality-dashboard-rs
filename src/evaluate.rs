@@ -87,7 +87,8 @@ fn set_flag(row: &mut Row, name: &str, flag: bool) {
     row.insert(name.into(), Value::from(u8::from(flag)));
 }
 
-fn has_na_checks(results: &[Row]) -> bool {
+/// Upstream `.hasNAchecks`: the results include cdmTable, cdmField and measureValueCompleteness.
+pub fn has_na_checks(results: &[Row]) -> bool {
     NA_CHECKS
         .iter()
         .all(|name| results.iter().any(|row| named(row, name)))
@@ -309,6 +310,31 @@ fn apply_not_applicable(row: &Row, facts: Applicability, condition_era: Option<b
     if let Some(condition_era) = condition_era {
         return condition_era;
     }
+    // conceptIsMissing | conceptAndUnitAreMissing: a CONCEPT check with a zero denominator.
+    let concept_missing = value(row, "checkLevel") == "CONCEPT"
+        && number(value(row, "numDenominatorRows")) == Some(0.0);
+    not_applicable_rule(row, facts, concept_missing)
+}
+
+/// Upstream `.applyNotApplicable(x)` for one row that carries the flag columns upstream joins on
+/// (`tableIsMissing`, `fieldIsMissing`, `tableIsEmpty`, `fieldIsEmpty`, `conceptIsMissing`,
+/// `conceptAndUnitAreMissing`; 1/TRUE is set, anything else is not). The condition-era special
+/// case is outside `.applyNotApplicable` upstream too.
+pub fn apply_not_applicable_flags(row: &Row) -> bool {
+    let set = |name: &str| flag(row, name) == Some(true);
+    not_applicable_rule(
+        row,
+        Applicability {
+            table_missing: set("tableIsMissing"),
+            field_missing: set("fieldIsMissing"),
+            table_empty: set("tableIsEmpty"),
+            field_empty: set("fieldIsEmpty"),
+        },
+        set("conceptIsMissing") || set("conceptAndUnitAreMissing"),
+    )
+}
+
+fn not_applicable_rule(row: &Row, facts: Applicability, concept_missing: bool) -> bool {
     if named(row, "measurePersonCompleteness") || named(row, "cdmField") {
         return facts.table_missing;
     }
@@ -327,9 +353,7 @@ fn apply_not_applicable(row: &Row, facts: Applicability, condition_era: Option<b
     if named(row, "measureValueCompleteness") {
         return false;
     }
-    facts.field_empty
-        || (value(row, "checkLevel") == "CONCEPT"
-            && number(value(row, "numDenominatorRows")) == Some(0.0))
+    facts.field_empty || concept_missing
 }
 
 fn finish_applicability(row: &mut Row, facts: Applicability, condition_era: Option<bool>) {

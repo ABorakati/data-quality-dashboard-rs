@@ -11,22 +11,8 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-fn oracle() -> PathBuf {
-    std::env::var_os("DQD_ORACLE_DIR")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/oracle/generated"))
-}
-fn fixture(name: &str) -> Value {
-    let path = oracle().join(name);
-    let bytes = fs::read(&path).unwrap_or_else(|e| {
-        panic!(
-            "missing oracle fixture {}: {e}; run scripts/parity.ps1",
-            path.display()
-        )
-    });
-    serde_json::from_slice(&bytes)
-        .unwrap_or_else(|e| panic!("invalid oracle fixture {}: {e}", path.display()))
-}
+mod common;
+use common::*;
 fn opts(version: &str) -> Options {
     Options {
         cdm_version: version.into(),
@@ -99,31 +85,6 @@ fn oracle_check_id(description: &Value, parameters: &Value) -> String {
         .to_lowercase()
 }
 
-fn assert_json_equal(actual: &Value, expected: &Value, path: &str) {
-    match (actual, expected) {
-        (Value::Number(a), Value::Number(b)) if a.as_f64().is_some() && b.as_f64().is_some() => {
-            assert_eq!(a.as_f64(), b.as_f64(), "{path}")
-        }
-        (Value::Array(a), Value::Array(b)) => {
-            assert_eq!(a.len(), b.len(), "array length at {path}");
-            for (i, (a, b)) in a.iter().zip(b).enumerate() {
-                assert_json_equal(a, b, &format!("{path}[{i}]"));
-            }
-        }
-        (Value::Object(a), Value::Object(b)) => {
-            assert_eq!(a.len(), b.len(), "object key count at {path}");
-            for (key, a) in a {
-                assert_json_equal(
-                    a,
-                    b.get(key).unwrap_or_else(|| panic!("missing {path}.{key}")),
-                    &format!("{path}.{key}"),
-                );
-            }
-        }
-        _ => assert_eq!(actual, expected, "{path}"),
-    }
-}
-
 #[test]
 fn list_checks_matches_upstream_raw_catalog_for_all_cdm_versions() {
     for version in ["5.2", "5.3", "5.4", "5.5"] {
@@ -138,51 +99,6 @@ fn list_checks_matches_upstream_raw_catalog_for_all_cdm_versions() {
     }
 }
 
-fn string_vector(value: &Value) -> Vec<String> {
-    match value {
-        Value::String(value) => vec![value.clone()],
-        Value::Array(values) => values
-            .iter()
-            .map(|value| value.as_str().unwrap().to_owned())
-            .collect(),
-        Value::Null => Vec::new(),
-        other => panic!("expected oracle string vector, got {other}"),
-    }
-}
-fn normalize_error_report_path(error: &str) -> String {
-    let marker = "An error report has been created at  ";
-    let Some((prefix, path)) = error.split_once(marker) else {
-        return error.to_owned();
-    };
-    let path = path.replace('\\', "/");
-    let Some((_, suffix)) = path.rsplit_once("/errors/") else {
-        return error.to_owned();
-    };
-    format!("{prefix}{marker}<output>/errors/{suffix}")
-}
-
-fn csv_records(text: &str) -> Vec<Vec<String>> {
-    let mut reader = csv::Reader::from_reader(text.as_bytes());
-    let headers = reader.headers().expect("CSV header").clone();
-    let execution_time = headers.iter().position(|header| header == "executionTime");
-    let error_message = headers.iter().position(|header| header == "error");
-    let mut rows = vec![headers.iter().map(|header| header.to_owned()).collect()];
-    for record in reader.records() {
-        let mut fields = record
-            .expect("valid parity CSV")
-            .iter()
-            .map(|field| field.to_owned())
-            .collect::<Vec<_>>();
-        if let Some(index) = execution_time {
-            fields[index].clear();
-        }
-        if let Some(index) = error_message {
-            fields[index] = normalize_error_report_path(&fields[index]);
-        }
-        rows.push(fields);
-    }
-    rows
-}
 fn set_variant(options: &mut Options, value: &Value) {
     let Some(object) = value.as_object() else {
         return;
@@ -602,53 +518,19 @@ fn sql_files(folder: &Path) -> Value {
         if path.extension().is_some_and(|ext| ext == "sql") {
             values.insert(
                 path.file_name().unwrap().to_string_lossy().into_owned(),
+                // The oracle holds R readLines output, which drops the `\r` of `\r\n` and
+                // also the extra `\r` of the `\r\r\n` that R writes on Windows.
                 json!(
                     fs::read_to_string(path)
                         .unwrap()
                         .lines()
+                        .map(|line| line.trim_end_matches('\r'))
                         .collect::<Vec<_>>()
                 ),
             );
         }
     }
     Value::Object(values)
-}
-
-/// Removes run-dependent values (timestamps, timings, output paths) from a result object.
-fn strip_volatile(value: &mut Value) {
-    let Some(object) = value.as_object_mut() else {
-        return;
-    };
-    for key in [
-        "startTimestamp",
-        "endTimestamp",
-        "executionTime",
-        "executionTimeSeconds",
-        "outputFile",
-    ] {
-        object.remove(key);
-    }
-    if let Some(rows) = object.get_mut("CheckResults").and_then(Value::as_array_mut) {
-        for row in rows {
-            if let Some(row) = row.as_object_mut() {
-                if let Some(Value::String(error)) = row.get_mut("error") {
-                    *error = normalize_error_report_path(error);
-                }
-                row.remove("executionTime");
-            }
-        }
-    }
-}
-
-/// Runs the Rust runner and returns the results file it wrote, which is what upstream's
-/// `results.json` holds (jsonlite rounds to 4 digits there, unlike the in-memory return value).
-fn run_and_read_results_file(name: &str, options: &Options) -> Value {
-    runner::execute_dq_checks(options).unwrap_or_else(|e| panic!("{name}: {e:#}"));
-    let path = options.output_folder.join(&options.output_file);
-    serde_json::from_slice(
-        &fs::read(&path).unwrap_or_else(|e| panic!("{name}: reading {}: {e}", path.display())),
-    )
-    .unwrap_or_else(|e| panic!("{name}: invalid {}: {e}", path.display()))
 }
 
 /// Runs one scenario with the Rust runner and compares result JSON and result CSV to the oracle case.
@@ -898,27 +780,12 @@ fn assert_gibleed_csv_matches(name: &str, options: &Options, oracle_folder: &Pat
 
 /// Compares a full GiBleed run, check by check and metadata, ignoring only timings and timestamps.
 fn assert_gibleed_run_matches(name: &str, options: &Options, expected: &Value) {
-    let mut actual = run_and_read_results_file(name, options);
-    let mut expected = expected.clone();
-    strip_volatile(&mut actual);
-    strip_volatile(&mut expected);
-    let expected_rows = expected["CheckResults"].as_array().unwrap();
-    let actual_rows = actual["CheckResults"].as_array().unwrap();
-    assert!(!expected_rows.is_empty(), "{name}: empty oracle results");
-    assert_eq!(actual_rows.len(), expected_rows.len(), "{name} check count");
-    for (index, (actual_row, expected_row)) in actual_rows.iter().zip(expected_rows).enumerate() {
-        assert_json_equal(
-            actual_row,
-            expected_row,
-            &format!("{name} CheckResults[{index}] {}", expected_row["checkId"]),
-        );
-    }
-    assert_json_equal(
-        &actual["Metadata"],
-        &expected["Metadata"],
-        &format!("{name} Metadata"),
+    let actual = run_and_read_results_file(name, options);
+    assert!(
+        !expected["CheckResults"].as_array().unwrap().is_empty(),
+        "{name}: empty oracle results"
     );
-    assert_json_equal(&actual, &expected, name);
+    assert_results_match(name, &actual, expected);
 }
 
 #[test]

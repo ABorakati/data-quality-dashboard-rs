@@ -234,6 +234,14 @@ fn cte_for(
     Ok(translated)
 }
 
+/// Writes `text` and a newline as R's `write()` and `SqlRender::writeSql` do: through a text-mode
+/// connection, which turns every `\n` into `\r\n` on Windows (so a template's own `\r\n` becomes
+/// `\r\r\n` there, as in upstream's output).
+fn write_r_line(file: &mut fs::File, text: &str) -> Result<()> {
+    file.write_all(crate::results::text_mode_newlines(format!("{text}\n")).as_bytes())?;
+    Ok(())
+}
+
 fn export_simple(checks: &[Check], options: &Options, engine: &mut dyn SqlEngine) -> Result<()> {
     for check in checks {
         let sql = rendered_check(check, options, engine)?;
@@ -242,8 +250,7 @@ fn export_simple(checks: &[Check], options: &Options, engine: &mut dyn SqlEngine
             .create(true)
             .append(true)
             .open(options.output_folder.join(filename))?;
-        file.write_all(sql.as_bytes())?;
-        file.write_all(b"\n")?;
+        write_r_line(&mut file, &sql)?;
     }
     Ok(())
 }
@@ -301,8 +308,7 @@ fn export_incremental(
                 engine.translate(&rendered, &options.dbms)?
             };
             let mut file = OpenOptions::new().create(true).append(true).open(&path)?;
-            file.write_all(sql.as_bytes())?;
-            file.write_all(b"\n")?;
+            write_r_line(&mut file, &sql)?;
         }
     }
     Ok(())
@@ -340,7 +346,7 @@ pub fn export(
         engine.translate(&rendered, &options.dbms)?
     };
     let mut ddl_file = fs::File::create(options.output_folder.join("ddlDqdResults.sql"))?;
-    ddl_file.write_all(ddl.as_bytes())?;
-    ddl_file.write_all(b"\n")?;
+    write_r_line(&mut ddl_file, &ddl)?;
+
     Ok(())
 }

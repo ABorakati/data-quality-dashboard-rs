@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add `tests/upstream.rs`, which replays every scenario of the pinned upstream testthat suite through the R oracle (`tests/oracle/upstream-testthat-cases.R`) and compares all outputs. `docs/upstream-test-coverage.md` maps each upstream `test_that` block to its Rust test.
+- Write the `_row` field that upstream's results JSON carries when a run lacks the Not Applicable prerequisite checks. R keeps `rbind` row names (`"1.1"`, `"1.2"`, …, one prefix per check description) unless the Not Applicable join resets them, and jsonlite writes them when one is not all digits.
+- Read results JSON as upstream's `as.data.frame` readers do: `_row` becomes an `X_row` column in `reevaluate`, `export-csv`, and `import-table` (`_x_row` in tables). Case conversion keeps `_row` unchanged, as R row names.
+- On SQLite, create the `"schema.table"` results table from the written rows' own columns, as RSQLite's `dbWriteTable(append = TRUE)` does, instead of copying every DDL column. Writing a results JSON that lacks all-NA fields to a table no longer fails.
+- Write SQL-only files through R's Windows text-mode newline translation, as the CSV writer already does, and write the run log in SQL-only mode, with the `CDM Tables skipped` and `Processing check description` lines upstream logs. Each run now deletes the previous log first, as upstream does.
+
 - Remove Java entirely. SQL rendering, translation, and splitting run in-process through the `dqd-sqlrender` crate (a Rust port of SqlRender 1.19.7). Database access uses native drivers through the `dqd-db` crate. The `java/` bridge and `SqlRender.jar` are gone.
 - Support only `dbms` `sqlite` and `postgresql`. Other values, including in SQL-only mode, fail with an error. The `dialects` command lists only these.
 - Replace the JDBC connection fields. `connection` now takes `sqlitePath`, `server` (`host/database`), `port`, `user`, and `password`. `jdbcUrl`, `driverClass`, and the options `java` and `driverClasspath` are removed, along with `--jdbc-url`, `--driver-class`, `--java`, and `--driver-classpath`. Add `--server` and `--port`.
