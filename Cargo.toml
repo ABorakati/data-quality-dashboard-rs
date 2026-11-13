@@ -1,5 +1,6 @@
 [workspace]
 members = [".", "crates/sqlrender", "crates/db"]
+exclude = ["crates/sqlrender/fuzz"]
 
 [package]
 name = "data-quality-dashboard"
@@ -31,3 +32,4 @@ dqd-db = { path = "crates/db" }
 
 [dev-dependencies]
 pretty_assertions = "1"
+proptest = { version = "1", default-features = false, features = ["std"] }

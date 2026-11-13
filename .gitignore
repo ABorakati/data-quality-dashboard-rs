@@ -14,3 +14,10 @@ hs_err_pid*.log
 /fuzz/corpus/
 /fuzz/artifacts/
 /fuzz/coverage/
+
+# cargo-fuzz (crates/sqlrender/fuzz) scratch output
+/crates/sqlrender/fuzz/corpus/
+/crates/sqlrender/fuzz/artifacts/
+/crates/sqlrender/fuzz/coverage/
+/crates/sqlrender/fuzz/target/
+/crates/sqlrender/fuzz/Cargo.lock
