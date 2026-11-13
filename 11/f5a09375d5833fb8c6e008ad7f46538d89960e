@@ -1,0 +1,99 @@
+resources/csv/OMOP_CDMv5.2_Check_Descriptions.csv
+  s_ba8ea0ff7052c6::t_c62a0db8fd9fc6 1-28
+resources/csv/OMOP_CDMv5.2_Table_Level.csv
+  s_ba8ea0ff7052c6::t_a5a7a8098a09f3 1-77
+resources/csv/OMOP_CDMv5.3_Check_Descriptions.csv
+  s_ba8ea0ff7052c6::t_e504a3a14b3a20 1-28
+resources/csv/OMOP_CDMv5.3_Table_Level.csv
+  s_ba8ea0ff7052c6::t_ccf8aabb99991a 1-76
+resources/csv/OMOP_CDMv5.4_Check_Descriptions.csv
+  s_ba8ea0ff7052c6::t_6c7581a2e08b1e 1-28
+resources/csv/OMOP_CDMv5.4_Table_Level.csv
+  s_ba8ea0ff7052c6::t_8917d3b9cec07e 1-84
+resources/csv/OMOP_CDMv5.5_Check_Descriptions.csv
+  s_ba8ea0ff7052c6::t_3fb21a1c2ba260 1-28
+resources/csv/OMOP_CDMv5.5_Table_Level.csv
+  s_ba8ea0ff7052c6::t_6a04136b50bef9 1-87
+resources/sql/sql_server/concept_plausible_gender.sql
+  s_ba8ea0ff7052c6::t_9042e0ce62d16e 1-59
+resources/sql/sql_server/concept_plausible_gender_use_descendants.sql
+  s_ba8ea0ff7052c6::t_686cb244d6a32f 1-63
+resources/sql/sql_server/concept_plausible_unit_concept_ids.sql
+  s_ba8ea0ff7052c6::t_77889ff1fd05fb 1-63
+resources/sql/sql_server/concept_plausible_value_high.sql
+  s_ba8ea0ff7052c6::t_8f0a847144650a 1-63
+resources/sql/sql_server/concept_plausible_value_low.sql
+  s_ba8ea0ff7052c6::t_6130fea778e2e1 1-61
+resources/sql/sql_server/field_cdm_datatype.sql
+  s_ba8ea0ff7052c6::t_c68807b102a97a 1-46
+resources/sql/sql_server/field_cdm_field.sql
+  s_ba8ea0ff7052c6::t_51d5ed0ed4f675 1-34
+resources/sql/sql_server/field_concept_record_completeness.sql
+  s_ba8ea0ff7052c6::t_08de3e76cba1a6 1-95
+resources/sql/sql_server/field_fk_class.sql
+  s_ba8ea0ff7052c6::t_a6e3b54dfa937d 1-60
+resources/sql/sql_server/field_fk_domain.sql
+  s_ba8ea0ff7052c6::t_52dc4d2faf9b43 1-58
+resources/sql/sql_server/field_is_not_nullable.sql
+  s_ba8ea0ff7052c6::t_50284a03cc0099 1-54
+resources/sql/sql_server/field_is_primary_key.sql
+  s_ba8ea0ff7052c6::t_7d932b719a13c9 1-62
+resources/sql/sql_server/field_is_standard_valid_concept.sql
+  s_ba8ea0ff7052c6::t_47c1715915f4ae 1-64
+resources/sql/sql_server/field_measure_value_completeness.sql
+  s_ba8ea0ff7052c6::t_75a43342c3c4a2 1-55
+resources/sql/sql_server/field_plausible_after_birth.sql
+  s_ba8ea0ff7052c6::t_8916253b9b7508 1-74
+resources/sql/sql_server/field_plausible_before_death.sql
+  s_ba8ea0ff7052c6::t_aad19665c8eb0a 1-63
+resources/sql/sql_server/field_plausible_during_life.sql
+  s_ba8ea0ff7052c6::t_387e4fcecb0a92 1-62
+resources/sql/sql_server/field_plausible_start_before_end.sql
+  s_ba8ea0ff7052c6::t_c837882ef7f464 1-60
+resources/sql/sql_server/field_plausible_temporal_after.sql
+  s_ba8ea0ff7052c6::t_a86c502b4ef3a8 1-67
+resources/sql/sql_server/field_plausible_value_high.sql
+  s_ba8ea0ff7052c6::t_73e8d0abf18a20 1-60
+resources/sql/sql_server/field_plausible_value_low.sql
+  s_ba8ea0ff7052c6::t_c66b1f0f3223c9 1-57
+resources/sql/sql_server/field_source_value_completeness.sql
+  s_ba8ea0ff7052c6::t_60a111d0d22b2e 1-51
+resources/sql/sql_server/field_within_visit_dates.sql
+  s_ba8ea0ff7052c6::t_88274a2788ccb4 1-56
+resources/sql/sql_server/is_foreign_key.sql
+  s_ba8ea0ff7052c6::t_196d78605b5698 1-62
+resources/sql/sql_server/result_dataframe_ddl.sql
+  s_ba8ea0ff7052c6::t_cff6c05b6e1323 1-34
+resources/sql/sql_server/sqlOnly/cte_sql_for_results_table.sql
+  s_ba8ea0ff7052c6::t_e41fac86a67f06 1-35
+resources/sql/sql_server/sqlOnly/insert_ctes_into_result_table.sql
+  s_ba8ea0ff7052c6::t_62a4e8a15049e9 1-12
+resources/sql/sql_server/table_cdm_table.sql
+  s_ba8ea0ff7052c6::t_e58f6390138a55 1-38
+resources/sql/sql_server/table_concept_completeness.sql
+  s_ba8ea0ff7052c6::t_aac8dad7e21d49 1-58
+resources/sql/sql_server/table_condition_era_completeness.sql
+  s_ba8ea0ff7052c6::t_dc0629abcec041 1-57
+resources/sql/sql_server/table_observation_period_overlap.sql
+  s_ba8ea0ff7052c6::t_e8f3ae7c3dcf56 1-59
+resources/sql/sql_server/table_person_completeness.sql
+  s_ba8ea0ff7052c6::t_739be35e7d61ec 1-56
+resources/viewer/js/loadResults.js
+  s_ba8ea0ff7052c6::t_1da94c0c10628e 1-194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "11f5a09375d5833fb8c6e008ad7f46538d89960e",
+  "prompts": {},
+  "sessions": {
+    "s_ba8ea0ff7052c6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5283c514-85a1-4bb1-891a-eaf3ba84c090",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "ABorakati <ABorakati@users.noreply.github.com>"
+    }
+  }
+}
