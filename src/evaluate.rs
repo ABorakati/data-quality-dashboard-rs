@@ -568,7 +568,8 @@ pub fn calculate_not_applicable(results: &mut Vec<Row>) -> Result<()> {
 }
 
 // R >= 4.0 fround compares distances in the original scale, not rounded x*100.
-fn round_percent(x: f64) -> Value {
+#[doc(hidden)]
+pub fn round_percent(x: f64) -> Value {
     if !x.is_finite() {
         return Value::Null;
     }
