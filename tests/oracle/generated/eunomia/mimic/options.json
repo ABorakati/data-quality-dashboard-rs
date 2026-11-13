@@ -1,0 +1,1 @@
+{"cdmDatabaseSchema":"main","resultsDatabaseSchema":"main","cdmSourceName":"MIMIC","cdmVersion":"5.3","numThreads":1,"writeToTable":false,"writeToCsv":true,"outputFile":"results.json","csvFile":"results.csv"}

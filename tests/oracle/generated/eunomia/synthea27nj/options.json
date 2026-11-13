@@ -1,0 +1,1 @@
+{"cdmDatabaseSchema":"main","resultsDatabaseSchema":"main","cdmSourceName":"Synthea27Nj","cdmVersion":"5.4","numThreads":1,"writeToTable":false,"writeToCsv":true,"outputFile":"results.json","csvFile":"results.csv"}
