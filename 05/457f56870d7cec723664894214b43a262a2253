@@ -1,0 +1,655 @@
+.gitattributes
+  s_ba8ea0ff7052c6::t_0174c3c2227c5a 1-3
+.gitignore
+  s_ba8ea0ff7052c6::t_383328fe6edc3c 1-16
+CHANGELOG.md
+  s_ba8ea0ff7052c6::t_d5f48ebabd649e 1-24
+Cargo.lock
+  s_ba8ea0ff7052c6::t_87544c545471a7 1-1461
+Cargo.toml
+  s_ba8ea0ff7052c6::t_779088259ff039 1-33
+LICENSE
+  s_ba8ea0ff7052c6::t_6e474eaf275b1b 1-200
+NOTICE
+  s_ba8ea0ff7052c6::t_1f4fa4c678fcf3 1-9
+README.md
+  s_ba8ea0ff7052c6::t_b62faf85878a1b 1-98
+crates/db/Cargo.toml
+  s_ba8ea0ff7052c6::t_536ff2375f5426 1-18
+crates/db/README.md
+  s_ba8ea0ff7052c6::t_17169e07409bc4 1-40
+crates/db/src/javacompat.rs
+  s_ba8ea0ff7052c6::t_e2a98fb6068c45 1-497
+crates/db/src/lib.rs
+  s_ba8ea0ff7052c6::t_eed4789e27a00c 1-61
+crates/db/src/pg.rs
+  s_ba8ea0ff7052c6::t_c054a3a031268a 1-747
+crates/db/src/pgparse.rs
+  s_ba8ea0ff7052c6::t_653daaf70769b1 1-244
+crates/db/src/sqlite.rs
+  s_ba8ea0ff7052c6::t_0b9b5dd40139cd 1-590
+crates/db/src/sqlite_codes.rs
+  s_ba8ea0ff7052c6::t_bb6c133800a01b 1-363
+crates/db/src/sqlite_math.rs
+  s_ba8ea0ff7052c6::t_a328a8b85d4b92 1-274
+crates/db/tests/native.rs
+  s_ba8ea0ff7052c6::t_02654621236b1c 1-187
+crates/sqlrender/Cargo.toml
+  s_ba8ea0ff7052c6::t_f7d9ed98e43ebb 1-12
+crates/sqlrender/src/lib.rs
+  s_ba8ea0ff7052c6::t_f85fdd26c54184 1-12
+crates/sqlrender/src/render.rs
+  s_ba8ea0ff7052c6::t_bbb6f63283c430 1-406
+crates/sqlrender/src/split.rs
+  s_ba8ea0ff7052c6::t_9b69dd36a6157a 1-90
+crates/sqlrender/src/strings.rs
+  s_ba8ea0ff7052c6::t_aeb1184d8c89b2 1-232
+crates/sqlrender/src/translate.rs
+  s_ba8ea0ff7052c6::t_05d0b6b0dab966 1-630
+crates/sqlrender/tests/oracle.rs
+  s_ba8ea0ff7052c6::t_278f07db164a08 1-120
+crates/sqlrender/tests/unit.rs
+  s_ba8ea0ff7052c6::t_9f197efaf959a3 1-570
+examples/options.json
+  s_ba8ea0ff7052c6::t_822af5fd875a46 1-35
+resources/csv/OMOP_CDMv5.2_Check_Descriptions.csv
+  s_ba8ea0ff7052c6::t_0814f0483f4ef9 1-29
+resources/csv/OMOP_CDMv5.2_Concept_Level.csv
+  s_ba8ea0ff7052c6::t_24aa002927d835 1-519
+resources/csv/OMOP_CDMv5.2_Field_Level.csv
+  s_ba8ea0ff7052c6::t_a26e37647d3f88 1-304
+resources/csv/OMOP_CDMv5.2_Table_Level.csv
+  s_ba8ea0ff7052c6::t_5a34d7cdf5e9d8 1-78
+resources/csv/OMOP_CDMv5.3_Check_Descriptions.csv
+  s_ba8ea0ff7052c6::t_e3136ea753d21d 1-29
+resources/csv/OMOP_CDMv5.3_Concept_Level.csv
+  s_ba8ea0ff7052c6::t_f60e607a8247d7 1-528
+resources/csv/OMOP_CDMv5.3_Field_Level.csv
+  s_ba8ea0ff7052c6::t_aa15dbf1cf5efc 1-352
+resources/csv/OMOP_CDMv5.3_Table_Level.csv
+  s_ba8ea0ff7052c6::t_5547da800f7502 1-77
+resources/csv/OMOP_CDMv5.4_Check_Descriptions.csv
+  s_ba8ea0ff7052c6::t_5eceafd6e73aca 1-29
+resources/csv/OMOP_CDMv5.4_Concept_Level.csv
+  s_ba8ea0ff7052c6::t_e0c198540cf06b 1-528
+resources/csv/OMOP_CDMv5.4_Field_Level.csv
+  s_ba8ea0ff7052c6::t_90a807210001ae 1-552
+resources/csv/OMOP_CDMv5.4_Table_Level.csv
+  s_ba8ea0ff7052c6::t_dd8c3ad0353054 1-84
+resources/csv/OMOP_CDMv5.5_Check_Descriptions.csv
+  s_ba8ea0ff7052c6::t_3edd0b1e28b41a 1-29
+resources/csv/OMOP_CDMv5.5_Concept_Level.csv
+  s_ba8ea0ff7052c6::t_66de677e6eb05b 1-528
+resources/csv/OMOP_CDMv5.5_Field_Level.csv
+  s_ba8ea0ff7052c6::t_a2da45d4ca676a 1-610
+resources/csv/OMOP_CDMv5.5_Table_Level.csv
+  s_ba8ea0ff7052c6::t_c04355295d2dbf 1-87
+resources/provenance.json
+  s_ba8ea0ff7052c6::t_d50455e80a1cd0 1-26
+resources/sql/sql_server/concept_plausible_gender.sql
+  s_ba8ea0ff7052c6::t_ea5b1b002f5513 1-59
+resources/sql/sql_server/concept_plausible_gender_use_descendants.sql
+  s_ba8ea0ff7052c6::t_e9dac1008197ea 1-63
+resources/sql/sql_server/concept_plausible_unit_concept_ids.sql
+  s_ba8ea0ff7052c6::t_85bb1935b19108 1-63
+resources/sql/sql_server/concept_plausible_value_high.sql
+  s_ba8ea0ff7052c6::t_c48025ff639a16 1-63
+resources/sql/sql_server/concept_plausible_value_low.sql
+  s_ba8ea0ff7052c6::t_ecdaf0ede47cb8 1-61
+resources/sql/sql_server/field_cdm_datatype.sql
+  s_ba8ea0ff7052c6::t_e08be116406854 1-46
+resources/sql/sql_server/field_cdm_field.sql
+  s_ba8ea0ff7052c6::t_a53c398fe30605 1-34
+resources/sql/sql_server/field_concept_record_completeness.sql
+  s_ba8ea0ff7052c6::t_f9b4c9151cae74 1-95
+resources/sql/sql_server/field_fk_class.sql
+  s_ba8ea0ff7052c6::t_b4923c16fb49e7 1-60
+resources/sql/sql_server/field_fk_domain.sql
+  s_ba8ea0ff7052c6::t_6369fce5125f88 1-58
+resources/sql/sql_server/field_is_not_nullable.sql
+  s_ba8ea0ff7052c6::t_79528844bdd2f8 1-54
+resources/sql/sql_server/field_is_primary_key.sql
+  s_ba8ea0ff7052c6::t_d94c54627a909b 1-62
+resources/sql/sql_server/field_is_standard_valid_concept.sql
+  s_ba8ea0ff7052c6::t_b40e4f8d4495f7 1-64
+resources/sql/sql_server/field_measure_value_completeness.sql
+  s_ba8ea0ff7052c6::t_96814982b9ec26 1-55
+resources/sql/sql_server/field_plausible_after_birth.sql
+  s_ba8ea0ff7052c6::t_127f1fe1ec761e 1-74
+resources/sql/sql_server/field_plausible_before_death.sql
+  s_ba8ea0ff7052c6::t_97a7cd4c46e49e 1-63
+resources/sql/sql_server/field_plausible_during_life.sql
+  s_ba8ea0ff7052c6::t_3e34f332c7ee13 1-62
+resources/sql/sql_server/field_plausible_start_before_end.sql
+  s_ba8ea0ff7052c6::t_6866fe19689905 1-60
+resources/sql/sql_server/field_plausible_temporal_after.sql
+  s_ba8ea0ff7052c6::t_35eccc46dc4724 1-67
+resources/sql/sql_server/field_plausible_value_high.sql
+  s_ba8ea0ff7052c6::t_6fddf2100b0428 1-60
+resources/sql/sql_server/field_plausible_value_low.sql
+  s_ba8ea0ff7052c6::t_8c83e4673987db 1-57
+resources/sql/sql_server/field_source_value_completeness.sql
+  s_ba8ea0ff7052c6::t_0d2276bca68490 1-51
+resources/sql/sql_server/field_within_visit_dates.sql
+  s_ba8ea0ff7052c6::t_44311974bf2cd8 1-56
+resources/sql/sql_server/is_foreign_key.sql
+  s_ba8ea0ff7052c6::t_c39a7a5c11006f 1-62
+resources/sql/sql_server/result_dataframe_ddl.sql
+  s_ba8ea0ff7052c6::t_fc912ec845c23b 1-34
+resources/sql/sql_server/sqlOnly/cte_sql_for_results_table.sql
+  s_ba8ea0ff7052c6::t_364351355e88a5 1-35
+resources/sql/sql_server/sqlOnly/insert_ctes_into_result_table.sql
+  s_ba8ea0ff7052c6::t_055eb78468c484 1-12
+resources/sql/sql_server/table_cdm_table.sql
+  s_ba8ea0ff7052c6::t_9ec06be085e63f 1-38
+resources/sql/sql_server/table_concept_completeness.sql
+  s_ba8ea0ff7052c6::t_9338cd146de6a4 1-58
+resources/sql/sql_server/table_condition_era_completeness.sql
+  s_ba8ea0ff7052c6::t_ada0bd1fa108c3 1-57
+resources/sql/sql_server/table_observation_period_overlap.sql
+  s_ba8ea0ff7052c6::t_ec3f6e8bc1ebc3 1-59
+resources/sql/sql_server/table_person_completeness.sql
+  s_ba8ea0ff7052c6::t_5f4e56f9d703d0 1-56
+resources/sqlrender/NOTICE
+  s_ba8ea0ff7052c6::t_e42cd3569332f2 1-7
+resources/sqlrender/provenance.json
+  s_ba8ea0ff7052c6::t_08fda5e554fe64 1-21
+resources/sqlrender/replacementPatterns.csv
+  s_ba8ea0ff7052c6::t_b6269b33518add 1-1451
+resources/sqlrender/supportedDialects.csv
+  s_ba8ea0ff7052c6::t_2af19cd3b7a4d5 1-17
+resources/viewer/css/bridge.css
+  s_ba8ea0ff7052c6::t_023bd40d623ba3 1
+resources/viewer/css/resume.css
+  s_ba8ea0ff7052c6::t_e738a0792dcfd1 1-231
+resources/viewer/htmlwidgets/dqDashPOC.js
+  s_ba8ea0ff7052c6::t_7de3892463d31e 1-14
+resources/viewer/htmlwidgets/dqDashPOC.yaml
+  s_ba8ea0ff7052c6::t_40f2cda5eba508 1-9
+resources/viewer/htmlwidgets/lib/dqCheckRenderer.js
+  s_ba8ea0ff7052c6::t_682c0cf2380dc4 1-51
+resources/viewer/htmlwidgets/lib/dqDashboardComponent.js
+  s_ba8ea0ff7052c6::t_27d2216d1153ae 1-495
+resources/viewer/htmlwidgets/lib/dqDashboardTemplate.hbs
+  s_ba8ea0ff7052c6::t_ce469cdc906784 1-92
+resources/viewer/htmlwidgets/lib/dqDashboardTemplate.hbs.json
+  s_ba8ea0ff7052c6::t_96d44574b2004a 1-68
+resources/viewer/htmlwidgets/lib/dqMetadataComponent.js
+  s_ba8ea0ff7052c6::t_c23a8207ada045 1-48
+resources/viewer/htmlwidgets/lib/dqMetadataHeading.js
+  s_ba8ea0ff7052c6::t_6cc668797617bf 1-61
+resources/viewer/htmlwidgets/lib/handlebars-latest.js
+  s_ba8ea0ff7052c6::t_b96bfddb0e1c33 1-4679
+resources/viewer/index.html
+  s_ba8ea0ff7052c6::t_e49e4d99b89273 1-146
+resources/viewer/js/bridge.js
+  s_ba8ea0ff7052c6::t_e449a1d387b908 1-68
+resources/viewer/js/loadResults.js
+  s_ba8ea0ff7052c6::t_688d1d6722c953 1-194
+resources/viewer/js/resume.js
+  s_ba8ea0ff7052c6::t_c2c469198e0d0f 1-18
+resources/viewer/vendor/bootstrap/css/bootstrap.min.css
+  s_ba8ea0ff7052c6::t_385a170af1434b 1-7
+resources/viewer/vendor/bootstrap/js/bootstrap.min.js
+  s_ba8ea0ff7052c6::t_15c423445262f3 1-7
+resources/viewer/vendor/dt/buttons/1.5.6/css/buttons.dataTables.min.css
+  s_ba8ea0ff7052c6::t_797839aca01c79 1
+resources/viewer/vendor/dt/buttons/1.5.6/js/buttons.colVis.min.js
+  s_ba8ea0ff7052c6::t_c15b91312fc684 1-10
+resources/viewer/vendor/dt/buttons/1.5.6/js/buttons.html5.min.js
+  s_ba8ea0ff7052c6::t_8cac4706b42eef 1-35
+resources/viewer/vendor/dt/buttons/1.5.6/js/dataTables.buttons.min.js
+  s_ba8ea0ff7052c6::t_eeac5b1c0942b6 1-45
+resources/viewer/vendor/dt/v/dt/dt-1.10.18/datatables.min.css
+  s_ba8ea0ff7052c6::t_2d52cd9ca1b2ab 1-15
+resources/viewer/vendor/dt/v/dt/dt-1.10.18/datatables.min.js
+  s_ba8ea0ff7052c6::t_11ac8ae7f5adae 1-180
+resources/viewer/vendor/fontawesome-free/css/all.min.css
+  s_ba8ea0ff7052c6::t_f6b75be536e3e8 1-5
+resources/viewer/vendor/googlefonts/Muli-400,400i,800,800i.css
+  s_ba8ea0ff7052c6::t_f26c9876960caf 1-24
+resources/viewer/vendor/googlefonts/Saira_Extra_Condensed-500,700.css
+  s_ba8ea0ff7052c6::t_167b7e991d7732 1-12
+resources/viewer/vendor/jquery-easing/jquery.easing.min.js
+  s_ba8ea0ff7052c6::t_95946a15c451b1 1
+resources/viewer/vendor/jquery/jquery.min.js
+  s_ba8ea0ff7052c6::t_327bfdef934b4a 1-2
+scripts/check-duplicates.R
+  s_ba8ea0ff7052c6::t_48a75ea9ea4bcf 1-10
+scripts/debug-gibleed.R
+  s_ba8ea0ff7052c6::t_6cbc01ea839215 1-8
+scripts/download-jdbc.R
+  s_ba8ea0ff7052c6::t_7a000e94d7c12a 1-3
+scripts/parity.ps1
+  s_ba8ea0ff7052c6::t_77628048a2cf94 1-44
+scripts/postgres-oracle.ps1
+  s_ba8ea0ff7052c6::t_03557b260b08e9 1-51
+src/catalog.rs
+  s_ba8ea0ff7052c6::t_e3664d498749c0 1-588
+src/database.rs
+  s_ba8ea0ff7052c6::t_60fe421b733f77 1-92
+src/evaluate.rs
+  s_ba8ea0ff7052c6::t_3f52823e9ef945 1-889
+src/lib.rs
+  s_ba8ea0ff7052c6::t_0c1f93740da4f1 1-12
+src/main.rs
+  s_ba8ea0ff7052c6::t_6915be8b20acc7 1-373
+src/model.rs
+  s_ba8ea0ff7052c6::t_77c2498a7e56e2 1-434
+src/results.rs
+  s_ba8ea0ff7052c6::t_a990a9cefdf908 1-887
+src/runner.rs
+  s_ba8ea0ff7052c6::t_5f763ccf0e0c39 1-574
+src/sql.rs
+  s_ba8ea0ff7052c6::t_59aab4deec4b95 1-118
+src/sql_only.rs
+  s_ba8ea0ff7052c6::t_c28d5ffa782713 1-346
+src/viewer.rs
+  s_ba8ea0ff7052c6::t_a12c3d50b2bbf0 1-305
+tests/oracle/csv-default-case.R
+  s_ba8ea0ff7052c6::t_a55d8181f50906 1-78
+tests/oracle/database-cases.R
+  s_ba8ea0ff7052c6::t_8a4684df58efd7 1-73
+tests/oracle/evaluation-cases.R
+  s_ba8ea0ff7052c6::t_6fe917b5bd1c11 1-116
+tests/oracle/export-cases.R
+  s_ba8ea0ff7052c6::t_e9a8ce6e097537 1-51
+tests/oracle/generate.R
+  s_ba8ea0ff7052c6::t_caf84ee0c00071 1-120
+tests/oracle/generated/catalog/5.2.json
+  s_ba8ea0ff7052c6::t_0e477be4dc4e9b 1
+tests/oracle/generated/catalog/5.3.json
+  s_ba8ea0ff7052c6::t_37dfa982fb5746 1
+tests/oracle/generated/catalog/5.4.json
+  s_ba8ea0ff7052c6::t_2919d4d3d00f36 1
+tests/oracle/generated/catalog/5.5.json
+  s_ba8ea0ff7052c6::t_44113d0f6a203a 1
+tests/oracle/generated/database/clean-write-table/db-json/from-database.json
+  s_ba8ea0ff7052c6::t_00b3f3b1f26956 1
+tests/oracle/generated/database/clean-write-table/fields.csv
+  s_ba8ea0ff7052c6::t_a13dc67d3d00b2 1-3
+tests/oracle/generated/database/clean-write-table/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_1ea39049bc7630 1-11
+tests/oracle/generated/database/clean-write-table/results/results.csv
+  s_ba8ea0ff7052c6::t_88d3aedc5e56e4 1-9
+tests/oracle/generated/database/clean-write-table/results/results.json
+  s_ba8ea0ff7052c6::t_85864b44d05309 1
+tests/oracle/generated/database/clean-write-table/tables.csv
+  s_ba8ea0ff7052c6::t_571f3ae95b38a1 1-2
+tests/oracle/generated/database/clean/fields.csv
+  s_ba8ea0ff7052c6::t_ddb05b2e028bb2 1-3
+tests/oracle/generated/database/clean/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_47e23487c43d7a 1-9
+tests/oracle/generated/database/clean/results/results.csv
+  s_ba8ea0ff7052c6::t_3495b803de787c 1-9
+tests/oracle/generated/database/clean/results/results.json
+  s_ba8ea0ff7052c6::t_41034bd76bcb79 1
+tests/oracle/generated/database/clean/tables.csv
+  s_ba8ea0ff7052c6::t_006360ba082c84 1-2
+tests/oracle/generated/database/cohort/fields.csv
+  s_ba8ea0ff7052c6::t_ad861fba544f44 1-3
+tests/oracle/generated/database/cohort/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_b8d90c69e5762c 1-9
+tests/oracle/generated/database/cohort/results/results.csv
+  s_ba8ea0ff7052c6::t_e913703ad61e0c 1-9
+tests/oracle/generated/database/cohort/results/results.json
+  s_ba8ea0ff7052c6::t_dee98a4828d0cf 1
+tests/oracle/generated/database/cohort/tables.csv
+  s_ba8ea0ff7052c6::t_1c2b850eafa84f 1-2
+tests/oracle/generated/database/csv-default/expected.json
+  s_ba8ea0ff7052c6::t_c84788122fe721 1
+tests/oracle/generated/database/csv-default/fields.csv
+  s_ba8ea0ff7052c6::t_fad9acb7e5ebf4 1-3
+tests/oracle/generated/database/csv-default/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_1b3d2f55c4a2bb 1-9
+tests/oracle/generated/database/csv-default/results/results.json
+  s_ba8ea0ff7052c6::t_3af00dc0612516 1
+tests/oracle/generated/database/csv-default/tables.csv
+  s_ba8ea0ff7052c6::t_8fa4ade5cf607b 1-2
+tests/oracle/generated/database/empty-table/fields.csv
+  s_ba8ea0ff7052c6::t_f058d9023e2d2b 1-3
+tests/oracle/generated/database/empty-table/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_36ae8b5f66ff34 1-9
+tests/oracle/generated/database/empty-table/results/results.csv
+  s_ba8ea0ff7052c6::t_616adb1107f70f 1-9
+tests/oracle/generated/database/empty-table/results/results.json
+  s_ba8ea0ff7052c6::t_0cb2d6f7ccf423 1
+tests/oracle/generated/database/empty-table/tables.csv
+  s_ba8ea0ff7052c6::t_76ad7ffe7a84db 1-2
+tests/oracle/generated/database/expected.json
+  s_ba8ea0ff7052c6::t_8916ed348f1337 1
+tests/oracle/generated/database/missing-field/fields.csv
+  s_ba8ea0ff7052c6::t_a6c1b45c19650a 1-2
+tests/oracle/generated/database/missing-field/results/errors/FIELD_cdmField_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_74c0d8267dae54 1-55
+tests/oracle/generated/database/missing-field/results/errors/FIELD_isRequired_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_19c681b751a73e 1-61
+tests/oracle/generated/database/missing-field/results/errors/FIELD_measureValueCompleteness_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_7ff3b823fafc4d 1-63
+tests/oracle/generated/database/missing-field/results/errors/TABLE_measurePersonCompleteness_PERSON_NA.txt
+  s_ba8ea0ff7052c6::t_97df1b24e11f53 1-64
+tests/oracle/generated/database/missing-field/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_774a881226a2d0 1-13
+tests/oracle/generated/database/missing-field/results/results.csv
+  s_ba8ea0ff7052c6::t_8fb5366866de65 1-6
+tests/oracle/generated/database/missing-field/results/results.json
+  s_ba8ea0ff7052c6::t_3dd5656a39571f 1
+tests/oracle/generated/database/missing-field/tables.csv
+  s_ba8ea0ff7052c6::t_a14580125c6846 1-2
+tests/oracle/generated/database/missing-table/fields.csv
+  s_ba8ea0ff7052c6::t_2443e5efe3dac8 1-3
+tests/oracle/generated/database/missing-table/results/errors/FIELD_cdmField_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_baf617a8248bdd 1-55
+tests/oracle/generated/database/missing-table/results/errors/FIELD_cdmField_PERSON_VALUE.txt
+  s_ba8ea0ff7052c6::t_fafa877bb659eb 1-55
+tests/oracle/generated/database/missing-table/results/errors/FIELD_isRequired_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_cdcaedec59856b 1-61
+tests/oracle/generated/database/missing-table/results/errors/FIELD_isRequired_PERSON_VALUE.txt
+  s_ba8ea0ff7052c6::t_f356aa2caddfe8 1-61
+tests/oracle/generated/database/missing-table/results/errors/FIELD_measureValueCompleteness_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_d39050b3e83ec4 1-63
+tests/oracle/generated/database/missing-table/results/errors/FIELD_measureValueCompleteness_PERSON_VALUE.txt
+  s_ba8ea0ff7052c6::t_4c118900a75843 1-63
+tests/oracle/generated/database/missing-table/results/errors/TABLE_cdmTable_PERSON_NA.txt
+  s_ba8ea0ff7052c6::t_1d621feb9f5686 1-59
+tests/oracle/generated/database/missing-table/results/errors/TABLE_measurePersonCompleteness_PERSON_NA.txt
+  s_ba8ea0ff7052c6::t_c77fe69c73ccc9 1-64
+tests/oracle/generated/database/missing-table/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_2939025b6d7837 1-17
+tests/oracle/generated/database/missing-table/results/results.csv
+  s_ba8ea0ff7052c6::t_ca639b4e69dd52 1-9
+tests/oracle/generated/database/missing-table/results/results.json
+  s_ba8ea0ff7052c6::t_2220fb697ac4bc 1
+tests/oracle/generated/database/missing-table/tables.csv
+  s_ba8ea0ff7052c6::t_b9bc419cc53ab7 1-2
+tests/oracle/generated/database/unpopulated-field/fields.csv
+  s_ba8ea0ff7052c6::t_1ae8c70a83bad7 1-3
+tests/oracle/generated/database/unpopulated-field/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_8f077f9d267c8a 1-9
+tests/oracle/generated/database/unpopulated-field/results/results.csv
+  s_ba8ea0ff7052c6::t_4018a1889d45af 1-9
+tests/oracle/generated/database/unpopulated-field/results/results.json
+  s_ba8ea0ff7052c6::t_7b71c7dd09bf41 1
+tests/oracle/generated/database/unpopulated-field/tables.csv
+  s_ba8ea0ff7052c6::t_926e4bd4cd4f9c 1-2
+tests/oracle/generated/database/violating/fields.csv
+  s_ba8ea0ff7052c6::t_9e0e44f390d5bf 1-3
+tests/oracle/generated/database/violating/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_d6589a753b937c 1-9
+tests/oracle/generated/database/violating/results/results.csv
+  s_ba8ea0ff7052c6::t_2757fbe7ad5e15 1-9
+tests/oracle/generated/database/violating/results/results.json
+  s_ba8ea0ff7052c6::t_e74197e61f06f3 1
+tests/oracle/generated/database/violating/tables.csv
+  s_ba8ea0ff7052c6::t_7038f8d3efa0a1 1-2
+tests/oracle/generated/enumeration/5.2-all_tables.json
+  s_ba8ea0ff7052c6::t_b250f5cc83efd5 1
+tests/oracle/generated/enumeration/5.2-concept_characterization.json
+  s_ba8ea0ff7052c6::t_bf322c4060e8b5 1
+tests/oracle/generated/enumeration/5.2-default.json
+  s_ba8ea0ff7052c6::t_57486e038ad116 1
+tests/oracle/generated/enumeration/5.2-field_fatal.json
+  s_ba8ea0ff7052c6::t_19af55618305c8 1
+tests/oracle/generated/enumeration/5.2-lowercase_exclusions.json
+  s_ba8ea0ff7052c6::t_7c0ca986922aeb 1
+tests/oracle/generated/enumeration/5.2-named.json
+  s_ba8ea0ff7052c6::t_96de21b640eb83 1
+tests/oracle/generated/enumeration/5.2-no_checks.json
+  s_ba8ea0ff7052c6::t_be137047f65f5e 1
+tests/oracle/generated/enumeration/5.2-no_severity.json
+  s_ba8ea0ff7052c6::t_21354ba85450ec 1
+tests/oracle/generated/enumeration/5.2-table_convention.json
+  s_ba8ea0ff7052c6::t_92147436a820b5 1
+tests/oracle/generated/enumeration/5.3-all_tables.json
+  s_ba8ea0ff7052c6::t_256453defe4a83 1
+tests/oracle/generated/enumeration/5.3-concept_characterization.json
+  s_ba8ea0ff7052c6::t_05336adc32aa89 1
+tests/oracle/generated/enumeration/5.3-default.json
+  s_ba8ea0ff7052c6::t_b9f0105d289063 1
+tests/oracle/generated/enumeration/5.3-field_fatal.json
+  s_ba8ea0ff7052c6::t_6bde8cfe5e3977 1
+tests/oracle/generated/enumeration/5.3-lowercase_exclusions.json
+  s_ba8ea0ff7052c6::t_0b51f3fffe56a7 1
+tests/oracle/generated/enumeration/5.3-named.json
+  s_ba8ea0ff7052c6::t_14500f13132a69 1
+tests/oracle/generated/enumeration/5.3-no_checks.json
+  s_ba8ea0ff7052c6::t_c66c07357f7a56 1
+tests/oracle/generated/enumeration/5.3-no_severity.json
+  s_ba8ea0ff7052c6::t_5589077bf92a74 1
+tests/oracle/generated/enumeration/5.3-table_convention.json
+  s_ba8ea0ff7052c6::t_861119c47d0571 1
+tests/oracle/generated/enumeration/5.4-all_tables.json
+  s_ba8ea0ff7052c6::t_31c088c6558e92 1
+tests/oracle/generated/enumeration/5.4-concept_characterization.json
+  s_ba8ea0ff7052c6::t_161708ce5baa98 1
+tests/oracle/generated/enumeration/5.4-default.json
+  s_ba8ea0ff7052c6::t_b333385a108bd6 1
+tests/oracle/generated/enumeration/5.4-field_fatal.json
+  s_ba8ea0ff7052c6::t_3e3989a867d30a 1
+tests/oracle/generated/enumeration/5.4-lowercase_exclusions.json
+  s_ba8ea0ff7052c6::t_ed491418b87e12 1
+tests/oracle/generated/enumeration/5.4-named.json
+  s_ba8ea0ff7052c6::t_8c36655fbbc09d 1
+tests/oracle/generated/enumeration/5.4-no_checks.json
+  s_ba8ea0ff7052c6::t_d4ecc66f01b312 1
+tests/oracle/generated/enumeration/5.4-no_severity.json
+  s_ba8ea0ff7052c6::t_ba2fc2d6a8000f 1
+tests/oracle/generated/enumeration/5.4-table_convention.json
+  s_ba8ea0ff7052c6::t_d73d17605d62c5 1
+tests/oracle/generated/enumeration/5.5-all_tables.json
+  s_ba8ea0ff7052c6::t_6f152b4d2e7be4 1
+tests/oracle/generated/enumeration/5.5-concept_characterization.json
+  s_ba8ea0ff7052c6::t_bb5e5958e5b8b6 1
+tests/oracle/generated/enumeration/5.5-default.json
+  s_ba8ea0ff7052c6::t_a58f10370a170f 1
+tests/oracle/generated/enumeration/5.5-field_fatal.json
+  s_ba8ea0ff7052c6::t_7a0405654c3c03 1
+tests/oracle/generated/enumeration/5.5-lowercase_exclusions.json
+  s_ba8ea0ff7052c6::t_367518f2fe8238 1
+tests/oracle/generated/enumeration/5.5-named.json
+  s_ba8ea0ff7052c6::t_72fc36a6d52a66 1
+tests/oracle/generated/enumeration/5.5-no_checks.json
+  s_ba8ea0ff7052c6::t_4a59fc793848f5 1
+tests/oracle/generated/enumeration/5.5-no_severity.json
+  s_ba8ea0ff7052c6::t_fbe398f1f88ec8 1
+tests/oracle/generated/enumeration/5.5-table_convention.json
+  s_ba8ea0ff7052c6::t_e8e13dc8a6a9a6 1
+tests/oracle/generated/evaluation.json
+  s_ba8ea0ff7052c6::t_c64601e7ba1ec5 1
+tests/oracle/generated/exports/expected.json
+  s_ba8ea0ff7052c6::t_0af14177738dc3 1
+tests/oracle/generated/exports/re-evaluate.json
+  s_ba8ea0ff7052c6::t_2234b75c332efa 1
+tests/oracle/generated/exports/rows.json
+  s_ba8ea0ff7052c6::t_22060a9ce85c6d 1
+tests/oracle/generated/exports/sql-incremental/FIELD_isRequired.sql
+  s_ba8ea0ff7052c6::t_cae05ce58609aa 1-7261
+tests/oracle/generated/exports/sql-incremental/TABLE_cdmTable.sql
+  s_ba8ea0ff7052c6::t_ed3d01d890489f 1-2394
+tests/oracle/generated/exports/sql-incremental/ddlDqdResults.sql
+  s_ba8ea0ff7052c6::t_82bbcfcafd6da6 1-32
+tests/oracle/generated/exports/sql-incremental/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_c32ce333b2b143 1-2
+tests/oracle/generated/exports/sql-simple/cdmTable.sql
+  s_ba8ea0ff7052c6::t_6f7672a23c023c 1-1188
+tests/oracle/generated/exports/sql-simple/ddlDqdResults.sql
+  s_ba8ea0ff7052c6::t_8155754f5b8543 1-32
+tests/oracle/generated/exports/sql-simple/isRequired.sql
+  s_ba8ea0ff7052c6::t_5a68dfa0a61d75 1-3710
+tests/oracle/generated/exports/sql-simple/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_5db735a8562c85 1-2
+tests/oracle/generated/gibleed/sqlite/log_DqDashboard_GiBleed.txt
+  s_ba8ea0ff7052c6::t_1bfca19481bd4f 1-37
+tests/oracle/generated/gibleed/sqlite/options.json
+  s_ba8ea0ff7052c6::t_b5623ead7cfb56 1
+tests/oracle/generated/gibleed/sqlite/results.csv
+  s_ba8ea0ff7052c6::t_64c5edb1aa822f 1-2004
+tests/oracle/generated/gibleed/sqlite/results.json
+  s_ba8ea0ff7052c6::t_215ca979db3769 1
+tests/oracle/generated/gibleed/sqlite/timing.json
+  s_ba8ea0ff7052c6::t_75962cc6cb0937 1-16
+tests/oracle/generated/gibleed/sqlite_run2/log_DqDashboard_GiBleed.txt
+  s_ba8ea0ff7052c6::t_d6148ad1b3c17c 1-37
+tests/oracle/generated/gibleed/sqlite_run2/options.json
+  s_ba8ea0ff7052c6::t_62bb14a4a7552f 1
+tests/oracle/generated/gibleed/sqlite_run2/results.csv
+  s_ba8ea0ff7052c6::t_59e3173c47ea06 1-2004
+tests/oracle/generated/gibleed/sqlite_run2/results.json
+  s_ba8ea0ff7052c6::t_ccded18483d235 1
+tests/oracle/generated/gibleed/sqlite_run2/timing.json
+  s_ba8ea0ff7052c6::t_223c210aa85889 1
+tests/oracle/generated/gibleed/sqlite_run4/log_DqDashboard_GiBleed.txt
+  s_ba8ea0ff7052c6::t_7c9c9dc62c19a5 1-2036
+tests/oracle/generated/gibleed/sqlite_run4/results.csv
+  s_ba8ea0ff7052c6::t_d22940a8b4c955 1-2004
+tests/oracle/generated/gibleed/sqlite_run4/results.json
+  s_ba8ea0ff7052c6::t_7c995f66200e85 1
+tests/oracle/generated/manifest.json
+  s_ba8ea0ff7052c6::t_72284a67370740 1
+tests/oracle/generated/postgres/clean-write-table/db-json/from-database.json
+  s_ba8ea0ff7052c6::t_02018a24c8bd07 1
+tests/oracle/generated/postgres/clean-write-table/fields.csv
+  s_ba8ea0ff7052c6::t_127bca393a94ce 1-3
+tests/oracle/generated/postgres/clean-write-table/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_04e2a27cb8464e 1-11
+tests/oracle/generated/postgres/clean-write-table/results/results.csv
+  s_ba8ea0ff7052c6::t_2b44d4a943cc7b 1-9
+tests/oracle/generated/postgres/clean-write-table/results/results.json
+  s_ba8ea0ff7052c6::t_7d1e13de486e7b 1
+tests/oracle/generated/postgres/clean-write-table/tables.csv
+  s_ba8ea0ff7052c6::t_0be3b000411ca0 1-2
+tests/oracle/generated/postgres/clean/fields.csv
+  s_ba8ea0ff7052c6::t_84e29ddf5b4d58 1-3
+tests/oracle/generated/postgres/clean/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_1d3c8e704fb844 1-9
+tests/oracle/generated/postgres/clean/results/results.csv
+  s_ba8ea0ff7052c6::t_72eeb8f3788bbc 1-9
+tests/oracle/generated/postgres/clean/results/results.json
+  s_ba8ea0ff7052c6::t_36b56659c20240 1
+tests/oracle/generated/postgres/clean/tables.csv
+  s_ba8ea0ff7052c6::t_583f113731ed5b 1-2
+tests/oracle/generated/postgres/cohort/fields.csv
+  s_ba8ea0ff7052c6::t_82baed05182b50 1-3
+tests/oracle/generated/postgres/cohort/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_8f9398c95369f9 1-9
+tests/oracle/generated/postgres/cohort/results/results.csv
+  s_ba8ea0ff7052c6::t_bbce14d2700395 1-9
+tests/oracle/generated/postgres/cohort/results/results.json
+  s_ba8ea0ff7052c6::t_5e9db84c464a0b 1
+tests/oracle/generated/postgres/cohort/tables.csv
+  s_ba8ea0ff7052c6::t_b406e2b509d74a 1-2
+tests/oracle/generated/postgres/empty-table/fields.csv
+  s_ba8ea0ff7052c6::t_01d61af4172bb8 1-3
+tests/oracle/generated/postgres/empty-table/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_509d82da4e999a 1-9
+tests/oracle/generated/postgres/empty-table/results/results.csv
+  s_ba8ea0ff7052c6::t_fdb379fa722114 1-9
+tests/oracle/generated/postgres/empty-table/results/results.json
+  s_ba8ea0ff7052c6::t_17ec2da7082603 1
+tests/oracle/generated/postgres/empty-table/tables.csv
+  s_ba8ea0ff7052c6::t_ce361e59fb9600 1-2
+tests/oracle/generated/postgres/expected.json
+  s_ba8ea0ff7052c6::t_27e12e4b010be7 1
+tests/oracle/generated/postgres/gibleed/log_DqDashboard_GiBleed.txt
+  s_ba8ea0ff7052c6::t_238ebd9004f03c 1-32
+tests/oracle/generated/postgres/gibleed/options.json
+  s_ba8ea0ff7052c6::t_7bae0c7b3f85f0 1
+tests/oracle/generated/postgres/gibleed/results.csv
+  s_ba8ea0ff7052c6::t_d0e09c8959bd6d 1-2004
+tests/oracle/generated/postgres/gibleed/results.json
+  s_ba8ea0ff7052c6::t_c4e61456d5a235 1
+tests/oracle/generated/postgres/gibleed/timing.json
+  s_ba8ea0ff7052c6::t_383381a74840d9 1
+tests/oracle/generated/postgres/missing-field/fields.csv
+  s_ba8ea0ff7052c6::t_1f77e171375103 1-2
+tests/oracle/generated/postgres/missing-field/results/errors/FIELD_cdmField_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_022139a5fa58ce 1-56
+tests/oracle/generated/postgres/missing-field/results/errors/FIELD_isRequired_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_2117f972e442d3 1-62
+tests/oracle/generated/postgres/missing-field/results/errors/FIELD_measureValueCompleteness_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_cbe3c47451491f 1-64
+tests/oracle/generated/postgres/missing-field/results/errors/TABLE_measurePersonCompleteness_PERSON_NA.txt
+  s_ba8ea0ff7052c6::t_92ff6e7ae719fc 1-65
+tests/oracle/generated/postgres/missing-field/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_f2f6c7d636aba7 1-13
+tests/oracle/generated/postgres/missing-field/results/results.csv
+  s_ba8ea0ff7052c6::t_be2b943fbf4dbc 1-6
+tests/oracle/generated/postgres/missing-field/results/results.json
+  s_ba8ea0ff7052c6::t_94642a8c7fb1d7 1
+tests/oracle/generated/postgres/missing-field/tables.csv
+  s_ba8ea0ff7052c6::t_7b37fce3b2d2d9 1-2
+tests/oracle/generated/postgres/missing-table/fields.csv
+  s_ba8ea0ff7052c6::t_2bb62f9dcd09ca 1-3
+tests/oracle/generated/postgres/missing-table/results/errors/FIELD_cdmField_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_63c9869f19f904 1-56
+tests/oracle/generated/postgres/missing-table/results/errors/FIELD_cdmField_PERSON_VALUE.txt
+  s_ba8ea0ff7052c6::t_7cfc62b0cb205b 1-56
+tests/oracle/generated/postgres/missing-table/results/errors/FIELD_isRequired_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_65aea63db05ad0 1-62
+tests/oracle/generated/postgres/missing-table/results/errors/FIELD_isRequired_PERSON_VALUE.txt
+  s_ba8ea0ff7052c6::t_75daf62865b66f 1-62
+tests/oracle/generated/postgres/missing-table/results/errors/FIELD_measureValueCompleteness_PERSON_PERSON_ID.txt
+  s_ba8ea0ff7052c6::t_4fe929bafa42d0 1-64
+tests/oracle/generated/postgres/missing-table/results/errors/FIELD_measureValueCompleteness_PERSON_VALUE.txt
+  s_ba8ea0ff7052c6::t_e14c58a374d263 1-64
+tests/oracle/generated/postgres/missing-table/results/errors/TABLE_cdmTable_PERSON_NA.txt
+  s_ba8ea0ff7052c6::t_0f92009d869b8b 1-60
+tests/oracle/generated/postgres/missing-table/results/errors/TABLE_measurePersonCompleteness_PERSON_NA.txt
+  s_ba8ea0ff7052c6::t_243a9fe1db55e0 1-65
+tests/oracle/generated/postgres/missing-table/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_78bbc8ba87acde 1-17
+tests/oracle/generated/postgres/missing-table/results/results.csv
+  s_ba8ea0ff7052c6::t_3622b632d39a53 1-9
+tests/oracle/generated/postgres/missing-table/results/results.json
+  s_ba8ea0ff7052c6::t_6dca53b356427d 1
+tests/oracle/generated/postgres/missing-table/tables.csv
+  s_ba8ea0ff7052c6::t_7043a1fea790ca 1-2
+tests/oracle/generated/postgres/unpopulated-field/fields.csv
+  s_ba8ea0ff7052c6::t_61937f8ac7b9e4 1-3
+tests/oracle/generated/postgres/unpopulated-field/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_7b78c4f952b782 1-9
+tests/oracle/generated/postgres/unpopulated-field/results/results.csv
+  s_ba8ea0ff7052c6::t_f6e2479f297a84 1-9
+tests/oracle/generated/postgres/unpopulated-field/results/results.json
+  s_ba8ea0ff7052c6::t_45fc39d92d7858 1
+tests/oracle/generated/postgres/unpopulated-field/tables.csv
+  s_ba8ea0ff7052c6::t_25fa8024cf0f4d 1-2
+tests/oracle/generated/postgres/violating/fields.csv
+  s_ba8ea0ff7052c6::t_291cd9db384d9f 1-3
+tests/oracle/generated/postgres/violating/results/log_DqDashboard_Parity.txt
+  s_ba8ea0ff7052c6::t_99af2030ce7e31 1-9
+tests/oracle/generated/postgres/violating/results/results.csv
+  s_ba8ea0ff7052c6::t_71c3ae8f1a21d4 1-9
+tests/oracle/generated/postgres/violating/results/results.json
+  s_ba8ea0ff7052c6::t_2f0b177391ce4c 1
+tests/oracle/generated/postgres/violating/tables.csv
+  s_ba8ea0ff7052c6::t_485369dd33af44 1-2
+tests/oracle/generated/render.json
+  s_ba8ea0ff7052c6::t_852862aa78902a 1
+tests/oracle/generated/summary.json
+  s_ba8ea0ff7052c6::t_e18175a1cab491 1
+tests/oracle/gibleed-cases.R
+  s_ba8ea0ff7052c6::t_499174534697fb 1-92
+tests/oracle/observe-json.R
+  s_ba8ea0ff7052c6::t_9909aa4a1eb398 1-22
+tests/oracle/postgres-cases.R
+  s_ba8ea0ff7052c6::t_d90ed259746dd1 1-211
+tests/parity.rs
+  s_ba8ea0ff7052c6::t_2d7c8c0200d488 1-1035
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "05457f56870d7cec723664894214b43a262a2253",
+  "prompts": {},
+  "sessions": {
+    "s_ba8ea0ff7052c6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5283c514-85a1-4bb1-891a-eaf3ba84c090",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "ABorakati <ABorakati@users.noreply.github.com>"
+    }
+  }
+}
