@@ -39,6 +39,10 @@ Use `--sql-only true` to export check SQL without connecting to the CDM. Set `ou
 
 The CLI accepts matching kebab-case overrides, such as `--cdm-version 5.4`, `--check-levels TABLE,FIELD`, `--num-threads 4`, `--sqlite-path cdm.sqlite`, and `--server localhost/omop --port 5432`. The JSON configuration uses camelCase. CLI values override JSON values.
 
+`numThreads` defaults to 8, capped at the machine's available parallelism. Upstream's default is
+1, but 8 was the fastest setting on SQLite in `docs/performance.md`, and results do not depend on
+the thread count. Set `"numThreads": 1` or `--num-threads 1` for upstream's single-worker run.
+
 ```sh
 cargo run -- list-checks --config examples/options.json
 cargo run -- run --config examples/options.json --sql-only true

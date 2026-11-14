@@ -410,7 +410,17 @@ fn invalid_cdm_versions_fail_like_upstream() {
 fn default_arguments_match_execute_dq_checks_formals() {
     let expected = &case("default-arguments")["defaults"];
     let actual = serde_json::to_value(Options::default()).unwrap();
+    // Deliberate divergence: upstream defaults to 1 worker; the port defaults to 8 (capped at
+    // the CPU count), its fastest setting (docs/performance.md). Results do not depend on it.
+    assert_eq!(expected["numThreads"], 1, "upstream numThreads default");
+    assert_eq!(
+        actual["numThreads"],
+        data_quality_dashboard::model::default_num_threads()
+    );
     for (name, expected) in expected.as_object().unwrap() {
+        if name == "numThreads" {
+            continue;
+        }
         let actual = &actual[name];
         // R's c() is NULL; the Rust default is an empty vector.
         let expected = match expected {

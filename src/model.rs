@@ -70,7 +70,7 @@ impl Default for Options {
             results_database_schema: String::new(),
             vocab_database_schema: String::new(),
             cdm_source_name: String::new(),
-            num_threads: 1.0,
+            num_threads: default_num_threads(),
             sql_only: false,
             sql_only_union_count: 1.0,
             sql_only_incremental_insert: false,
@@ -112,6 +112,17 @@ impl Default for Options {
             connection: ConnectionConfig::default(),
         }
     }
+}
+
+/// Default worker count when neither the options file nor the CLI sets `numThreads`: 8, the
+/// fastest setting measured on SQLite (`docs/performance.md`), capped at the machine's available
+/// parallelism. This deliberately diverges from upstream's `numThreads = 1`; results do not
+/// depend on the thread count.
+pub const PREFERRED_NUM_THREADS: usize = 8;
+
+pub fn default_num_threads() -> f64 {
+    let available = std::thread::available_parallelism().map_or(1, usize::from);
+    PREFERRED_NUM_THREADS.min(available) as f64
 }
 
 impl<'de> Deserialize<'de> for Options {
@@ -386,6 +397,16 @@ mod tests {
             serde_json::from_value(json!({"cdmDatabaseSchema":"cdm","vocabDatabaseSchema":""}))
                 .unwrap();
         assert_eq!(explicit.vocab_database_schema, "");
+    }
+
+    #[test]
+    fn num_threads_defaults_to_eight_capped_by_cpus_and_explicit_values_win() {
+        let available = std::thread::available_parallelism().map_or(1, usize::from);
+        let unset: Options = serde_json::from_value(json!({})).unwrap();
+        assert_eq!(unset.num_threads, 8.min(available) as f64);
+        assert_eq!(Options::default().num_threads, unset.num_threads);
+        let explicit: Options = serde_json::from_value(json!({"numThreads": 1})).unwrap();
+        assert_eq!(explicit.num_threads, 1.0);
     }
 
     #[test]

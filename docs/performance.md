@@ -29,10 +29,11 @@ changed. Compare within a row of one pass, not across passes.
 **Fastest thread count: 8 on both databases.** Best before against best after: QUOD 31.5 s
 (4 threads) → 8.6 s (8 threads), 3.7× faster; GiBleed 22.1 s (4 threads) → 5.1 s (8 threads),
 4.3× faster. Against the default single-threaded run before the change, the gain is 4.3× for QUOD
-and 6.6× for GiBleed. The default stays `numThreads = 1`,
-because that is upstream's `executeDqChecks` default and `upstream::default_arguments_match_execute_dq_checks_formals`
-checks it. Pass `--num-threads 8`, or `"numThreads": 8` in the options file, for speed.
-Results do not depend on the thread count: `parity::gibleed_sqlite_run_matches_upstream_results_and_metadata`
+and 6.6× for GiBleed. So the port's default is now `numThreads = 8`, capped at
+`std::thread::available_parallelism()` so that small machines are not oversubscribed. This
+deliberately diverges from upstream's `executeDqChecks` default of 1, and
+`upstream::default_arguments_match_execute_dq_checks_formals` records the divergence. An explicit
+`numThreads` or `--num-threads` still wins. Results do not depend on the thread count: `parity::gibleed_sqlite_run_matches_upstream_results_and_metadata`
 runs at 1 and 4 threads.
 
 ## What changed
