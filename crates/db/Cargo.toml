@@ -11,10 +11,12 @@ keywords = ["omop", "ohdsi", "sqlite", "postgresql", "duckdb"]
 categories = ["database"]
 
 [features]
-default = ["duckdb"]
+default = ["duckdb", "tls"]
 # DuckDB support; links the prebuilt DuckDB shared library. Turn it off (`--no-default-features`) for
 # a SQLite and PostgreSQL only build that needs no DuckDB library at build or run time.
 duckdb = ["dep:duckdb"]
+# PostgreSQL TLS: pure Rust (rustls), no system OpenSSL.
+tls = ["dep:tokio-postgres-rustls", "dep:rustls", "dep:rustls-native-certs", "dep:webpki-roots"]
 
 [dependencies]
 anyhow = "1"
@@ -32,3 +34,8 @@ regex = "1"
 chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
 chrono-tz = "0.10"
 iana-time-zone = "0.1"
+# PostgreSQL TLS (feature `tls`): pure Rust, no system OpenSSL.
+tokio-postgres-rustls = { version = "0.14", default-features = false, features = ["ring"], optional = true }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"], optional = true }
+rustls-native-certs = { version = "0.8", optional = true }
+webpki-roots = { version = "1", optional = true }

@@ -7,16 +7,17 @@ use crate::javacompat::{
     timestamp_new,
 };
 use crate::{ConnectSpec, Connection, Row};
-use postgres::config::SslMode;
 use postgres::error::DbError as ServerError;
 use postgres::error::ErrorPosition;
 use postgres::types::{IsNull, ToSql, Type, to_sql_checked};
-use postgres::{Client, Config, NoTls, SimpleQueryMessage, Statement};
+use postgres::{Client, Config, SimpleQueryMessage, Statement};
 use serde_json::{Number, Value};
 use std::collections::HashMap;
 use std::error::Error as StdError;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
+
+mod tls;
 
 const PSQL_EXCEPTION: &str = "org.postgresql.util.PSQLException";
 
@@ -61,20 +62,35 @@ fn connection_error(error: postgres::Error, host: &str, port: u16) -> DbError {
     }
     let mut source: Option<&(dyn StdError + 'static)> = Some(&error);
     while let Some(cause) = source {
-        #[allow(clippy::collapsible_if)] // kept nested to keep this hunk clear of the TLS changes
-        if let Some(io) = cause.downcast_ref::<std::io::Error>() {
-            if io.kind() == std::io::ErrorKind::ConnectionRefused {
-                return psql(
-                    format!(
-                        "Connection to {host}:{port} refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections."
-                    ),
-                    "08001",
-                );
-            }
+        // TLS failures: tokio-postgres reports "error performing TLS handshake" with the cause below it.
+        if let Some(tls) = tls_error(cause) {
+            return tls;
+        }
+        if let Some(io) = cause.downcast_ref::<std::io::Error>()
+            && io.kind() == std::io::ErrorKind::ConnectionRefused
+        {
+            return psql(
+                format!(
+                    "Connection to {host}:{port} refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections."
+                ),
+                "08001",
+            );
         }
         source = cause.source();
     }
     psql("The connection attempt failed.", "08001")
+}
+
+/// pgjdbc's texts for the two TLS failures a user can act on.
+fn tls_error(cause: &(dyn StdError + 'static)) -> Option<DbError> {
+    let text = cause.to_string();
+    if text == "server does not support TLS" {
+        return Some(psql("The server does not support SSL.", "08004"));
+    }
+    // The io::Error that tokio-rustls returns wraps the rustls error; show its text.
+    let io = cause.downcast_ref::<std::io::Error>()?;
+    let inner = io.get_ref()?;
+    Some(psql(format!("SSL error: {inner}"), "08006"))
 }
 
 fn request_error(error: postgres::Error) -> DbError {
@@ -110,6 +126,17 @@ fn percent_decode(text: &str) -> String {
     String::from_utf8_lossy(&out).into_owned()
 }
 
+/// The `key=value` pairs of a pgjdbc URL query string, percent-decoded.
+fn query_pairs(query: &str) -> impl Iterator<Item = (String, String)> + '_ {
+    query
+        .split('&')
+        .filter(|p| !p.is_empty())
+        .map(|pair| match pair.split_once('=') {
+            Some((key, value)) => (percent_decode(key), percent_decode(value)),
+            None => (percent_decode(pair), String::new()),
+        })
+}
+
 impl PgConnection {
     pub fn connect(spec: &ConnectSpec) -> anyhow::Result<Self> {
         let server = spec
@@ -128,10 +155,13 @@ impl PgConnection {
             parts.pop();
         }
         let host = parts[0].to_owned();
-        let database_and_query = parts
-            .get(1)
-            .map(|s| (*s).to_owned())
-            .unwrap_or_else(|| "NA".into());
+        // A '/' inside the query (e.g. `sslrootcert=/etc/ssl/root.crt`) belongs to the query, not to the
+        // host/database separator.
+        let database_and_query = match parts.get(1) {
+            Some(first) if first.contains('?') => parts[1..].join("/"),
+            Some(first) => (*first).to_owned(),
+            None => "NA".into(),
+        };
         let port = spec.port.unwrap_or(5432);
 
         let (database, query) = match database_and_query.split_once('?') {
@@ -145,41 +175,27 @@ impl PgConnection {
             (None, _) => password = None,
             _ => {}
         }
-        let mut ssl_mode = "prefer".to_owned();
+        let mut ssl = tls::SslParams::default();
         let mut connect_timeout = 10u64;
         let mut application_name = "PostgreSQL JDBC Driver".to_owned();
         let mut current_schema: Option<String> = None;
-        for pair in query.split('&').filter(|p| !p.is_empty()) {
-            let (key, value) = match pair.split_once('=') {
-                Some((key, value)) => (percent_decode(key), percent_decode(value)),
-                None => (percent_decode(pair), String::new()),
-            };
+        for (key, value) in query_pairs(&query) {
+            if ssl.record(&key, &value) {
+                continue;
+            }
             match key.as_str() {
                 "user" => user = Some(value),
                 "password" => password = Some(value),
-                "sslmode" => ssl_mode = value,
-                "ssl" if value.eq_ignore_ascii_case("true") || value.is_empty() => {
-                    ssl_mode = "verify-full".into()
-                }
                 "connectTimeout" => connect_timeout = value.parse().unwrap_or(10),
                 "ApplicationName" => application_name = value,
                 "currentSchema" => current_schema = Some(value),
                 _ => {}
             }
         }
-        let tls_mode = match ssl_mode.as_str() {
-            "disable" => SslMode::Disable,
-            "allow" | "prefer" => SslMode::Prefer,
-            other => {
-                return Err(DbError::new(
-                    PSQL_EXCEPTION,
-                    format!("sslmode={other} requires TLS, which this build of dqd-db does not support. Use sslmode=disable, allow or prefer."),
-                    "08004",
-                    0,
-                )
-                .into());
-            }
-        };
+        let tls_settings = ssl.resolve()?;
+        if let Some(error) = tls_settings.unsupported() {
+            return Err(error.into());
+        }
 
         let host_name = if host.is_empty() {
             "localhost".to_owned()
@@ -217,7 +233,6 @@ impl PgConnection {
             .dbname(&database_name)
             .application_name(&application_name)
             .options(&options)
-            .ssl_mode(tls_mode)
             .connect_timeout(Duration::from_secs(connect_timeout))
             .notice_callback(move |notice| {
                 if let Ok(mut notices) = sink.lock() {
@@ -227,9 +242,7 @@ impl PgConnection {
         if let Some(password) = &password {
             config.password(password);
         }
-        let client = config
-            .connect(NoTls)
-            .map_err(|error| connection_error(error, &host_name, port))?;
+        let client = tls::connect(&config, &tls_settings, &host_name, port)?;
         Ok(PgConnection {
             client,
             notices,

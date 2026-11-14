@@ -32,8 +32,11 @@ name = "dqd"
 path = "src/main.rs"
 
 [features]
-default = ["duckdb"]
+default = ["duckdb", "tls"]
+# DuckDB support; links DuckDB's prebuilt shared library. Turn it off for a SQLite and PostgreSQL build.
 duckdb = ["dqd-db/duckdb"]
+# PostgreSQL TLS (rustls, pure Rust). Without it `sslmode=require` and stronger are rejected.
+tls = ["dqd-db/tls"]
 
 [dependencies]
 anyhow = "1"
