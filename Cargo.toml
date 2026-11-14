@@ -6,7 +6,7 @@ exclude = ["crates/sqlrender/fuzz"]
 edition = "2024"
 license = "Apache-2.0"
 repository = "https://github.com/ABorakati/data-quality-dashboard-rs"
-rust-version = "1.88"
+rust-version = "1.97"
 
 [package]
 name = "data-quality-dashboard"

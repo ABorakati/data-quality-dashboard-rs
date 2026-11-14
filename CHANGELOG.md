@@ -47,7 +47,7 @@
 - Packaging: DuckDB is now the optional Cargo feature `duckdb` (default on) of `dqd-db` and the root crate. `--no-default-features` builds a SQLite and PostgreSQL only `dqd` that needs no DuckDB library, and `--dbms duckdb` then fails with "this build was compiled without DuckDB support".
 - Linux and macOS builds with DuckDB carry an `$ORIGIN` / `@loader_path` run path, so `dqd` finds `libduckdb.so` / `libduckdb.dylib` in its own folder.
 - Move SqlRender's `replacementPatterns.csv` and `supportedDialects.csv`, with their NOTICE and provenance, from `resources/sqlrender/` to `crates/sqlrender/data/`, so `dqd-sqlrender` packages on its own. The main crate reads `dqd_sqlrender::SUPPORTED_DIALECTS_CSV`.
-- Add crates.io metadata (repository, readme, keywords, categories, `rust-version = "1.88"`) and exclude the test fixtures, scripts and fuzz harness from the published packages.
+- Add crates.io metadata (repository, readme, keywords, categories, `rust-version = "1.97"`) and exclude the test fixtures, scripts and fuzz harness from the published packages.
 
 ## 2.9.0
 

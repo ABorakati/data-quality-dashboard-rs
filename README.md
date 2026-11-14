@@ -81,7 +81,7 @@ The results are written to `outputFolder`, in the file named by `outputFile`.
 
 ## Requirements
 
-- Rust 1.88 or later (edition 2024). The minimum is set by the DuckDB bindings and the dev-dependencies.
+- Rust 1.97 or later (edition 2024). This is the declared minimum (`rust-version`), tested in CI; no dependency needs more than 1.88.
 - A reachable SQLite file, DuckDB file or PostgreSQL server holding the CDM.
 - For DuckDB, DuckDB's prebuilt 2.0.0 shared library. DuckDB support is the Cargo feature `duckdb`, which
   is on by default. The build downloads the library from DuckDB's GitHub release (`duckdb` crate,
