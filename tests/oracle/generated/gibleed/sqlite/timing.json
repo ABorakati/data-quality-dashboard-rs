@@ -1,16 +1,1 @@
-{
-  "r_elapsed_seconds": 205.45000000000002,
-  "total_checks": 2002,
-  "status_counts": {
-    "passed": 924,
-    "failed": 35,
-    "not_applicable": 1043,
-    "error": 0
-  },
-  "versions": {
-    "DQD": "2.9.0",
-    "DatabaseConnector": "8.0.0",
-    "SqlRender": "1.19.7",
-    "R": "R version 4.5.2 (2025-10-31 ucrt)"
-  }
-}
+{"r_elapsed_seconds":60.530000000000001,"total_checks":2002,"status_counts":{"passed":924,"failed":35,"not_applicable":1043,"error":0},"versions":{"DQD":"2.9.0","DatabaseConnector":"8.0.0","SqlRender":"1.19.7","R":"R version 4.5.2 (2025-10-31 ucrt)"}}

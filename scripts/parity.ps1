@@ -1,5 +1,7 @@
 param(
-  [string]$Upstream = 'C:/Users/abora/tmp/dqd-upstream',
+  # An LF checkout (core.autocrlf=false) of the pin: the bytes of upstream's git blobs, which a
+  # CRAN or GitHub install ships. A Windows checkout with autocrlf turns every template into CRLF.
+  [string]$Upstream = 'C:/Users/abora/tmp/dqd-upstream-lf',
   [string]$OracleOut = 'C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated',
   [string]$Rscript = 'C:/Program Files/R/R-4.5.2/bin/Rscript.exe',
   [string]$RLibrary = 'C:/Users/abora/tmp/dqd-r-oracle-library',

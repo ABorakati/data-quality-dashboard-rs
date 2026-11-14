@@ -7,10 +7,7 @@ use data_quality_dashboard::{
     sql_only,
 };
 use serde_json::{Value, json};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{fs, path::Path};
 mod common;
 use common::*;
 fn opts(version: &str) -> Options {
@@ -450,7 +447,7 @@ fn result_export_modes_match_upstream_json_csv_and_sql_files() {
             let written = fs::read(output).unwrap();
             assert_eq!(
                 written,
-                case["expectedWritten"].as_str().unwrap().as_bytes(),
+                platform_text(case["expectedWritten"].as_str().unwrap()).as_bytes(),
                 "{name} exact jsonlite bytes"
             );
         }
@@ -616,12 +613,11 @@ fn real_sqlite_database_runs_match_upstream_check_rows_and_metadata() {
     let cases = fixture("database/expected.json");
     for name in DATABASE_SCENARIOS {
         let case = &cases[name];
-        let source = PathBuf::from(case["sqlite"].as_str().unwrap());
+        let source = fixture_path(case["sqlite"].as_str().unwrap());
         let temporary = tempfile::tempdir().unwrap();
         let working = temporary.path().join("cdm.sqlite");
         fs::copy(&source, &working).unwrap();
-        let mut options: Options =
-            serde_json::from_value(case["options"].clone()).expect("decode upstream options");
+        let mut options: Options = case_options(&case["options"]);
         options.connection.sqlite_path = Some(working);
         options.output_folder = temporary.path().join("results");
         options.dbms = "sqlite".into();
@@ -680,7 +676,7 @@ fn real_sqlite_cdm_source_preflight_failures_match_upstream() {
         let case = &cases[name];
         let temporary = tempfile::tempdir().unwrap();
         let working = temporary.path().join("cdm.sqlite");
-        fs::copy(case["sqlite"].as_str().unwrap(), &working).unwrap();
+        fs::copy(fixture_path(case["sqlite"].as_str().unwrap()), &working).unwrap();
         let mut options = preflight_options("main", "sqlite", temporary.path());
         options.connection.sqlite_path = Some(working);
         assert_preflight_failure(name, case, &options);
@@ -720,8 +716,7 @@ fn real_postgresql_database_runs_match_upstream_check_rows_and_metadata() {
         assert_eq!(case["scenario"], name);
         let schema = case["schema"].as_str().unwrap();
         let temporary = tempfile::tempdir().unwrap();
-        let mut options: Options =
-            serde_json::from_value(case["options"].clone()).expect("decode upstream options");
+        let mut options: Options = case_options(&case["options"]);
         options.connection = pg_connection(case, port);
         options.output_folder = temporary.path().join("results");
         options.dbms = "postgresql".into();
@@ -855,9 +850,8 @@ fn empty_csv_file_fails_after_json_and_table_writes_like_upstream() {
     assert!(!case["expected"]["ok"].as_bool().unwrap());
     let temporary = tempfile::tempdir().unwrap();
     let working = temporary.path().join("cdm.sqlite");
-    fs::copy(case["sqlite"].as_str().unwrap(), &working).unwrap();
-    let mut options: Options =
-        serde_json::from_value(case["options"].clone()).expect("decode upstream options");
+    fs::copy(fixture_path(case["sqlite"].as_str().unwrap()), &working).unwrap();
+    let mut options: Options = case_options(&case["options"]);
     assert!(options.write_to_csv && options.csv_file.is_empty() && options.write_to_table);
     options.connection.sqlite_path = Some(working);
     options.output_folder = temporary.path().join("results");

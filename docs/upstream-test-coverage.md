@@ -20,14 +20,15 @@ It runs the Rust port and compares all of those outputs with the oracle, not onl
 assertions. `upstream_assertions_hold_for_rust_results` also re-checks the upstream assertions
 themselves.
 
-To regenerate the fixtures (about 4 minutes):
+To regenerate these fixtures (about 4 minutes):
 
 ```bash
-Rscript --vanilla tests/oracle/upstream-testthat-cases.R C:/Users/abora/tmp/dqd-upstream tests/oracle/generated/upstream tests/oracle/generated/gibleed/sqlite/gibleed-copy.sqlite
+pwsh -NoProfile -File scripts/regenerate-oracles.ps1 -Only upstream
 ```
 
-Run it with the environment that `scripts/parity.ps1` sets (`JAVA_HOME`, `DQD_R_LIBRARY`). The
-cases are keyed by name in `tests/oracle/generated/upstream/expected.json`.
+Leave out `-Only` to regenerate every oracle. The script uses the LF checkout of the pin
+(`C:/Users/abora/tmp/dqd-upstream-lf`; `CHANGELOG.md` explains why). The cases are keyed by name in
+`tests/oracle/generated/upstream/expected.json`.
 
 ## Mapping
 

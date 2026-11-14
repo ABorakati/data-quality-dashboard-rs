@@ -484,7 +484,11 @@ fn sql_only_files_match_upstream_for_each_dialect_and_mode() {
             }
             for (file, expected) in case["files"].as_object().unwrap() {
                 let actual = fs::read_to_string(options.output_folder.join(file)).unwrap();
-                assert_eq!(actual, expected.as_str().unwrap(), "{name}/{file}");
+                assert_eq!(
+                    actual,
+                    platform_text(expected.as_str().unwrap()),
+                    "{name}/{file}"
+                );
             }
         }
     }
@@ -559,12 +563,12 @@ fn incremental_insert_sql_is_valid_and_inserts_upstream_rows() {
     // SqlRender::readSql returns the file's exact characters.
     assert_eq!(
         ddl,
-        case["files"]["ddl"].as_str().unwrap(),
+        platform_text(case["files"]["ddl"].as_str().unwrap()),
         "ddlDqdResults.sql"
     );
     assert_eq!(
         check,
-        case["files"]["check"].as_str().unwrap(),
+        platform_text(case["files"]["check"].as_str().unwrap()),
         "TABLE_measurePersonCompleteness.sql"
     );
     assert!(case["executed"]["ok"].as_bool().unwrap());

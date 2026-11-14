@@ -15,6 +15,44 @@ pub fn oracle() -> PathBuf {
         .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/oracle/generated"))
 }
 
+/// A fixture file whose absolute path an oracle recorded on the generating machine
+/// (`.../tests/oracle/generated/<rest>`), resolved below this checkout's oracle root.
+pub fn fixture_path(recorded: &str) -> PathBuf {
+    let normalized = recorded.replace('\\', "/");
+    match normalized.split_once("/tests/oracle/generated/") {
+        Some((_, rest)) => oracle().join(rest),
+        None => PathBuf::from(recorded),
+    }
+}
+
+/// Options decoded from an oracle case, with recorded threshold-file paths resolved below this
+/// checkout's oracle root.
+pub fn case_options(value: &Value) -> Options {
+    let mut options: Options =
+        serde_json::from_value(value.clone()).expect("decode upstream options");
+    for location in [
+        &mut options.table_check_threshold_loc,
+        &mut options.field_check_threshold_loc,
+        &mut options.concept_check_threshold_loc,
+    ] {
+        if location.as_str() != "default" {
+            *location = fixture_path(location).to_string_lossy().into_owned();
+        }
+    }
+    options
+}
+
+/// Text that R wrote through a text-mode connection, as R would have written it on this
+/// platform. The oracles run on Windows, where `\n` becomes `\r\n`; on other platforms the port
+/// writes `\n`, as R does there.
+pub fn platform_text(windows_text: &str) -> String {
+    if cfg!(windows) {
+        windows_text.to_owned()
+    } else {
+        windows_text.replace("\r\n", "\n")
+    }
+}
+
 /// Reads one JSON fixture below the oracle root.
 pub fn fixture(name: &str) -> Value {
     read_json(&oracle().join(name))
@@ -85,6 +123,7 @@ pub fn normalize_error_report_path(error: &str) -> String {
 
 /// Parses result CSV text, blanking `executionTime` and normalizing error report paths.
 pub fn csv_records(text: &str) -> Vec<Vec<String>> {
+    let text = platform_text(text);
     let mut reader = csv::Reader::from_reader(text.as_bytes());
     let headers = reader.headers().expect("CSV header").clone();
     let execution_time = headers.iter().position(|header| header == "executionTime");

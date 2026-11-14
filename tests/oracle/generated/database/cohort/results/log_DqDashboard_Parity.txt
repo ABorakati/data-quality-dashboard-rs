@@ -1,9 +1,9 @@
-2026-10-07 19:14:02	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: cdmTable
-2026-10-07 19:14:02	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: measurePersonCompleteness
-2026-10-07 19:14:03	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: cdmField
-2026-10-07 19:14:03	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: isRequired
-2026-10-07 19:14:03	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: measureValueCompleteness
-2026-10-07 19:14:04	[Main thread]	INFO	DataQualityDashboard	.writeResultsToJson	Writing results to file: C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/database/cohort/results/results.json
-2026-10-07 19:14:04	[Main thread]	INFO	DataQualityDashboard		Execution Complete
-2026-10-07 19:14:04	[Main thread]	INFO	DataQualityDashboard	.writeResultsToCsv	Writing results to CSV file C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/database/cohort/results/results.csv
-2026-10-07 19:14:04	[Main thread]	INFO	DataQualityDashboard	.writeResultsToCsv	Finished writing to CSV file
+2026-11-14 00:11:57	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: cdmTable
+2026-11-14 00:11:57	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: measurePersonCompleteness
+2026-11-14 00:11:57	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: cdmField
+2026-11-14 00:11:57	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: isRequired
+2026-11-14 00:11:57	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: measureValueCompleteness
+2026-11-14 00:11:57	[Main thread]	INFO	DataQualityDashboard	.writeResultsToJson	Writing results to file: C:\Users\abora\tmp\data-quality-dashboard-rs\tests\oracle\generated/database/cohort/results/results.json
+2026-11-14 00:11:57	[Main thread]	INFO	DataQualityDashboard		Execution Complete
+2026-11-14 00:11:57	[Main thread]	INFO	DataQualityDashboard	.writeResultsToCsv	Writing results to CSV file C:\Users\abora\tmp\data-quality-dashboard-rs\tests\oracle\generated/database/cohort/results/results.csv
+2026-11-14 00:11:57	[Main thread]	INFO	DataQualityDashboard	.writeResultsToCsv	Finished writing to CSV file

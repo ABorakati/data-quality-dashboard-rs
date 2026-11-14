@@ -3,7 +3,7 @@ postgresql
 
 Error:
 org.postgresql.util.PSQLException: ERROR: column cdmtable.person_id does not exist
-  Position: 445
+  Position: 427
 
 SQL:
 /*********

@@ -3,7 +3,7 @@ postgresql
 
 Error:
 org.postgresql.util.PSQLException: ERROR: relation "missing_table.person" does not exist
-  Position: 402
+  Position: 385
 
 SQL:
 /*********
