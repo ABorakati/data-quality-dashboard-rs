@@ -82,6 +82,23 @@ SOFTWARE.
 Full licence texts: Font Awesome at <https://fontawesome.com/license/free>; CC BY 4.0 at
 <https://creativecommons.org/licenses/by/4.0/legalcode>; SIL OFL 1.1 at <https://openfontlicense.org>.
 
+## Test data
+
+The parity fixtures in `tests/oracle/generated` include three databases that come from the R package Eunomia 2.1.0. See
+[docs/test-data.md](docs/test-data.md) for how they were obtained and how to rebuild them.
+
+| Data | Files | Source | Licence |
+|---|---|---|---|
+| MIMIC-IV demo in the OMOP CDM v0.9 (100 de-identified patients) | `tests/oracle/generated/eunomia/mimic/cdm.sqlite` | [PhysioNet](https://physionet.org/content/mimic-iv-demo-omop/), derived from the [MIMIC-IV Clinical Database Demo](https://physionet.org/content/mimic-iv-demo/), via OHDSI's `EunomiaDatasets` | [Open Data Commons Open Database License v1.0](https://opendatacommons.org/licenses/odbl/) |
+| GiBleed (CDM 5.3) and Synthea27Nj (CDM 5.4), synthetic | `tests/oracle/generated/gibleed/sqlite/gibleed-copy.sqlite`, `tests/oracle/generated/duckdb/gibleed/cdm.duckdb`, `tests/oracle/generated/eunomia/synthea27nj/cdm.sqlite` | [Synthea](https://synthetichealth.github.io/synthea/), converted by OHDSI's [ETL-Synthea](https://github.com/OHDSI/ETL-Synthea), via `EunomiaDatasets` | Synthetic data, no real patients. Terms not separately verified |
+
+**MIMIC.** The MIMIC database file is licensed under the ODbL v1.0, not under this project's Apache-2.0 licence. It is
+the PhysioNet MIMIC-IV demo data as Eunomia delivers it (not yet compared byte for byte; see open item 5). Anyone redistributing it, or a database derived from it,
+must keep this notice, attribute PhysioNet and the MIMIC-IV authors, and offer a derived database under the ODbL. Cite
+the data as the PhysioNet pages above ask. The results files derived from it (`results.json`, `results.csv` and logs in
+`tests/oracle/generated/eunomia/mimic`) hold aggregate counts and check SQL, not patient rows. This project does not
+include, and must not include, the full MIMIC-IV, which needs PhysioNet credentialed access.
+
 ## Open items before release
 
 These items were found while writing this file. The owner should resolve them before the first public release.
@@ -94,3 +111,5 @@ These items were found while writing this file. The owner should resolve them be
    file, or ship it next to the font files in the release archives.
 4. **Font copyright holders.** The OFL font holders are in the font metadata, not in the CSS. Read them from the font
    files and add them to the table.
+5. **Eunomia's copy of the MIMIC demo.** Compare Eunomia 2.1.0's MIMIC database with PhysioNet's OMOP demo (v0.9), and
+   read the terms of OHDSI's `EunomiaDatasets`, to confirm the copy is unmodified and the notice above is complete.

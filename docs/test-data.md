@@ -28,19 +28,22 @@ The committed databases are `eunomia/mimic/cdm.sqlite` (42 MB), `gibleed/sqlite/
   - The raw [MIMIC-IV Clinical Database Demo](https://physionet.org/content/mimic-iv-demo/) is open access under the
     Open Data Commons Open Database License (ODbL) v1.0, and PhysioNet asks for a citation as shown on its page. The full
     MIMIC-IV needs credentialed access and must never be committed.
-  - I could not confirm the licence field of the OMOP conversion,
-    [MIMIC-IV demo in the OMOP Common Data Model](https://physionet.org/content/mimic-iv-demo-omop/), nor of Eunomia's
-    copy of it. Read the "License (for files)" line on both pages before relying on this.
-  - ODbL attaches conditions to redistributing a database or a derived one: attribution, a licence notice, and
-    share-alike for derived databases. My reading, not legal advice. This repository is Apache-2.0, so a committed copy
-    of the MIMIC database would need its own notice and terms.
-  - `CONTRIBUTING.md` asks for synthetic test data. MIMIC does not meet that, so it is the one dataset to keep out of a
-    public repository, and out of its history.
+  - The OMOP conversion, [MIMIC-IV demo data in the OMOP Common Data Model](https://physionet.org/content/mimic-iv-demo-omop/)
+    (v0.9), is also open access under ODbL; PhysioNet's project metadata lists the licence as ODbL. Eunomia
+    redistributes a copy of it through OHDSI's `EunomiaDatasets`. I did not compare that copy with PhysioNet's file or read
+    `EunomiaDatasets`' own terms, so the notice in `THIRD_PARTY_NOTICES.md` names PhysioNet as the source.
+  - ODbL attaches conditions to redistributing the database or a derived one: attribution, a licence notice, and
+    share-alike for derived databases. My reading, not legal advice. The conditions apply to the data, not to this
+    repository's Apache-2.0 code.
 
-**Recommendation for going public:** do not publish `eunomia/mimic/cdm.sqlite`. Keep the MIMIC run as an optional test
-that skips when the database is absent, and tell contributors where to get it (below). The MIMIC `results.json`,
-`results.csv` and logs hold aggregate counts and check SQL, not patient rows, but check them against the PhysioNet
-terms too. Removing the file from the history needs `git filter-repo` before the first public push.
+**Decision: the MIMIC database stays in the repository**, because the demo is open access and can be shared on those
+terms. To meet them, [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) names the source, the licence and the citation
+requirement, and says that the database file is under ODbL while the code is Apache-2.0. Two things keep that honest:
+
+- Keep the file as Eunomia 2.1.0 delivers it (not yet compared byte for byte: see open item 5 in `THIRD_PARTY_NOTICES.md`). A modified copy would be a derived database that must stay under ODbL and
+  be marked as changed.
+- Never commit the full MIMIC-IV, or any MIMIC table beyond the demo. Those need PhysioNet credentialed access and a
+  data use agreement.
 
 ## Getting the datasets
 

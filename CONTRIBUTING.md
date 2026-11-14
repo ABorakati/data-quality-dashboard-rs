@@ -123,9 +123,9 @@ is intended.
 - Use British English in prose and documentation: "licence" as a noun, "behaviour", "organisation", "serialise".
   Identifiers, upstream names and quotations keep their original spelling.
 - Do not include secrets, credentials, patient-level rows or large raw datasets in commits, issues or fixtures.
-  Test data must be synthetic. The Synthea-based Eunomia datasets (GiBleed, Synthea27Nj) are acceptable. The Eunomia
-  MIMIC dataset is de-identified real patient data under its own licence, so it is not: see
-  [`docs/test-data.md`](docs/test-data.md) before adding or publishing it.
+  Test data must be synthetic, with one exception: the Eunomia MIMIC dataset, the open-access 100-patient MIMIC-IV
+  demo, is kept under its ODbL licence (see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)). Do not add any other
+  real or credentialed data, and never the full MIMIC-IV. See [`docs/test-data.md`](docs/test-data.md).
 - Do not put machine-specific paths (such as `C:\Users\...`) in documentation or scripts. Use environment variables.
 
 ## Commits and pull requests
