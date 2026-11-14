@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- DuckDB, part 1: `dqd-sqlrender` translates to the SqlRender `duckdb` dialect. It matches R SqlRender 1.19.7 on all 216 render, 162 translate and 216 split oracle cases, which covers every DQD template in both cohort modes. Only the dialect allow-list changed; the translation rules come from SqlRender's own `replacementPatterns.csv`. `tests/oracle/duckdb-cases.R` records the R oracle on DuckDB (R `duckdb` 2.0.0, engine v2.0.0): 8 small scenarios, 2 preflight failures, upstream's "Execute a single DQ check on DuckDB" test, and a full GiBleed run (2002 checks, 0 errors). The DuckDB connection backend (`duckdb` crate `=1.20000.2`, bundled engine 2.0.0) is not merged yet: its bundled C++ build needs several GB of free disk.
+- Remove the unused `gibleed/sqlite_run2` and `sqlite_run4` fixtures. No test read them.
+
 - Default `numThreads` to 8, capped at the machine's available parallelism, when neither the options file nor the CLI sets it. This deliberately diverges from upstream's default of 1. It was the fastest setting on both benchmark databases, and results do not depend on the thread count. An explicit value still wins.
 
 - Speed up SQLite runs without changing any result. SQLite's global memory-statistics mutex is now off (`SQLITE_CONFIG_MEMSTATUS`): it serialised every allocation across worker connections, so more than 4 threads made runs slower. Each connection also gets `mmap_size` = 1 GiB and a 64 MiB page cache. With 8 threads, the fastest setting on both test databases, a full QUOD run takes 8.6 s instead of 31.5 s and GiBleed takes 5.1 s instead of 22.1 s, each against the fastest setting before. `docs/performance.md` has the measurements and the options that were rejected. The results JSON and CSV writers are now buffered.

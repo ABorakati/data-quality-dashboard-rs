@@ -13,14 +13,14 @@ use std::sync::LazyLock;
 const PATTERNS_CSV: &str = include_str!("../../../resources/sqlrender/replacementPatterns.csv");
 
 /// Targets this crate can translate to (patterns are loaded only for these).
-const TARGET_DIALECTS: [&str; 2] = ["sqlite", "postgresql"];
+const TARGET_DIALECTS: [&str; 3] = ["sqlite", "postgresql", "duckdb"];
 
 const SESSION_ID_LENGTH: usize = 8;
 const MAX_TABLE_NAME_LENGTH: usize = 63;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TranslateError {
-    /// The target dialect is not `sql server`, `sqlite` or `postgresql`.
+    /// The target dialect is not `sql server`, `sqlite`, `postgresql` or `duckdb`.
     UnsupportedDialect(String),
 }
 
@@ -29,7 +29,7 @@ impl fmt::Display for TranslateError {
         match self {
             TranslateError::UnsupportedDialect(dialect) => write!(
                 f,
-                "Don't know how to translate to {dialect}. Valid target dialects are sql server, sqlite, postgresql"
+                "Don't know how to translate to {dialect}. Valid target dialects are sql server, sqlite, postgresql, duckdb"
             ),
         }
     }

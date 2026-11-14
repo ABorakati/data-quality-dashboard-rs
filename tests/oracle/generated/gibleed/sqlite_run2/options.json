@@ -1,1 +1,0 @@
-{"cdmDatabaseSchema":"main","resultsDatabaseSchema":"main","cdmSourceName":"GiBleed","cdmVersion":"5.3","numThreads":1,"writeToTable":false,"writeToCsv":true,"outputFolder":"tests/oracle/generated/gibleed/sqlite_run2","outputFile":"results.json","csvFile":"results.csv"}

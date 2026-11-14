@@ -63,7 +63,7 @@ fn render_translate_split_match_oracle() {
     let mut failures = Vec::new();
     for case in cases() {
         let dialect = case["dialect"].as_str().expect("dialect");
-        if !matches!(dialect, "sql server" | "sqlite" | "postgresql") {
+        if !matches!(dialect, "sql server" | "sqlite" | "postgresql" | "duckdb") {
             continue;
         }
         let template = case["template"].as_str().expect("template");
@@ -116,5 +116,5 @@ fn render_translate_split_match_oracle() {
         failures.join("\n")
     );
     // 27 templates x cohort on/off: 54 cases per dialect.
-    assert_eq!(checked, [162, 108, 162]);
+    assert_eq!(checked, [216, 162, 216]);
 }

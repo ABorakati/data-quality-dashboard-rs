@@ -1,0 +1,4 @@
+2026-11-14 02:35:52	[Main thread]	INFO	DataQualityDashboard		CDM Tables skipped: CONCEPT, VOCABULARY, CONCEPT_ANCESTOR, CONCEPT_RELATIONSHIP, CONCEPT_CLASS, CONCEPT_SYNONYM, RELATIONSHIP, DOMAIN, PACK_CONTENT, CONCEPT_METADATA, CONCEPT_RELATIONSHIP_METADATA
+2026-11-14 02:35:53	[Main thread]	INFO	DataQualityDashboard	FUN	Processing check description: measurePersonCompleteness
+2026-11-14 02:35:57	[Main thread]	INFO	DataQualityDashboard	.writeResultsToJson	Writing results to file: C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated/duckdb/single-check/results/results.json
+2026-11-14 02:35:57	[Main thread]	INFO	DataQualityDashboard		Execution Complete

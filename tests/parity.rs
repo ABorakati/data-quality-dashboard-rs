@@ -284,7 +284,7 @@ fn overview_counts_and_rounding_match_upstream() {
 
 #[test]
 fn every_check_template_renders_translates_and_splits_on_each_supported_dialect() {
-    const SUPPORTED: [&str; 3] = ["sql server", "sqlite", "postgresql"];
+    const SUPPORTED: [&str; 4] = ["sql server", "sqlite", "postgresql", "duckdb"];
     let manifest = fixture("manifest.json");
     assert_eq!(
         manifest["upstreamCommit"],

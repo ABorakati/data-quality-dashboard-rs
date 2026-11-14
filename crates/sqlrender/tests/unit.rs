@@ -305,6 +305,14 @@ fn unbalanced_end_is_an_error_like_java_empty_stack() {
 // ------------------------------------------------------------- translate
 
 #[test]
+fn duckdb_is_a_supported_target() {
+    let translated = TRANSLATOR
+        .translate("SELECT TOP 5 a FROM t;", "duckdb", None)
+        .expect("duckdb is a supported target dialect");
+    assert_eq!(translated, "SELECT  a FROM t LIMIT 5;");
+}
+
+#[test]
 fn translate_matches_java_for_representative_statements() {
     let cases: &[(&str, &str, &str)] = &[
         (
