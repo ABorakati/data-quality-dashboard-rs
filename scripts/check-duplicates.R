@@ -1,6 +1,9 @@
-.libPaths(c(Sys.getenv("DQD_R_LIBRARY", "C:/Users/abora/tmp/dqd-r-oracle-library"), .libPaths()))
+r_library <- Sys.getenv("DQD_R_LIBRARY")
+if (nzchar(r_library)) .libPaths(c(r_library, .libPaths()))
 library(DatabaseConnector)
-sqlite_source <- "C:/Users/abora/tmp/dqd-bench/gibleed-source.sqlite"
+# DQD_GIBLEED_SQLITE: the GiBleed CDM 5.3 SQLite file (Eunomia's GiBleed_5.3.sqlite).
+sqlite_source <- Sys.getenv("DQD_GIBLEED_SQLITE")
+if (!nzchar(sqlite_source)) stop("Set DQD_GIBLEED_SQLITE to the path of the GiBleed CDM 5.3 SQLite file.")
 sqlite_details <- createConnectionDetails(dbms = "sqlite", server = sqlite_source)
 sqlite_db <- connect(sqlite_details)
 

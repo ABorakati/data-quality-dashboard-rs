@@ -3,7 +3,9 @@
 # Usage: Rscript --vanilla fuzz/run_r_batch.R DIR
 args <- commandArgs(TRUE)
 if (length(args) != 1L) stop("Usage: Rscript run_r_batch.R DIR")
-.libPaths(c(Sys.getenv("DQD_R_LIBRARY", "C:/Users/abora/tmp/dqd-r-oracle-library"), .libPaths()))
+# DQD_R_LIBRARY: a library holding the pinned DataQualityDashboard 2.9.0. Unset, R uses its default libraries.
+r_library <- Sys.getenv("DQD_R_LIBRARY")
+if (nzchar(r_library)) .libPaths(c(r_library, .libPaths()))
 suppressPackageStartupMessages(library(DataQualityDashboard))
 if (as.character(packageVersion("DataQualityDashboard")) != "2.9.0") stop("Wrong installed DQD version")
 cases <- sort(list.dirs(args[[1]], recursive = FALSE))

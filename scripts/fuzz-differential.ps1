@@ -14,9 +14,10 @@ param(
   [string]$Base = '',
   [string]$CdmVersion = '5.3',
   [int]$MaxMutations = 3,
-  [string]$Rscript = 'C:/Program Files/R/R-4.5.2/bin/Rscript.exe',
-  [string]$RLibrary = 'C:/Users/abora/tmp/dqd-r-oracle-library',
-  [string]$JavaHome = 'C:/Users/abora/tmp/dqd-java/jdk-21.0.12.1+1'
+  # Defaults come from the environment variables listed in CONTRIBUTING.md.
+  [string]$Rscript = $(if ($env:DQD_RSCRIPT) { $env:DQD_RSCRIPT } else { 'Rscript' }),
+  [string]$RLibrary = $(if ($env:DQD_R_LIBRARY) { $env:DQD_R_LIBRARY } else { Join-Path ([IO.Path]::GetTempPath()) 'dqd-r-oracle-library' }),
+  [string]$JavaHome = $env:DQD_JAVA_HOME
 )
 $ErrorActionPreference = 'Stop'
 $repo = Resolve-Path (Join-Path $PSScriptRoot '..')
@@ -32,8 +33,7 @@ try {
     cargo @example @generate
     if ($LASTEXITCODE -ne 0) { throw "generate failed: $LASTEXITCODE" }
   }
-  $env:JAVA_HOME = $JavaHome
-  $env:PATH = "$JavaHome/bin;$env:PATH"
+  if ($JavaHome) { $env:JAVA_HOME = $JavaHome; $env:PATH = "$JavaHome/bin;$env:PATH" }
   $env:DQD_R_LIBRARY = $RLibrary
   & $Rscript --vanilla (Join-Path $repo 'fuzz/run_r_batch.R') $work
   if ($LASTEXITCODE -ne 0) { throw "R batch failed: $LASTEXITCODE" }

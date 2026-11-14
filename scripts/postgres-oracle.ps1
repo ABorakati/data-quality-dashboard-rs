@@ -8,10 +8,12 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
-$root = 'C:/Users/abora/tmp/dqd-pg-oracle'
+# DQD_PG_ROOT: where the private cluster lives (default: a folder in the temporary directory).
+# DQD_PG_BIN: the PostgreSQL 18 bin directory (default: the standard Windows install location).
+$root = if ($env:DQD_PG_ROOT) { $env:DQD_PG_ROOT } else { Join-Path ([IO.Path]::GetTempPath()) 'dqd-pg-oracle' }
 $dbDir = "$root/data"
 $logFile = "$root/pg.log"
-$binDir = 'C:/Program Files/PostgreSQL/18/bin'
+$binDir = if ($env:DQD_PG_BIN) { $env:DQD_PG_BIN } else { 'C:/Program Files/PostgreSQL/18/bin' }
 $port = 54329
 
 function Test-Running {
