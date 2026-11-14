@@ -1,0 +1,56 @@
+# cargo-deny configuration. Run locally with `cargo deny check` (install: `cargo install cargo-deny --locked`).
+# CI runs it in .github/workflows/security.yml.
+#
+# The licence allow-list was derived from `cargo metadata --locked` on the current Cargo.lock, so every
+# dependency's licence expression is satisfied by at least one entry below. Re-check when dependencies change.
+
+[graph]
+# Check every optional feature (duckdb, tls), not only the defaults.
+all-features = true
+
+[advisories]
+version = 2
+# RustSec advisories: vulnerabilities are denied by default. Yanked crates are reported.
+yanked = "warn"
+# Add an advisory ID here only with a comment that states the reason and the review date.
+ignore = []
+
+[licenses]
+version = 2
+confidence-threshold = 0.8
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "MIT",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    # unicode-ident (via proc-macro2) uses the Unicode licence.
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "Zlib",
+    "MPL-2.0",
+    # tiny-keccak is dedicated to the public domain.
+    "CC0-1.0",
+    # webpki-roots (certificate authority data, via rustls for PostgreSQL TLS). This needs an owner decision:
+    # it is a permissive data licence, not a software licence. Remove it if the TLS stack changes.
+    "CDLA-Permissive-2.0",
+]
+
+[bans]
+# Duplicate versions are reported, not failed: transitive dependencies often disagree.
+multiple-versions = "warn"
+# A wildcard version requirement is denied, except for the workspace's own path dependencies.
+wildcards = "deny"
+allow-wildcard-paths = true
+highlight = "all"
+# Crates that must not be used. Empty until a concrete need appears.
+deny = []
+skip = []
+skip-tree = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
