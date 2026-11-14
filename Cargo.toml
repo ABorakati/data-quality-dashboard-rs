@@ -28,8 +28,13 @@ sha2 = "0.10"
 tempfile = "3"
 tiny_http = "0.12"
 dqd-sqlrender = { path = "crates/sqlrender" }
-dqd-db = { path = "crates/db" }
+dqd-db = { path = "crates/db", default-features = false }
 
 [dev-dependencies]
 pretty_assertions = "1"
 proptest = { version = "1", default-features = false, features = ["std"] }
+
+[features]
+default = ["tls"]
+# PostgreSQL TLS (rustls, pure Rust). Without it `sslmode=require` and stronger are rejected.
+tls = ["dqd-db/tls"]

@@ -21,3 +21,12 @@ regex = "1"
 chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
 chrono-tz = "0.10"
 iana-time-zone = "0.1"
+# PostgreSQL TLS (feature `tls`): pure Rust, no system OpenSSL.
+tokio-postgres-rustls = { version = "0.14", default-features = false, features = ["ring"], optional = true }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"], optional = true }
+rustls-native-certs = { version = "0.8", optional = true }
+webpki-roots = { version = "1", optional = true }
+
+[features]
+default = ["tls"]
+tls = ["dep:tokio-postgres-rustls", "dep:rustls", "dep:rustls-native-certs", "dep:webpki-roots"]
