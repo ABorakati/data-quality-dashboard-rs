@@ -7,3 +7,5 @@ Upstream license: Apache License 2.0
 Files copied from the upstream package are identified in resources/provenance.json. Retained upstream dashboard assets are distributed with their upstream notices where provided. This NOTICE does not replace those notices.
 
 crates/sqlrender is a Rust port of OHDSI SqlRender 1.19.7 (https://github.com/OHDSI/SqlRender, Apache License 2.0). It uses the unmodified replacementPatterns.csv and supportedDialects.csv from that release; see resources/sqlrender/NOTICE.
+
+Third-party components bundled in resources/viewer, and their licences, are listed in THIRD_PARTY_NOTICES.md.
