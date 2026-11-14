@@ -61,6 +61,9 @@ cargo clippy --workspace --all-targets -- -D warnings
 
 ## Regenerating the parity fixtures
 
+[`docs/test-data.md`](docs/test-data.md) lists what each fixture is built from, where the source data comes from and
+what its licence allows. The steps below are the regeneration procedure.
+
 Regeneration needs a Windows or Linux machine with:
 
 - R 4.5.2, and a library that holds the pinned DataQualityDashboard (2.9.0). Install it from an LF checkout of the
@@ -120,7 +123,9 @@ is intended.
 - Use British English in prose and documentation: "licence" as a noun, "behaviour", "organisation", "serialise".
   Identifiers, upstream names and quotations keep their original spelling.
 - Do not include secrets, credentials, patient-level rows or large raw datasets in commits, issues or fixtures.
-  Test data must be synthetic. Eunomia datasets are acceptable.
+  Test data must be synthetic. The Synthea-based Eunomia datasets (GiBleed, Synthea27Nj) are acceptable. The Eunomia
+  MIMIC dataset is de-identified real patient data under its own licence, so it is not: see
+  [`docs/test-data.md`](docs/test-data.md) before adding or publishing it.
 - Do not put machine-specific paths (such as `C:\Users\...`) in documentation or scripts. Use environment variables.
 
 ## Commits and pull requests

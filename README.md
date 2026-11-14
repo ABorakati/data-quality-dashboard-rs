@@ -191,6 +191,8 @@ The crate exports `Options`, `Catalog`, `Check`, `Row`, database and SQL traits,
 
 The parity fixtures are committed in `tests/oracle/generated`. They cover the outputs listed under "What is verified": JSON results, SQL rendering, catalogue enumeration, threshold behaviour, exports, the SQLite and PostgreSQL database scenarios, and the full runs.
 
+What the fixtures are built from, where the Eunomia datasets come from, their licences, and how to rebuild everything: [docs/test-data.md](docs/test-data.md).
+
 The Rust tests need no R and no Java:
 
 ```sh

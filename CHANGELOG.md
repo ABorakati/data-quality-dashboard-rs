@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Document the test data: `docs/test-data.md` says what each parity fixture is built from, where the Eunomia datasets come from, what their licences allow, and how to rebuild the fixtures. The Eunomia MIMIC dataset is de-identified real patient data (the MIMIC-IV demo, ODbL), not synthetic, and `CONTRIBUTING.md` no longer calls every Eunomia dataset acceptable.
+
 - **CI, governance and notices.** Preparation for making the repository public.
   - Add GitHub Actions: `ci.yml` (rustfmt, clippy and tests on Linux, macOS and Windows; default and `--no-default-features` builds; a crate package size and contents guard; PostgreSQL scenarios against a service container), `security.yml` (`cargo deny` and full-history `gitleaks`) and `release.yml` (tagged builds for three platforms, bundling DuckDB's shared library, with `SHA256SUMS`).
   - Add `deny.toml`, Dependabot settings, issue and pull request templates. The pull request template asks whether a change affects output compared with the pinned R package.
