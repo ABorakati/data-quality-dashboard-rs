@@ -34,9 +34,10 @@ fn r_text(value: &Value) -> String {
         Value::Null => "NA".into(),
         Value::String(s) => s.clone(),
         Value::Bool(b) => if *b { "TRUE" } else { "FALSE" }.into(),
-        Value::Number(n) if n.as_f64().is_some_and(|n| n.fract() == 0.0) => {
-            format!("{:.0}", n.as_f64().expect("JSON number"))
-        }
+        Value::Number(n) => match n.as_f64() {
+            Some(f) if f.fract() == 0.0 => format!("{f:.0}"),
+            _ => value.to_string(),
+        },
         _ => value.to_string(),
     }
 }
@@ -177,7 +178,7 @@ fn threshold_values_from(
     if count != 1 {
         bail!("replacement has {count} rows, data has 1");
     }
-    Ok(found.expect("one selected threshold"))
+    Ok(found.expect("`count == 1` was checked above, so a threshold was selected"))
 }
 
 /// Evaluates thresholds, then calculates applicability only when all three
@@ -273,7 +274,9 @@ fn key(value: &Value) -> Key<'_> {
         Value::Null => Key::Null,
         Value::String(s) => Key::Text(s),
         Value::Number(n) => {
-            let n = n.as_f64().expect("JSON number");
+            let n = n
+                .as_f64()
+                .expect("serde_json without `arbitrary_precision` converts every number to f64");
             Key::Number(if n == 0.0 { 0 } else { n.to_bits() })
         }
         Value::Bool(b) => Key::Bool(*b),

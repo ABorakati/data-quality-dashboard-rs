@@ -384,7 +384,7 @@ pub fn convert_json_results_file_case(
         };
         write_results_to_json(
             &results,
-            output_folder.expect("output folder checked above"),
+            output_folder.context("You must specify an output folder if writing to file.")?,
             filename,
         )?;
     }
@@ -441,8 +441,12 @@ fn r_double_text(value: f64) -> String {
         return "0".to_owned();
     }
     let scientific = format!("{value:.14e}");
-    let (mantissa, exponent) = scientific.split_once('e').expect("scientific notation");
-    let exponent: i32 = exponent.parse().expect("exponent");
+    let (mantissa, exponent) = scientific
+        .split_once('e')
+        .expect("`{:e}` of a finite float always has an exponent");
+    let exponent: i32 = exponent
+        .parse()
+        .expect("`{:e}` exponents are decimal integers");
     let digits: String = mantissa.chars().filter(char::is_ascii_digit).collect();
     let significant = digits.trim_end_matches('0').len().max(1);
     let negative = usize::from(value < 0.0);
@@ -460,7 +464,9 @@ fn r_double_text(value: f64) -> String {
         format!("{value:.decimals$}")
     } else {
         let mantissa = format!("{:.*e}", significant - 1, value);
-        let (mantissa, _) = mantissa.split_once('e').expect("scientific notation");
+        let (mantissa, _) = mantissa
+            .split_once('e')
+            .expect("`{:e}` of a finite float always has an exponent");
         format!(
             "{mantissa}e{}{:0>2}",
             if exponent < 0 { '-' } else { '+' },

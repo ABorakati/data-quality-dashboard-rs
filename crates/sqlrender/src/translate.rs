@@ -74,7 +74,10 @@ impl Default for Translator {
 
 fn compile(regex: &str, wrap: impl Fn(&str) -> String) -> Regex {
     Regex::new(&format!("(?ims){}", wrap(regex)))
-        .unwrap_or_else(|e| panic!("unsupported regex in replacement pattern `{regex}`: {e}"))
+        // Only the embedded pattern table reaches here (see `Translator::new`), never caller input.
+        .unwrap_or_else(|e| {
+            panic!("unsupported regex in built-in replacement pattern `{regex}`: {e}")
+        })
 }
 
 /// `SqlTranslate.parseSearchPattern`.
@@ -534,7 +537,7 @@ impl Translator {
             let replacement = row[2].replace('@', "@@");
             rules
                 .get_mut(target)
-                .expect("target registered")
+                .expect("every entry of TARGET_DIALECTS was registered above")
                 .push(Rule {
                     blocks: parse_search_pattern(&pattern),
                     replacement,

@@ -354,3 +354,101 @@ pub(crate) unsafe fn register_extension_functions(db: *mut ffi::sqlite3) -> Resu
         register(db, c"charindex", 3, std::ptr::null_mut(), charindex_func)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::Connection;
+    use crate::sqlite::SqliteConnection;
+    use serde_json::Value;
+    use std::path::Path;
+
+    fn scalar(connection: &mut SqliteConnection, expression: &str) -> Value {
+        let rows = connection
+            .query(&format!("select {expression} as x"))
+            .unwrap();
+        rows[0]["x"].clone()
+    }
+
+    fn approx(connection: &mut SqliteConnection, expression: &str, expected: f64) {
+        let value = scalar(connection, expression);
+        let actual = value
+            .as_f64()
+            .unwrap_or_else(|| panic!("{expression}: {value}"));
+        assert!(
+            (actual - expected).abs() < 1e-12,
+            "{expression}: {actual} != {expected}"
+        );
+    }
+
+    #[test]
+    fn logarithms_follow_the_sqlite_definitions() {
+        let mut connection = SqliteConnection::open(Path::new(":memory:")).unwrap();
+        approx(&mut connection, "log(100)", 2.0);
+        approx(&mut connection, "log10(1000)", 3.0);
+        approx(&mut connection, "log2(8)", 3.0);
+        approx(&mut connection, "ln(1)", 0.0);
+        approx(&mut connection, "log(2, 8)", 3.0);
+        // Non-positive arguments, a base of 1 and non-numeric text give NULL.
+        for expression in [
+            "log(-1)",
+            "log10(0)",
+            "log2(-8)",
+            "log(1, 8)",
+            "log(2, 0)",
+            "log('x')",
+        ] {
+            assert_eq!(
+                scalar(&mut connection, expression),
+                Value::Null,
+                "{expression}"
+            );
+        }
+    }
+
+    #[test]
+    fn other_math_functions_are_registered() {
+        let mut connection = SqliteConnection::open(Path::new(":memory:")).unwrap();
+        assert_eq!(scalar(&mut connection, "ceil(4)").as_i64(), Some(4));
+        approx(&mut connection, "ceil(4.2)", 5.0);
+        approx(&mut connection, "floor(-4.2)", -5.0);
+        approx(&mut connection, "power(2, 10)", 1024.0);
+        approx(&mut connection, "mod(7.5, 2)", 1.5);
+        approx(&mut connection, "pi()", std::f64::consts::PI);
+        approx(&mut connection, "degrees(pi())", 180.0);
+        approx(&mut connection, "acosh(1)", 0.0);
+        assert_eq!(scalar(&mut connection, "sign(-3)").as_i64(), Some(-1));
+        assert_eq!(scalar(&mut connection, "sign(0)").as_i64(), Some(0));
+        assert_eq!(scalar(&mut connection, "sqrt('abc')"), Value::Null);
+    }
+
+    #[test]
+    fn charindex_counts_characters_and_handles_nulls() {
+        let mut connection = SqliteConnection::open(Path::new(":memory:")).unwrap();
+        assert_eq!(
+            scalar(&mut connection, "charindex('b', 'abc')").as_i64(),
+            Some(2)
+        );
+        assert_eq!(
+            scalar(&mut connection, "charindex('z', 'abc')").as_i64(),
+            Some(0)
+        );
+        assert_eq!(
+            scalar(&mut connection, "charindex('', 'abc')").as_i64(),
+            Some(0)
+        );
+        assert_eq!(
+            scalar(&mut connection, "charindex('c', 'abcabc', 4)").as_i64(),
+            Some(6)
+        );
+        // Positions are in characters, not bytes.
+        assert_eq!(
+            scalar(&mut connection, "charindex('b', 'éb')").as_i64(),
+            Some(2)
+        );
+        assert_eq!(
+            scalar(&mut connection, "charindex(null, 'abc')"),
+            Value::Null
+        );
+        assert_eq!(scalar(&mut connection, "charindex('a', null)"), Value::Null);
+    }
+}
