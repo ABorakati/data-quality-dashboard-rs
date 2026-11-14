@@ -86,7 +86,8 @@ The scripts read these variables. Each has a default in the script's parameters 
 | `DQD_JAVA_HOME` | JDK for R | unset: uses the existing `JAVA_HOME` |
 | `DQD_EUNOMIA_DIR` | Eunomia SQLite files | `<temp>/dqd-bench/eunomia` |
 | `DQD_PG_ROOT`, `DQD_PG_BIN` | Private PostgreSQL cluster and its `bin` directory | `<temp>/dqd-pg-oracle`, a PostgreSQL 18 install |
-| `DQD_JDBC_DIR` | JDBC drivers for `DatabaseConnector` (`scripts/download-jdbc.R`) | `<temp>/dqd-jdbc-drivers` |
+| `DQD_JDBC_DIR` | Folder for the PostgreSQL JDBC driver, read by `scripts/download-jdbc.R` (required there) | no default |
+| `DQD_GIBLEED_SQLITE` | GiBleed CDM 5.3 SQLite file, for the one-off helpers `scripts/check-duplicates.R` and `scripts/debug-gibleed.R` (required there) | no default |
 
 `<temp>` is the operating system's temporary directory. Then run:
 
