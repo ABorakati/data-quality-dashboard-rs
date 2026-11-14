@@ -1,0 +1,47 @@
+name: Feature request
+description: Suggest a feature or an improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+      description: What should dqd do? Name the command, option or library function if you have one in mind.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: parity
+    attributes:
+      label: Does this change any output compared with the pinned R package?
+      description: Changes to check results, SQL, thresholds or result files must keep parity with DataQualityDashboard 2.9.0, or be recorded as an intentional difference in README.md.
+      options:
+        - "No"
+        - "Yes, and it would be an intentional difference"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: dbms
+    attributes:
+      label: Which database would this affect?
+      description: The supported dbms values are sqlite, postgresql and duckdb. Other DatabaseConnector dialects are out of scope (see README.md).
+      multiple: true
+      options:
+        - sqlite
+        - postgresql
+        - duckdb
+        - Not database-specific
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
