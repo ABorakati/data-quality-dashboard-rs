@@ -179,7 +179,7 @@ fn duckdb_single_check_matches_upstream_test() {
         &dir.path().join("results"),
     );
     let actual = run_and_read_results_file("duckdb single check", &options);
-    assert!(actual["CheckResults"].as_array().unwrap().len() > 0);
+    assert!(!actual["CheckResults"].as_array().unwrap().is_empty());
     assert_results_match("duckdb single check", &actual, &case["result"]);
 }
 

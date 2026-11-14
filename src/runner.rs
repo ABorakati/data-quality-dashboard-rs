@@ -703,7 +703,7 @@ mod tests {
             ]
         );
         assert_eq!(
-            rows[0].as_object().unwrap().keys().last().unwrap(),
+            rows[0].as_object().unwrap().keys().next_back().unwrap(),
             "_row",
             "jsonlite writes _row last"
         );

@@ -250,10 +250,10 @@ pub fn evaluate_thresholds(results: &mut Vec<Row>, catalog: &Catalog) -> Result<
         .any(|row| value(row, "notesValue").is_string())
     {
         for row in results.iter_mut() {
-            if let Some(note) = row.get_mut("notesValue") {
-                if note.is_number() || note.is_boolean() {
-                    *note = Value::String(r_text(note));
-                }
+            if let Some(note) = row.get_mut("notesValue")
+                && (note.is_number() || note.is_boolean())
+            {
+                *note = Value::String(r_text(note));
             }
         }
     }
@@ -889,8 +889,10 @@ mod tests {
     fn empty_control_csv_uses_preserved_header_for_threshold_presence() {
         let directory = tempfile::tempdir().unwrap();
         let table_file = directory.path().join("table.csv");
-        let mut options = crate::model::Options::default();
-        options.table_check_threshold_loc = table_file.to_string_lossy().into_owned();
+        let options = crate::model::Options {
+            table_check_threshold_loc: table_file.to_string_lossy().into_owned(),
+            ..Default::default()
+        };
         let result =
             row(json!({"checkName":"isRequired","checkLevel":"TABLE","cdmTableName":"PERSON"}));
 

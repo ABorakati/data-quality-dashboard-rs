@@ -82,10 +82,10 @@ fn rendered_check(check: &Check, options: &Options, engine: &mut dyn SqlEngine) 
 fn recorded_params(check: &Check) -> Row {
     let mut row = check.parameters.clone();
     for name in ["cdmTableName", "cdmFieldName", "conceptId", "unitConceptId"] {
-        if let Some(value) = row.get_mut(name) {
-            if !value.is_null() {
-                *value = Value::String(value_text(value));
-            }
+        if let Some(value) = row.get_mut(name)
+            && !value.is_null()
+        {
+            *value = Value::String(value_text(value));
         }
     }
     row
@@ -193,9 +193,7 @@ fn cte_for(
     let q = sql.replace(';', "");
     shell.insert("queryText".into(), Value::String(q.clone()));
     let description = string(&shell, "checkDescription")
-        .replace('\t', " ")
-        .replace('\r', " ")
-        .replace('\n', " ")
+        .replace(['\t', '\r', '\n'], " ")
         .replace('\'', "''");
     let mut params = shell.clone();
     params.insert("queryText".into(), Value::String(q));

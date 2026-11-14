@@ -167,10 +167,10 @@ impl Catalog {
             catalog.headers.fields.push("schema".into());
         }
         for row in catalog.fields.iter_mut().chain(catalog.concepts.iter_mut()) {
-            if let Some(value) = row.get_mut("cdmFieldName") {
-                if !value.is_null() {
-                    *value = Value::String(value_text(value).to_uppercase());
-                }
+            if let Some(value) = row.get_mut("cdmFieldName")
+                && !value.is_null()
+            {
+                *value = Value::String(value_text(value).to_uppercase());
             }
         }
         // Preserve the column order of R's merged data.frame.
@@ -461,9 +461,7 @@ impl Filter {
             let value = row
                 .get(&comparison.field)
                 .with_context(|| format!("object '{}' not found", comparison.field))?;
-            if value.is_null() {
-                keep = false;
-            } else if (value_text(value) == comparison.expected) != comparison.equal {
+            if value.is_null() || (value_text(value) == comparison.expected) != comparison.equal {
                 keep = false;
             }
         }

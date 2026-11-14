@@ -185,16 +185,14 @@ fn jsonlite_results_value(value: &Value) -> Value {
     let mut results = value.clone();
     if let Some(object) = results.as_object_mut() {
         for section in ["Metadata", "CheckResults"] {
-            if let Some(section_value) = object.get_mut(section) {
-                if let Value::Array(values) = section_value {
-                    if let Some(rows) = values
-                        .iter()
-                        .map(|value| value.as_object().cloned())
-                        .collect::<Option<Vec<_>>>()
-                    {
-                        *section_value = rows_to_json(&rows);
-                    }
-                }
+            if let Some(section_value) = object.get_mut(section)
+                && let Value::Array(values) = section_value
+                && let Some(rows) = values
+                    .iter()
+                    .map(|value| value.as_object().cloned())
+                    .collect::<Option<Vec<_>>>()
+            {
+                *section_value = rows_to_json(&rows);
             }
         }
         if let Some(Value::Object(overview)) = object.get_mut("Overview") {
@@ -223,10 +221,10 @@ fn jsonlite_results_value(value: &Value) -> Value {
             }
         }
         for field in ["startTimestamp", "endTimestamp"] {
-            if let Some(value) = object.get_mut(field) {
-                if !value.is_array() {
-                    *value = Value::Array(vec![value.clone()]);
-                }
+            if let Some(value) = object.get_mut(field)
+                && !value.is_array()
+            {
+                *value = Value::Array(vec![value.clone()]);
             }
         }
     }
@@ -559,10 +557,7 @@ fn write_results_to_csv_inner(
                 let value = row.get(*column).unwrap_or(&Value::Null);
                 let mut text = csv_text(value);
                 if *column == "queryText" || *column == "error" {
-                    text = text
-                        .replace('\n', " ")
-                        .replace('\r', " ")
-                        .replace('\t', " ");
+                    text = text.replace(['\n', '\r', '\t'], " ");
                 }
                 if value.is_string() {
                     quoted_r_text(&text)
@@ -809,6 +804,7 @@ pub fn write_results_to_table_for_cohorts(
     write_results_to_table_named(rows, connection, engine, dbms, &table_name)
 }
 
+#[allow(clippy::too_many_arguments)] // mirrors the parameter list of the R function
 pub fn write_json_results_to_table(
     connection: &mut dyn Connection,
     engine: &mut dyn SqlEngine,
@@ -859,6 +855,7 @@ pub fn write_json_results_to_table(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)] // mirrors the parameter list of the R function
 pub fn write_json_results_to_table_for_cohorts(
     connection: &mut dyn Connection,
     engine: &mut dyn SqlEngine,
@@ -932,6 +929,7 @@ fn query_results(
         .collect())
 }
 
+#[allow(clippy::too_many_arguments)] // mirrors the parameter list of the R function
 pub fn write_db_results_to_json(
     connection: &mut dyn Connection,
     engine: &mut dyn SqlEngine,

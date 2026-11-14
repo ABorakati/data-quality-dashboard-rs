@@ -259,7 +259,11 @@ impl Options {
         if self.sql_only_incremental_insert && !self.sql_only {
             bail!("Set `sqlOnly` to TRUE in order to use `sqlOnlyIncrementalInsert` mode.");
         }
-        if !(self.sql_only_union_count > 0.0) {
+        // Not `<= 0.0`: NaN must be rejected too.
+        if !matches!(
+            self.sql_only_union_count.partial_cmp(&0.0),
+            Some(std::cmp::Ordering::Greater)
+        ) {
             bail!("sqlOnlyUnionCount must be numeric and greater than zero");
         }
         if self
@@ -303,7 +307,8 @@ impl Options {
     /// Reproduce R's ustart:uend slices, including fractional numeric counts.
     pub fn sql_union_batches(&self, len: usize) -> Result<Vec<std::ops::Range<usize>>> {
         let count = self.sql_only_union_count;
-        if !(count > 0.0) {
+        // Not `<= 0.0`: NaN must be rejected too.
+        if !matches!(count.partial_cmp(&0.0), Some(std::cmp::Ordering::Greater)) {
             bail!("sqlOnlyUnionCount must be numeric and greater than zero");
         }
         let mut batches = Vec::new();
