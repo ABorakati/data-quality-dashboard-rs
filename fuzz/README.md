@@ -61,3 +61,4 @@ The databases are ignored by git. Rebuild one with `generate` and the seed and i
 |---|---|---|---|---|---|---|
 | 2026-11-13 | 1 | 3 | 7 check names (1077 results each) | 5 | 0 | smoke test |
 | 2026-11-13 | 2 | 30 | all (2002 results each, 56,056 in total) | 70, all 22 kinds | 0 | R took 52 to 130 s per case. Cases 010 and 024 (a renamed `value_as_number` / `dose_era_start_date` column) end in upstream's fatal "Duplicate table names in emptyTables" error, and the port raises the identical message. |
+| 2026-11-14 | 3 | 10 | all (14,014 results) | 27, 15 kinds, up to 5 per case | 0 | Run after the switch to LF templates and the SQLite tuning. Cases 002, 003 and 008 end in upstream's fatal emptyTables error, matched exactly. |
