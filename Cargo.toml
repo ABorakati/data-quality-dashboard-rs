@@ -2,12 +2,26 @@
 members = [".", "crates/sqlrender", "crates/db"]
 exclude = ["crates/sqlrender/fuzz"]
 
+[workspace.package]
+edition = "2024"
+license = "Apache-2.0"
+repository = "https://github.com/ABorakati/data-quality-dashboard-rs"
+rust-version = "1.88"
+
 [package]
 name = "data-quality-dashboard"
 version = "2.9.0"
-edition = "2024"
-license = "Apache-2.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
 description = "Rust execution engine for OHDSI DataQualityDashboard with upstream SQL and result compatibility"
+readme = "README.md"
+keywords = ["omop", "ohdsi", "data-quality", "dashboard", "healthcare"]
+categories = ["command-line-utilities", "database", "science"]
+# The test suite compares against R-generated fixtures (239 MB, over crates.io's 10 MB limit), so
+# the tests, the oracle scripts and the fuzz harness stay in the repository only.
+exclude = ["/tests", "/scripts", "/fuzz", "/examples/fuzz_differential.rs", "/.cargo"]
 
 [lib]
 name = "data_quality_dashboard"
@@ -31,8 +45,8 @@ serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 sha2 = "0.10"
 tempfile = "3"
 tiny_http = "0.12"
-dqd-sqlrender = { path = "crates/sqlrender" }
-dqd-db = { path = "crates/db", default-features = false }
+dqd-sqlrender = { path = "crates/sqlrender", version = "1.19.7" }
+dqd-db = { path = "crates/db", version = "2.9.0", default-features = false }
 
 [dev-dependencies]
 pretty_assertions = "1"

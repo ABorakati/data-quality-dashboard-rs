@@ -1,6 +1,6 @@
 # dqd-db
 
-Native SQLite and PostgreSQL connections for the DQD Rust port. They replace the former JDBC bridge and
+Native SQLite, PostgreSQL and DuckDB connections for the DQD Rust port. They replace the former JDBC bridge and
 reproduce its output, which was the data DatabaseConnector hands to DQD with sqlite-jdbc 3.50.3.0 and pgjdbc 42.7.3:
 row values and JSON types, error text, warnings, `insert_rows` typing. The SQLite connection also provides
 `charindex`, which RSQLite's bundled `extension-functions.c` gives DatabaseConnector's SQLite and which DQD's SQLite SQL uses.
@@ -20,6 +20,12 @@ let warnings = db.take_warnings();                           // warnings of the 
 * The session mirrors pgjdbc: `DateStyle=ISO`, `extra_float_digits=3`, `TimeZone=<system zone>`,
   `application_name=PostgreSQL JDBC Driver`. `DQD_DB_TIMEZONE` overrides the detected IANA zone; the zone
   decides how `timestamp` values map to instants.
+
+## Features
+
+* `duckdb` (default): DuckDB support through the `duckdb` crate, which links DuckDB's prebuilt 2.0.0 shared
+  library. With `default-features = false` the crate builds with no DuckDB library at build or run time, and
+  `connect` for `Dbms::Duckdb` returns an error saying the build was compiled without DuckDB support.
 
 ## Tests
 
