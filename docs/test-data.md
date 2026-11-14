@@ -48,10 +48,38 @@ requirement, and says that the database file is under ODbL while the code is Apa
 `LICENSE.txt` (PhysioNet's copy of the licence) and `NOTICE.txt` (source, notice and citation), which is how section 4.2
 is met. Two things keep that honest:
 
-- Keep the file as Eunomia 2.1.0 delivers it (not yet compared with PhysioNet's CSVs: see open item 5 in `THIRD_PARTY_NOTICES.md`). A modified copy would be a derived database that must stay under ODbL and
-  be marked as changed.
+- Keep the folder's `LICENSE.txt` and `NOTICE.txt` with the database. The file is a derivative (see the next section),
+  so ODbL section 4.6 asks for the derivative database itself or a file of the changes; the repository has the former and
+  `NOTICE.txt` lists the latter.
 - Never commit the full MIMIC-IV, or any MIMIC table beyond the demo. Those need PhysioNet credentialed access and a
   data use agreement.
+
+## How the MIMIC database differs from PhysioNet's files
+
+`scripts/compare-mimic-with-physionet.py` compares the committed `cdm.sqlite` with PhysioNet's 32 v0.9 CSV files cell by
+cell (instructions for downloading them are in its header). It found no rows added or dropped, in 8,801,873 cells
+compared. The file is a derivative, not a verbatim copy:
+
+- Row counts: the same in every one of the 32 PhysioNet CSV files and the matching tables (no rows added or dropped). The
+  seven tables with no PhysioNet file (concept_ancestor, concept_class, concept_synonym, domain, drug_strength,
+  relationship, source_to_concept_map) are empty.
+- 64-bit ids (person_id, visit_occurrence_id, measurement_id and every other id) are stored as doubles, so most no longer
+  match PhysioNet's digits exactly: 1,053,785 cells hold the nearest double and 325,238 a double within two units in the
+  last place of it (for example 3589912774911670296 became 3589912774911670272). No key column has collisions: the
+  distinct-value counts of 12 id columns are unchanged.
+- Dates and datetimes are stored as seconds since 1970 (1,039,570 cells), not as text.
+- 358,408 whole numbers are stored as REAL (300 as 300.0); 4,105 numeric-looking text values gain ".0"
+  (person_source_value 10009628 became 10009628.0).
+- 4,713 text values lose trailing whitespace (for example the concept_code "Labetalol ").
+- 12 measurement.operator_concept_id values (the operators > , >= and <, concepts 4172704, 4171755 and 4171756) are NULL
+  where PhysioNet's CSV has them. Those three concepts are not in the concept table of the SQLite file.
+- 8 dose_era.dose_value cells read 13.992 where the CSV has 13.991999999999999 (binary floating-point noise).
+- Everything else is identical: 2,877,714 cells equal and 3,138,320 empty in both, of 8,801,873 compared.
+
+Only the 12 operator cells change a value; everything else changes how it is stored. The R oracle ran on this same file,
+so the parity tests are unaffected. The doubles are consistent with R reading the 64-bit ids as numbers (I did not trace it), and with
+`docs/performance.md`'s note that MIMIC's ids do not load into DuckDB the usual way. The comparison does not show whether
+Eunomia's loader or a later step made the changes; compare the file with Eunomia's `MIMIC_5.3.zip` to find out.
 
 ## Getting the datasets
 

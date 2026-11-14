@@ -113,6 +113,29 @@ What the ODbL asks of anyone who redistributes it (sections 4.2 to 4.6 of the li
   require licensing the collection under the ODbL, but the ODbL still applies to the database inside it (sections 4.4
   and 4.5).
 
+**Changes relative to PhysioNet's files.** The committed `cdm.sqlite` is a derivative of PhysioNet's v0.9 CSV files, not
+a verbatim copy. `scripts/compare-mimic-with-physionet.py` compares them cell by cell (8,801,873 cells):
+
+- Row counts: the same in every one of the 32 PhysioNet CSV files and the matching tables (no rows added or dropped). The
+  seven tables with no PhysioNet file (concept_ancestor, concept_class, concept_synonym, domain, drug_strength,
+  relationship, source_to_concept_map) are empty.
+- 64-bit ids (person_id, visit_occurrence_id, measurement_id and every other id) are stored as doubles, so most no longer
+  match PhysioNet's digits exactly: 1,053,785 cells hold the nearest double and 325,238 a double within two units in the
+  last place of it (for example 3589912774911670296 became 3589912774911670272). No key column has collisions: the
+  distinct-value counts of 12 id columns are unchanged.
+- Dates and datetimes are stored as seconds since 1970 (1,039,570 cells), not as text.
+- 358,408 whole numbers are stored as REAL (300 as 300.0); 4,105 numeric-looking text values gain ".0"
+  (person_source_value 10009628 became 10009628.0).
+- 4,713 text values lose trailing whitespace (for example the concept_code "Labetalol ").
+- 12 measurement.operator_concept_id values (the operators > , >= and <, concepts 4172704, 4171755 and 4171756) are NULL
+  where PhysioNet's CSV has them. Those three concepts are not in the concept table of the SQLite file.
+- 8 dose_era.dose_value cells read 13.992 where the CSV has 13.991999999999999 (binary floating-point noise).
+- Everything else is identical: 2,877,714 cells equal and 3,138,320 empty in both, of 8,801,873 compared.
+
+The derivative database is in this repository, which is what section 4.6 asks for, and `NOTICE.txt` in the MIMIC folder
+lists the changes. The parity tests ran on this exact file, so they are unaffected; do not use it as a faithful copy of
+the MIMIC-IV demo for research.
+
 Cite the data as PhysioNet asks (the full text is in `NOTICE.txt` in the MIMIC folder): Kallfelz, M., Tsvetkova, A.,
 Pollard, T., Kwong, M., Lipori, G., Huser, V., Osborn, J., Hao, S., & Williams, A. (2021). *MIMIC-IV demo data in the OMOP
 Common Data Model* (version 0.9). PhysioNet. <https://doi.org/10.13026/p1f5-7x35>, together with the standard PhysioNet
@@ -139,6 +162,7 @@ These items were found while writing this file. The owner should resolve them be
    file, or ship it next to the font files in the release archives.
 4. **Font copyright holders.** The OFL font holders are in the font metadata, not in the CSS. Read them from the font
    files and add them to the table.
-5. **Eunomia's copy of the MIMIC demo.** The terms are read: PhysioNet and `EunomiaDatasets` both give the ODbL, and
-   `EunomiaDatasets` says its CSV files came from PhysioNet's v0.9 demo. What remains is to compare the committed
-   `cdm.sqlite` with the content of PhysioNet's v0.9 CSV files, to confirm the copy is unmodified.
+5. **Where the changes were made.** The committed file differs from PhysioNet's CSVs as listed above. This repository does
+   not show whether Eunomia's loader made them or they came later. Compare the file with the `MIMIC_5.3.zip` in OHDSI's
+   `EunomiaDatasets` (or with the output of `Eunomia::getDatabaseFile("MIMIC", cdmVersion = "5.3")`) to find out. The ODbL
+   position does not depend on it: either way the file is a derivative, offered here under the ODbL.
