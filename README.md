@@ -1,12 +1,83 @@
 # DataQualityDashboard Rust port
 
+> **Unofficial port.** Not affiliated with or endorsed by OHDSI. The OHDSI name and logo belong to OHDSI and identify the upstream project this port follows.
+
+[![CI](https://github.com/ABorakati/data-quality-dashboard-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/ABorakati/data-quality-dashboard-rs/actions/workflows/ci.yml)
+[![Licence: Apache-2.0](https://img.shields.io/badge/licence-Apache--2.0-blue.svg)](LICENSE)
+
 This crate ports OHDSI DataQualityDashboard 2.9.0 to Rust. The target is upstream commit `b9d2a9b4a4736f7ea81415d974c72119b6f0bd11`. Catalog, SQL templates, SqlRender patterns, and dashboard assets retain upstream source data where practical. SQL rendering, translation, and splitting run in Rust (`crates/sqlrender`, a port of OHDSI SqlRender 1.19.7), and database access uses native drivers (`crates/db`). No Java runtime and no JDBC driver are needed. Runtime R is not required.
 
 ## Status and compatibility
 
-The command-line program and library expose check execution, SQL-only export, raw check listing, results conversion and export, threshold reevaluation, database result-table I/O, and the dashboard viewer. Check thresholds, database behavior, and result values require differential validation against the pinned R package. Do not treat a successful build as proof of exact parity.
+The command-line program and library expose check execution, SQL-only export, raw check listing, results conversion and export, threshold reevaluation, database result-table I/O, and the dashboard viewer.
 
-Supported `dbms` values are `sqlite`, `postgresql` and `duckdb`. Any other value, including in SQL-only mode, fails with an error. This repository does not include database credentials.
+A successful build is not proof of parity with upstream. The port is checked against outputs produced by the pinned R package, and the evidence is listed below. Supported `dbms` values are `sqlite`, `postgresql` and `duckdb`. Any other value, including in SQL-only mode, fails with an error. This repository does not include database credentials.
+
+### What is verified
+
+The reference outputs come from the pinned R package (DataQualityDashboard 2.9.0, R 4.5.2, DatabaseConnector 8.0.0, SqlRender 1.19.7). They are committed under `tests/oracle/generated`, and the Rust tests compare the port against them.
+
+- **Full runs on synthetic Eunomia datasets, compared with R.**
+  - SQLite: GiBleed (CDM 5.3, 2,002 checks), MIMIC (CDM 5.3, 2,002 checks) and Synthea27Nj (CDM 5.4, 2,384 checks), in `tests/parity.rs` and `tests/eunomia.rs`.
+  - DuckDB: GiBleed at 1 and 8 threads, in `tests/duckdb.rs`. The MIMIC and Synthea27Nj DuckDB files gave the same results as R in the differential fuzzer (0 differences).
+  - PostgreSQL: the eight database scenarios, the two `cdm_source` preflight failures, and a full GiBleed run. These run when `DQD_PG_PORT` is set, against a server the tests can reach.
+- **Upstream test suite.** Every scenario of the pinned upstream testthat suite is replayed through R, and all outputs are compared with the port, not only upstream's assertions. `docs/upstream-test-coverage.md` maps each block to its Rust test.
+- **SQL rendering.** Rendering and splitting match SqlRender 1.19.7 for `sql server`, `sqlite`, `postgresql` and `duckdb` (216 render and 216 split oracle cases). Translation matches for the three runnable dialects (162 cases). Each set covers all 27 check templates in both cohort modes.
+- **Differential fuzzing.** `fuzz/README.md` records 49 mutated OMOP CDM databases from four seeds, on SQLite and DuckDB. 46 of them ran every check. None had a mismatch with R. Where upstream stops with a fatal error, the port stops with the same message.
+- **Performance.** `docs/performance.md` reports the timings. The port is faster than R on every dataset and engine measured, but these timings do not show parity.
+
+### What is not supported
+
+- **Other DatabaseConnector dialects.** SQL Server, Oracle, Snowflake, BigQuery, Redshift, Spark, Impala, Netezza, Synapse, IRIS and the rest are not supported. `dqd run` rejects them. The library can render `sql server` SQL for a SQL-only export, and that rendering is checked against R, but the port cannot execute it.
+- **JDBC.** There is no Java runtime and no JDBC driver. Connections use native drivers: `rusqlite` for SQLite, the `duckdb` crate, and the `postgres` crate.
+- **Remote-database upstream tests.** Upstream's single-check tests against Oracle, SQL Server and other remote systems are not run. See the "Explained gaps" section of `docs/upstream-test-coverage.md`.
+
+### Intentional differences from upstream
+
+- **`numThreads` defaults to 8**, capped at the machine's available parallelism. Upstream defaults to 1. Results do not depend on the thread count. Set `"numThreads": 1` or `--num-threads 1` for upstream's single-worker behaviour.
+- **Connection options.** `jdbcUrl`, `driverClass`, `java` and `driverClasspath` are removed. Use `sqlitePath`, or `server`, `port`, `user` and `password` (`--server`, `--port`).
+- **PostgreSQL error text.** Errors recorded for checks omit the `[SQLSTATE=…; vendorCode=…]` suffix that the JDBC driver adds to PostgreSQL messages.
+- **Viewer.** The viewer has no authentication and is meant for loopback use. See the Viewer section below.
+
+### Reporting a parity discrepancy
+
+Open a bug report and choose "Yes, the output differs from the pinned R package". Include the `dbms` and database version, the options file with the password removed, the check IDs whose values differ, and both outputs (the port's and R's) for the same inputs. Share aggregate counts and SQL only. Do not share patient-level rows. If you cannot share the data, describe the smallest schema that reproduces the difference. Security problems go to [SECURITY.md](SECURITY.md) instead.
+
+## Installation
+
+**Release archives.** Each release tag (`v*`) on the GitHub Releases page has archives for `x86_64-unknown-linux-gnu`, `aarch64-apple-darwin` and `x86_64-pc-windows-msvc`, named `dqd-v<version>-<target>` (`.tar.gz`, or `.zip` on Windows). Each archive holds `dqd` (`dqd.exe` on Windows), DuckDB's shared library (`libduckdb.so`, `libduckdb.dylib` or `duckdb.dll`), `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md` and `README.md`. Check the archive against `SHA256SUMS` before you run it.
+
+**Install from a checkout.** The DuckDB shared library is not copied by `cargo install`, so DuckDB runs need it on the loader path. Use a release archive, or build with `cargo build --release` and keep the library next to `target/release/dqd`. For SQLite and PostgreSQL only, install without DuckDB:
+
+```sh
+cargo install --path . --no-default-features
+```
+
+**Build from source.** The build downloads DuckDB's prebuilt library, so it needs network access:
+
+```sh
+git clone https://github.com/ABorakati/data-quality-dashboard-rs
+cd data-quality-dashboard-rs
+cargo build --release          # the binary is target/release/dqd
+```
+
+## Quick start
+
+These commands use `examples/options.json`, which sets `"sqlOnly": true`. The first commands need no database.
+
+```sh
+cargo run --release -- dialects                                       # the supported dbms values
+cargo run --release -- list-checks --config examples/options.json     # the check catalogue
+cargo run --release -- run --config examples/options.json             # writes check SQL to ./out and does not connect
+```
+
+To run the checks, edit `examples/options.json` (schemas, `dbms` and `connection`; see [Run checks](#run-checks)), then run with `--sql-only false`:
+
+```sh
+cargo run --release -- run --config examples/options.json --sql-only false
+```
+
+The results are written to `outputFolder`, in the file named by `outputFile`.
 
 ## Requirements
 
@@ -97,17 +168,18 @@ The crate exports `Options`, `Catalog`, `Check`, `Row`, database and SQL traits,
 
 ## Parity verification
 
-The oracle uses the pinned upstream R package to capture JSON, SQL rendering (`sql server`, `sqlite`, `postgresql`), catalog enumeration, threshold behavior, exports, SQLite and PostgreSQL database scenarios, and full Eunomia GiBleed runs.
+The parity fixtures are committed in `tests/oracle/generated`. They cover the outputs listed under "What is verified": JSON results, SQL rendering, catalogue enumeration, threshold behaviour, exports, the SQLite and PostgreSQL database scenarios, and the full runs.
 
-Generate fixtures once, then run parity tests against the existing fixtures. The Rust tests need no Java:
+The Rust tests need no R and no Java:
 
-```powershell
-pwsh -NoProfile -File scripts/parity.ps1 -Generate
-pwsh -NoProfile -File scripts/parity.ps1
+```sh
+cargo test --workspace --release
 ```
 
-Add `-Postgres` to start the private oracle cluster (`scripts/postgres-oracle.ps1`, port 54329) and run the PostgreSQL scenarios. They are gated on the `DQD_PG_PORT` environment variable and skipped when it is unset. Use `-Refresh` to regenerate the fixtures and run parity in one command. Generation requires the pinned upstream checkout, isolated DQD R library, R 4.5.2, and Java (for R only).
+The PostgreSQL scenarios run when `DQD_PG_PORT` is set to the port of a PostgreSQL server with trust authentication. They are skipped otherwise. See [CONTRIBUTING.md](CONTRIBUTING.md#test).
+
+Regenerating the fixtures needs R 4.5.2 with the pinned package, Java (for R only) and PowerShell 7. Their setup is described in [CONTRIBUTING.md](CONTRIBUTING.md#regenerating-the-parity-fixtures). Do not edit the fixtures by hand.
 
 ## Provenance and license
 
-`resources/provenance.json` records the pinned DQD source revision and retained resource paths. The OHDSI DataQualityDashboard source states Apache License 2.0. See `LICENSE` and `NOTICE`. The SqlRender pattern and dialect tables and viewer assets retain their own upstream notices where supplied.
+`resources/provenance.json` records the pinned DQD source revision and retained resource paths. The OHDSI DataQualityDashboard source states Apache License 2.0. See `LICENSE` and `NOTICE`. The SqlRender pattern and dialect tables and viewer assets retain their own upstream notices where supplied. Third-party components bundled with the viewer, with their licences, are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
