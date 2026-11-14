@@ -1,0 +1,82 @@
+name: Bug report
+description: Something in dqd crashes, errors or behaves differently from what the docs say
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Do not paste database contents, patient-level rows or credentials.
+        Share only the SQL error text, check IDs and aggregate counts. See SECURITY.md.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened
+      description: What you ran, what you expected and what happened instead.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: dbms
+    attributes:
+      label: Database (dbms)
+      options:
+        - sqlite
+        - postgresql
+        - duckdb
+        - Not applicable (SQL-only export or list-checks)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: dqd version
+      description: Output of `dqd --version`, or the commit hash if you built from source.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How you installed dqd
+      options:
+        - Release archive (GitHub release)
+        - cargo install
+        - Built from a git checkout
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and Rust version
+      placeholder: "e.g. Ubuntu 24.04, rustc 1.92.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the options file (remove the password) and the command line. A minimal options file helps.
+      render: shell
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Error output or log
+      description: Paste the relevant lines from stderr or log_DqDashboard_*.txt. Remove anything sensitive.
+      render: text
+
+  - type: dropdown
+    id: parity
+    attributes:
+      label: Is this a difference from the R package?
+      description: If you ran the same inputs through upstream DataQualityDashboard 2.9.0 and the results differ, choose yes and fill in the comparison.
+      options:
+        - "No, it is a crash, error or usability problem"
+        - "Yes, the output differs from the pinned R package (2.9.0)"
+        - "Not sure"
+    validations:
+      required: true

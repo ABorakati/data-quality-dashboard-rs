@@ -1,0 +1,43 @@
+name: Security
+
+on:
+  pull_request:
+  schedule:
+    # Weekly, Monday 06:17 UTC: picks up new RustSec advisories without a code change.
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cargo-deny:
+    name: cargo deny (advisories, licences, bans, sources)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      # Configuration lives in deny.toml. The advisory database is fetched at run time.
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check
+          log-level: warn
+
+  gitleaks:
+    name: gitleaks (full history)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history, so secrets removed from old commits are still detected.
+          fetch-depth: 0
+      # The action runs the gitleaks CLI. It needs a GITLEAKS_LICENSE secret only for organisation
+      # accounts; this repository is under a personal account.
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

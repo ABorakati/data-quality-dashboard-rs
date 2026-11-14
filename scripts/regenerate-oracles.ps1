@@ -9,18 +9,19 @@
 # postgres (needs the private cluster from scripts/postgres-oracle.ps1, started here).
 param(
   [string[]]$Only = @('core', 'gibleed', 'upstream', 'eunomia', 'postgres'),
-  [string]$Upstream = 'C:/Users/abora/tmp/dqd-upstream-lf',
-  [string]$Rscript = 'C:/Program Files/R/R-4.5.2/bin/Rscript.exe',
-  [string]$RLibrary = 'C:/Users/abora/tmp/dqd-r-oracle-library',
-  [string]$JavaHome = 'C:/Users/abora/tmp/dqd-java/jdk-21.0.12.1+1',
-  [string]$EunomiaDir = 'C:/Users/abora/tmp/dqd-bench/eunomia'
+  # Defaults come from the environment variables listed in CONTRIBUTING.md.
+  [string]$Upstream = $(if ($env:DQD_UPSTREAM) { $env:DQD_UPSTREAM } else { Join-Path ([IO.Path]::GetTempPath()) 'dqd-upstream-lf' }),
+  [string]$Rscript = $(if ($env:DQD_RSCRIPT) { $env:DQD_RSCRIPT } else { 'Rscript' }),
+  [string]$RLibrary = $(if ($env:DQD_R_LIBRARY) { $env:DQD_R_LIBRARY } else { Join-Path ([IO.Path]::GetTempPath()) 'dqd-r-oracle-library' }),
+  # Unset: R uses whatever JAVA_HOME the shell already has.
+  [string]$JavaHome = $env:DQD_JAVA_HOME,
+  [string]$EunomiaDir = $(if ($env:DQD_EUNOMIA_DIR) { $env:DQD_EUNOMIA_DIR } else { Join-Path ([IO.Path]::GetTempPath()) 'dqd-bench/eunomia' })
 )
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $out = Join-Path $repo 'tests/oracle/generated'
 $oracle = Join-Path $repo 'tests/oracle'
-$env:JAVA_HOME = $JavaHome
-$env:PATH = "$JavaHome/bin;$env:PATH"
+if ($JavaHome) { $env:JAVA_HOME = $JavaHome; $env:PATH = "$JavaHome/bin;$env:PATH" }
 $env:DQD_R_LIBRARY = $RLibrary
 function Invoke-R([string]$Label, [string[]]$Arguments) {
   Write-Host "== $Label"

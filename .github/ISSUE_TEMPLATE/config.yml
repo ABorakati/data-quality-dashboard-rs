@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/ABorakati/data-quality-dashboard-rs/security/advisories/new
+    about: Report vulnerabilities privately. Do not open a public issue. See SECURITY.md.
+  - name: Question about upstream DataQualityDashboard behaviour
+    url: https://github.com/OHDSI/DataQualityDashboard/issues
+    about: The R package is the reference. Questions about its intended behaviour belong upstream.

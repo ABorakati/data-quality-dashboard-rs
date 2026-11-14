@@ -1,0 +1,158 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: the workflow only reads the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: "1"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+
+  clippy:
+    name: clippy (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      # .gitattributes sets `* -text` because parity fixtures depend on exact bytes. Stop Git for
+      # Windows from converting line endings on checkout.
+      - name: Keep committed line endings (Windows)
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --locked --workspace --all-targets -- -D warnings
+
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Keep committed line endings (Windows)
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      # Tests need no R and no Java. The PostgreSQL parity tests skip here because DQD_PG_PORT is
+      # unset; the `postgresql` job below runs them. DuckDB's prebuilt library is fetched by the
+      # build (`.cargo/config.toml`, DUCKDB_DOWNLOAD_LIB=1) and found by cargo test.
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --locked --workspace --release
+
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Keep committed line endings (Windows)
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      # Default features: DuckDB, PostgreSQL TLS.
+      - run: cargo build --locked --workspace
+      # SQLite and PostgreSQL only: no DuckDB library is linked or downloaded.
+      - run: cargo build --locked --workspace --no-default-features
+
+  package:
+    name: crate package contents and size
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Check each crate's package
+        run: |
+          set -euo pipefail
+          limit=$((9 * 1024 * 1024))   # crates.io accepts up to 10 MB; keep a margin
+          status=0
+          for pkg in data-quality-dashboard dqd-db dqd-sqlrender; do
+            cargo package --list --locked -p "$pkg" > "list-$pkg.txt"
+            if grep -q '^tests/oracle/' "list-$pkg.txt"; then
+              echo "::error::$pkg would package tests/oracle (see its Cargo.toml exclude list)"
+              status=1
+            fi
+            # Fails until path dependencies also carry a version (dqd-db and the root crate).
+            cargo package --locked --no-verify -p "$pkg"
+            crate=$(ls -1 target/package/"$pkg"-*.crate)
+            size=$(stat -c %s "$crate")
+            echo "$pkg: $size bytes ($(wc -l < "list-$pkg.txt") files)"
+            if [ "$size" -gt "$limit" ]; then
+              echo "::error::$pkg package is $size bytes, over the 9 MiB limit"
+              status=1
+            fi
+          done
+          exit "$status"
+
+  postgresql:
+    name: PostgreSQL parity (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      # The oracle cluster is PostgreSQL 18 with trust authentication (scripts/postgres-oracle.ps1).
+      # The Rust tests rebuild their own schemas from the SQL in tests/oracle/generated/postgres/
+      # expected.json, so an empty server is enough for them.
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DQD_PG_PORT: "5432"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      # Runs the scenario and preflight PostgreSQL tests, single-threaded as scripts/parity.ps1 does.
+      # TODO: `gibleed_postgresql_run_matches_upstream_results_and_metadata` is skipped here. It reads
+      # a `gibleed` schema that only the R oracle loads, from Eunomia's GiBleed database, which is
+      # not in this repository. Load that schema in CI before removing the --skip.
+      - name: PostgreSQL scenarios
+        run: cargo test --locked --release --test parity -- --test-threads=1 postgresql --skip gibleed_postgresql

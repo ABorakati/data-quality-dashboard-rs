@@ -26,8 +26,9 @@ To regenerate these fixtures (about 4 minutes):
 pwsh -NoProfile -File scripts/regenerate-oracles.ps1 -Only upstream
 ```
 
-Leave out `-Only` to regenerate every oracle. The script uses the LF checkout of the pin
-(`C:/Users/abora/tmp/dqd-upstream-lf`; `CHANGELOG.md` explains why). The cases are keyed by name in
+Leave out `-Only` to regenerate every oracle. The script uses the LF checkout of the pin, which
+`DQD_UPSTREAM` names (by default `dqd-upstream-lf` in the temporary directory; `CONTRIBUTING.md`
+lists the variables, and `CHANGELOG.md` explains why the checkout must be LF). The cases are keyed by name in
 `tests/oracle/generated/upstream/expected.json`.
 
 ## Mapping

@@ -1,12 +1,14 @@
 param(
   # An LF checkout (core.autocrlf=false) of the pin: the bytes of upstream's git blobs, which a
   # CRAN or GitHub install ships. A Windows checkout with autocrlf turns every template into CRLF.
-  [string]$Upstream = 'C:/Users/abora/tmp/dqd-upstream-lf',
-  [string]$OracleOut = 'C:/Users/abora/tmp/data-quality-dashboard-rs/tests/oracle/generated',
-  [string]$Rscript = 'C:/Program Files/R/R-4.5.2/bin/Rscript.exe',
-  [string]$RLibrary = 'C:/Users/abora/tmp/dqd-r-oracle-library',
+  # Defaults come from the environment variables in CONTRIBUTING.md (DQD_UPSTREAM, ...).
+  [string]$Upstream = $(if ($env:DQD_UPSTREAM) { $env:DQD_UPSTREAM } else { Join-Path ([IO.Path]::GetTempPath()) 'dqd-upstream-lf' }),
+  [string]$OracleOut = (Join-Path (Split-Path $PSScriptRoot -Parent) 'tests/oracle/generated'),
+  [string]$Rscript = $(if ($env:DQD_RSCRIPT) { $env:DQD_RSCRIPT } else { 'Rscript' }),
+  [string]$RLibrary = $(if ($env:DQD_R_LIBRARY) { $env:DQD_R_LIBRARY } else { Join-Path ([IO.Path]::GetTempPath()) 'dqd-r-oracle-library' }),
   # Only R needs Java (rJava/DatabaseConnector), and only for -Generate/-Refresh. The Rust side needs none.
-  [string]$JavaHome = 'C:/Users/abora/tmp/dqd-java/jdk-21.0.12.1+1',
+  # Unset: R uses whatever JAVA_HOME the shell already has.
+  [string]$JavaHome = $env:DQD_JAVA_HOME,
   # Start the private PostgreSQL oracle cluster (port 54329) and run the PostgreSQL parity tests against it.
   [switch]$Postgres,
   [Alias('Generate')][switch]$GenerateOnly,
@@ -23,8 +25,7 @@ if ($GenerateOnly -or $Refresh) {
   if (-not (Test-Path (Join-Path $RLibrary 'DataQualityDashboard'))) {
     throw "Install pinned DQD into $RLibrary before generation: R CMD INSTALL --library=$RLibrary $Upstream"
   }
-  $env:JAVA_HOME = $JavaHome
-  $env:PATH = "$JavaHome/bin;$env:PATH"
+  if ($JavaHome) { $env:JAVA_HOME = $JavaHome; $env:PATH = "$JavaHome/bin;$env:PATH" }
   $env:DQD_R_LIBRARY = $RLibrary
   New-Item -ItemType Directory -Force -Path $OracleOut | Out-Null
   & $Rscript --vanilla (Join-Path $repo 'tests/oracle/generate.R') $Upstream $OracleOut
