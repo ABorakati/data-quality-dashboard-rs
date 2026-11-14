@@ -1,0 +1,30 @@
+scripts/fuzz-differential.ps1
+  s_ba8ea0ff7052c6::t_0f36f131fb8c7e 1-44
+fuzz/README.md
+  s_ba8ea0ff7052c6::t_94fb12d4e7f635 1-62
+  s_ba8ea0ff7052c6::t_705c3869d7c84c 63
+.gitignore
+  s_ba8ea0ff7052c6::t_97e0bc0e4b9900 24-27
+fuzz/run_r_batch.R
+  s_ba8ea0ff7052c6::t_a46e9f5df9cf82 1-29
+examples/fuzz_differential.rs
+  s_ba8ea0ff7052c6::t_bee233fe73853a 234-245
+  s_ba8ea0ff7052c6::t_6b16569bf729c2 1-178,188-233,246-378,383-387,391-406,411,415,428-451,461-483,490-519,525-526,532-548,551-554,557-561,566-571,584-607,612-617
+  s_ba8ea0ff7052c6::t_82412308394479 179-187,379-382,388-390,407-410,412-414,416-427,452-460,484-489,520-524,527-531,549-550,555-556,562-565,572-583,608-611
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9a5728d3dd037b1c81a68dac08b1d3ec7dcd0423",
+  "prompts": {},
+  "sessions": {
+    "s_ba8ea0ff7052c6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5283c514-85a1-4bb1-891a-eaf3ba84c090",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "ABorakati <ABorakati@users.noreply.github.com>"
+    }
+  }
+}
