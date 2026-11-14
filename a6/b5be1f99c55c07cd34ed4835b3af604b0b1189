@@ -1,0 +1,87 @@
+examples/fuzz_differential.rs
+  s_ba8ea0ff7052c6::t_7e7423a6c63c44 630-632
+  s_ba8ea0ff7052c6::t_916bc699446582 394-398,401
+  s_ba8ea0ff7052c6::t_191e83d7a80f6c 301-305
+  s_ba8ea0ff7052c6::t_def2c6824e0947 104-118,122-130
+  s_ba8ea0ff7052c6::t_48f5cd015a44be 361
+  s_ba8ea0ff7052c6::t_8e2a8170e08a75 165-166,169,173,175-176,180
+  s_ba8ea0ff7052c6::t_d1865bbf2f6c19 370
+  s_ba8ea0ff7052c6::t_a91be1f7e33762 192-196
+  s_ba8ea0ff7052c6::t_12260989438d6d 480-482
+  s_ba8ea0ff7052c6::t_f393301bebfff4 407
+  s_ba8ea0ff7052c6::t_2d594e2f19eff1 131
+.cargo/config.toml
+  s_ba8ea0ff7052c6::t_1ab6767abaeb24 1-5
+src/results.rs
+  s_ba8ea0ff7052c6::t_a390804fe01104 752-761
+  s_ba8ea0ff7052c6::t_8bce35a918fbfb 700-702
+  s_ba8ea0ff7052c6::t_d7537249cf0304 717-725,729
+  s_ba8ea0ff7052c6::t_94b2c922906a71 768
+src/database.rs
+  s_ba8ea0ff7052c6::t_af6b77fefcd331 25-27
+  s_ba8ea0ff7052c6::t_01b7d3ca89ac45 13-16
+src/model.rs
+  s_ba8ea0ff7052c6::t_9a431c7b31fc3e 285,287
+CHANGELOG.md
+  s_ba8ea0ff7052c6::t_d821aa9fc0bc83 5-13
+tests/duckdb.rs
+  s_ba8ea0ff7052c6::t_73899d03c98497 192-204,206-212
+  s_ba8ea0ff7052c6::t_b7b67bb7e280b5 75-79,102
+  s_ba8ea0ff7052c6::t_f9d1a4861c380b 205
+  s_ba8ea0ff7052c6::t_935b7d158d2131 1-74,80-101,103-191,213
+crates/db/tests/duckdb.rs
+  s_ba8ea0ff7052c6::t_e617792f58041e 58-60
+  s_ba8ea0ff7052c6::t_ab7d4388a1bdff 1-57,61-69
+fuzz/run_r_batch.R
+  s_ba8ea0ff7052c6::t_07aba7c6eee6df 15-20
+crates/db/src/lib.rs
+  s_ba8ea0ff7052c6::t_6e08534723309e 25
+  s_ba8ea0ff7052c6::t_693f0303cf5072 6
+  s_ba8ea0ff7052c6::t_bd216d8930a1e2 62-71
+fuzz/README.md
+  s_ba8ea0ff7052c6::t_00963e49057b2d 19-23
+  s_ba8ea0ff7052c6::t_a978e2d11e5ba8 69
+src/main.rs
+  s_ba8ea0ff7052c6::t_f621a38568c8c2 270
+docs/upstream-test-coverage.md
+  s_ba8ea0ff7052c6::t_3254ec1f704378 144
+  s_ba8ea0ff7052c6::t_e64bdd5f3f03ee 96
+  s_ba8ea0ff7052c6::t_b9a8d02c657c11 149-156
+README.md
+  s_ba8ea0ff7052c6::t_0f843a508ddf99 9,14-20
+  s_ba8ea0ff7052c6::t_bef1577f0d2ed8 82
+  s_ba8ea0ff7052c6::t_169363e900a0f5 64
+  s_ba8ea0ff7052c6::t_c71ad08de21e3a 29-34,38,41-43
+  s_ba8ea0ff7052c6::t_61c448630aef06 44
+build.rs
+  s_ba8ea0ff7052c6::t_079ad349ede1f0 1-9
+crates/db/src/duckdb.rs
+  s_ba8ea0ff7052c6::t_4c8b4e88ba47dc 13-15
+  s_ba8ea0ff7052c6::t_067abcc0f11fb4 36-65,69
+  s_ba8ea0ff7052c6::t_39b3bcf766b68d 168-187,191-197,200-203
+  s_ba8ea0ff7052c6::t_e617792f58041e 204-205
+  s_ba8ea0ff7052c6::t_8bad0477754e6f 1-12,16-17,19,21-22,66,68,89,99-167,188-190,198-199,206-216,220-278
+  s_ba8ea0ff7052c6::t_c923f8f9413022 217-219
+  s_ba8ea0ff7052c6::t_1aab8c752a7651 18,20,23-35,67,70-88,90-98
+  s_ba8ea0ff7052c6::t_7857e7c37bceed 279-281
+crates/db/Cargo.toml
+  s_ba8ea0ff7052c6::t_78557462868c71 14-18
+Cargo.lock
+  s_ba8ea0ff7052c6::t_8dcaedd5922a39 5-24,79,90,99-275,293-301,314-319,362-367,477-486,493-512,543-557,662,678-693,707,734-743,750-760,818-840,849,853-864,904-919,992-1048,1055-1075,1133-1142,1151-1179,1189,1320,1387-1392,1406,1463-1476,1493,1495,1501-1536,1629-1634,1660,1680-1706,1729-1739,1747,1750-1759,1791,1873-1924,2031-2039,2112-2120,2130-2193,2200-2209,2216-2247
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a6b5be1f99c55c07cd34ed4835b3af604b0b1189",
+  "prompts": {},
+  "sessions": {
+    "s_ba8ea0ff7052c6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5283c514-85a1-4bb1-891a-eaf3ba84c090",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "ABorakati <ABorakati@users.noreply.github.com>"
+    }
+  }
+}
