@@ -90,14 +90,42 @@ The parity fixtures in `tests/oracle/generated` include three databases that com
 | Data | Files | Source | Licence |
 |---|---|---|---|
 | MIMIC-IV demo in the OMOP CDM v0.9 (100 de-identified patients) | `tests/oracle/generated/eunomia/mimic/cdm.sqlite` | [PhysioNet](https://physionet.org/content/mimic-iv-demo-omop/), derived from the [MIMIC-IV Clinical Database Demo](https://physionet.org/content/mimic-iv-demo/), via OHDSI's `EunomiaDatasets` | [Open Data Commons Open Database License v1.0](https://opendatacommons.org/licenses/odbl/) |
-| GiBleed (CDM 5.3) and Synthea27Nj (CDM 5.4), synthetic | `tests/oracle/generated/gibleed/sqlite/gibleed-copy.sqlite`, `tests/oracle/generated/duckdb/gibleed/cdm.duckdb`, `tests/oracle/generated/eunomia/synthea27nj/cdm.sqlite` | [Synthea](https://synthetichealth.github.io/synthea/), converted by OHDSI's [ETL-Synthea](https://github.com/OHDSI/ETL-Synthea), via `EunomiaDatasets` | Synthetic data, no real patients. Terms not separately verified |
+| GiBleed (CDM 5.3) and Synthea27Nj (CDM 5.4), synthetic | `tests/oracle/generated/gibleed/sqlite/gibleed-copy.sqlite`, `tests/oracle/generated/duckdb/gibleed/cdm.duckdb`, `tests/oracle/generated/eunomia/synthea27nj/cdm.sqlite` | [Synthea](https://synthetichealth.github.io/synthea/), converted by OHDSI's [ETL-Synthea](https://github.com/OHDSI/ETL-Synthea), via `EunomiaDatasets` | Synthetic data, no real patients. Synthea is Apache-2.0; no restriction on generated data is stated (see below) |
 
-**MIMIC.** The MIMIC database file is licensed under the ODbL v1.0, not under this project's Apache-2.0 licence. It is
-the PhysioNet MIMIC-IV demo data as Eunomia delivers it (not yet compared byte for byte; see open item 5). Anyone redistributing it, or a database derived from it,
-must keep this notice, attribute PhysioNet and the MIMIC-IV authors, and offer a derived database under the ODbL. Cite
-the data as the PhysioNet pages above ask. The results files derived from it (`results.json`, `results.csv` and logs in
-`tests/oracle/generated/eunomia/mimic`) hold aggregate counts and check SQL, not patient rows. This project does not
-include, and must not include, the full MIMIC-IV, which needs PhysioNet credentialed access.
+**MIMIC.** The MIMIC database file is licensed under the ODbL v1.0, not under this project's Apache-2.0 licence. PhysioNet's
+access policy for the demo, on both of its pages, reads: "Anyone can access the files, as long as they conform to the
+terms of the specified license." There is no data use agreement for the demo. The raw demo page records IRB approval and
+HIPAA Safe Harbor de-identification. OHDSI's `EunomiaDatasets` repository ships the same dataset with its own
+`datasets/MIMIC/LICENSE.txt`, which is the ODbL, and states that its CSV files "were downloaded on Dec 1, 2022 from
+https://physionet.org/content/mimic-iv-demo-omop/0.9/".
+
+What the ODbL asks of anyone who redistributes it (sections 4.2 to 4.6 of the licence text):
+
+- Convey the database only under the ODbL, with a copy of the licence or its URI, and keep the licence notices intact.
+  This repository meets that with `tests/oracle/generated/eunomia/mimic/LICENSE.txt` (PhysioNet's copy of the licence)
+  and `NOTICE.txt` in the same folder.
+- A Produced Work, such as a report built from the data, needs a notice that it contains information from the database:
+  "Contains information from MIMIC-IV demo data in the OMOP Common Data Model, which is made available here under the
+  Open Database License (ODbL)." Creating one needs none; publicly using one does. The results files in that folder
+  (`results.json`, `results.csv`, logs) hold aggregate counts and check SQL, not patient rows.
+- A Derivative Database that is publicly used must be offered under the ODbL, with the derived database or a file of the
+  changes. Incorporating the database in a larger collection (a Collective Database, such as this repository) does not
+  require licensing the collection under the ODbL, but the ODbL still applies to the database inside it (sections 4.4
+  and 4.5).
+
+Cite the data as PhysioNet asks (the full text is in `NOTICE.txt` in the MIMIC folder): Kallfelz, M., Tsvetkova, A.,
+Pollard, T., Kwong, M., Lipori, G., Huser, V., Osborn, J., Hao, S., & Williams, A. (2021). *MIMIC-IV demo data in the OMOP
+Common Data Model* (version 0.9). PhysioNet. <https://doi.org/10.13026/p1f5-7x35>, together with the standard PhysioNet
+citation. This project does not include, and must not include, the full MIMIC-IV, which needs PhysioNet credentialed
+access.
+
+**Synthea-based datasets.** Synthea is licensed under Apache-2.0 (copyright The MITRE Corporation). Its README and FAQ
+state that the data is synthetic ("No individual-level data was used in creating it") and impose no restriction on the
+generated records, but they do not say whether the Apache licence extends to generated output. The FAQ's preferred
+citation is Walonoski, J., et al. (2018). Synthea: An approach, method, and software mechanism for generating synthetic
+patients and the synthetic electronic health care record. *JAMIA* 25(3), 230-238.
+<https://doi.org/10.1093/jamia/ocx079>. OHDSI's `EunomiaDatasets` holds no licence or readme file in the `GiBleed` or
+`Synthea27Nj` folders; its root `LICENSE` is Apache-2.0 and does not name the datasets.
 
 ## Open items before release
 
@@ -111,5 +139,6 @@ These items were found while writing this file. The owner should resolve them be
    file, or ship it next to the font files in the release archives.
 4. **Font copyright holders.** The OFL font holders are in the font metadata, not in the CSS. Read them from the font
    files and add them to the table.
-5. **Eunomia's copy of the MIMIC demo.** Compare Eunomia 2.1.0's MIMIC database with PhysioNet's OMOP demo (v0.9), and
-   read the terms of OHDSI's `EunomiaDatasets`, to confirm the copy is unmodified and the notice above is complete.
+5. **Eunomia's copy of the MIMIC demo.** The terms are read: PhysioNet and `EunomiaDatasets` both give the ODbL, and
+   `EunomiaDatasets` says its CSV files came from PhysioNet's v0.9 demo. What remains is to compare the committed
+   `cdm.sqlite` with the content of PhysioNet's v0.9 CSV files, to confirm the copy is unmodified.

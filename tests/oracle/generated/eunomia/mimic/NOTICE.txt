@@ -1,0 +1,23 @@
+MIMIC-IV demo data in the OMOP Common Data Model (version 0.9)
+
+The database file cdm.sqlite in this folder is the 100-patient MIMIC-IV demo in the OMOP CDM,
+as distributed by the R package Eunomia 2.1.0 (OHDSI EunomiaDatasets, datasets/MIMIC).
+Its source is PhysioNet: https://physionet.org/content/mimic-iv-demo-omop/0.9/
+
+Licence: Open Data Commons Open Database License (ODbL) v1.0. The licence text is in LICENSE.txt
+(PhysioNet's copy) and at https://opendatacommons.org/licenses/odbl/1-0/. This database is licensed under
+the ODbL, not under the Apache-2.0 licence of the rest of this repository.
+
+Contains information from MIMIC-IV demo data in the OMOP Common Data Model
+(https://physionet.org/content/mimic-iv-demo-omop/0.9/), which is made available here under the
+Open Database License (ODbL) (https://opendatacommons.org/licenses/odbl/1-0/).
+
+Please cite, as PhysioNet asks:
+
+Kallfelz, M., Tsvetkova, A., Pollard, T., Kwong, M., Lipori, G., Huser, V., Osborn, J., Hao, S., &
+Williams, A. (2021). MIMIC-IV demo data in the OMOP Common Data Model (version 0.9). PhysioNet.
+RRID:SCR_007345. https://doi.org/10.13026/p1f5-7x35
+
+Pollard, T., Moody, B. E., Lehman, L., Gow, B., Fernandes, C., Xie, C., Johnson, A., Mark, R. G., &
+Heldt, T. (2026). PhysioNet as a global platform for biomedical research. Nature Health.
+https://doi.org/10.1038/s44360-026-00096-z
