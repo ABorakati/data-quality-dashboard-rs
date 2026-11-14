@@ -3,6 +3,7 @@
 //! Behavior (row values, error text, warnings, insert typing) reproduces what the former JDBC bridge
 //! produced with sqlite-jdbc 3.50.3.0 and the pgjdbc driver DatabaseConnector downloads (42.7.3).
 
+#[cfg(feature = "duckdb")]
 mod duckdb;
 mod javacompat;
 mod pg;
@@ -59,6 +60,11 @@ pub fn connect(spec: &ConnectSpec) -> anyhow::Result<Box<dyn Connection>> {
             Ok(Box::new(sqlite::SqliteConnection::open(path)?))
         }
         Dbms::Postgresql => Ok(Box::new(pg::PgConnection::connect(spec)?)),
+        #[cfg(not(feature = "duckdb"))]
+        Dbms::Duckdb => anyhow::bail!(
+            "this build was compiled without DuckDB support; rebuild with the `duckdb` Cargo feature (enabled by default) to use dbms 'duckdb'"
+        ),
+        #[cfg(feature = "duckdb")]
         Dbms::Duckdb => {
             // DatabaseConnector passes the database file as `server`; `sqlite_path` is an alias.
             let path = spec

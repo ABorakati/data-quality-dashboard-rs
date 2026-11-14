@@ -17,6 +17,10 @@ path = "src/lib.rs"
 name = "dqd"
 path = "src/main.rs"
 
+[features]
+default = ["duckdb"]
+duckdb = ["dqd-db/duckdb"]
+
 [dependencies]
 anyhow = "1"
 chrono = { version = "0.4", features = ["serde"] }
@@ -28,7 +32,7 @@ sha2 = "0.10"
 tempfile = "3"
 tiny_http = "0.12"
 dqd-sqlrender = { path = "crates/sqlrender" }
-dqd-db = { path = "crates/db" }
+dqd-db = { path = "crates/db", default-features = false }
 
 [dev-dependencies]
 pretty_assertions = "1"

@@ -10,14 +10,25 @@ Supported `dbms` values are `sqlite`, `postgresql` and `duckdb`. Any other value
 
 ## Requirements
 
-- Rust toolchain compatible with the 2024 edition.
+- Rust 1.88 or later (edition 2024). The minimum is set by the DuckDB bindings and the dev-dependencies.
 - A reachable SQLite file, DuckDB file or PostgreSQL server holding the CDM.
-- For DuckDB, DuckDB's prebuilt 2.0.0 library. The build downloads it from DuckDB's GitHub
-  release (`duckdb` crate, `download-lib`; `.cargo/config.toml` sets `DUCKDB_DOWNLOAD_LIB=1`), and
-  `cargo run`/`cargo test` find it automatically. To run a built `dqd.exe` directly on DuckDB, put
-  `duckdb.dll` from `duckdb-shared-libs-windows-amd64.tar.gz`
-  ([v2.0.0](https://github.com/duckdb/duckdb/releases/tag/v2.0.0)) next to `dqd.exe` or on `PATH`.
-  The DLL is delay-loaded, so SQLite and PostgreSQL runs do not need it.
+- For DuckDB, DuckDB's prebuilt 2.0.0 shared library. DuckDB support is the Cargo feature `duckdb`, which
+  is on by default. The build downloads the library from DuckDB's GitHub release (`duckdb` crate,
+  `download-lib`; `.cargo/config.toml` sets `DUCKDB_DOWNLOAD_LIB=1`), and `cargo run`/`cargo test` find it
+  automatically.
+  - **Release archives** put the library next to the executable: `libduckdb.so` beside `dqd` on Linux,
+    `libduckdb.dylib` beside `dqd` on macOS, `duckdb.dll` beside `dqd.exe` on Windows. Linux and macOS
+    builds carry an `$ORIGIN` / `@loader_path` run path, so the executable finds the library in its own
+    folder with no `LD_LIBRARY_PATH` or `DYLD_LIBRARY_PATH`; keep the two files together when moving them.
+    The library is in `duckdb-shared-libs-<platform>.tar.gz` on the
+    [DuckDB v2.0.0 release](https://github.com/duckdb/duckdb/releases/tag/v2.0.0).
+  - On Windows the DLL is delay-loaded, so SQLite and PostgreSQL runs do not need it (it can also be on
+    `PATH`). On Linux and macOS the library is a normal dependency of the executable and must be present
+    even for SQLite and PostgreSQL runs.
+  - **Without DuckDB**: `cargo build --release --no-default-features` builds a SQLite and PostgreSQL only
+    binary that needs no DuckDB library at build or run time. `--dbms duckdb` then fails with
+    "this build was compiled without DuckDB support". Dependent crates use `dqd-db` with
+    `default-features = false` for the same effect.
 - R is optional and is used only by the independent upstream parity oracle. R itself needs Java through rJava and DatabaseConnector, so Java is needed only to regenerate oracle fixtures.
 
 ## Run checks

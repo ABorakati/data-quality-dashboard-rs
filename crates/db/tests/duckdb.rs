@@ -1,4 +1,5 @@
 //! DuckDB backend smoke test: a temp database file, DDL, insert, and value mapping.
+#![cfg(feature = "duckdb")]
 
 use dqd_db::{ConnectSpec, Dbms, Row, connect};
 use serde_json::json;

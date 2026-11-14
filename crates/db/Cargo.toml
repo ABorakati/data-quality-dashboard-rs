@@ -5,6 +5,12 @@ edition = "2024"
 license = "Apache-2.0"
 description = "Native SQLite and PostgreSQL connections reproducing DatabaseConnector behavior for DQD"
 
+[features]
+default = ["duckdb"]
+# DuckDB support; links the prebuilt DuckDB shared library. Turn it off (`--no-default-features`) for
+# a SQLite and PostgreSQL only build that needs no DuckDB library at build or run time.
+duckdb = ["dep:duckdb"]
+
 [dependencies]
 anyhow = "1"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
@@ -14,8 +20,8 @@ rusqlite = { version = "=0.37.0", features = ["bundled"] }
 # duckdb 1.20000.2 binds DuckDB 2.0.0, the engine of the R `duckdb` package DatabaseConnector 8.0.0
 # uses. `download-lib` links DuckDB's official prebuilt 2.0.0 library (duckdb.dll, staged next to the
 # build outputs) instead of compiling the C++ engine (`bundled`), which needs several GB of disk.
-# `.cargo/config.toml` sets DUCKDB_DOWNLOAD_LIB=1.
-duckdb = { version = "=1.20000.2", features = ["download-lib"] }
+# `.cargo/config.toml` sets DUCKDB_DOWNLOAD_LIB=1. Optional: only the `duckdb` feature pulls it in.
+duckdb = { version = "=1.20000.2", features = ["download-lib"], optional = true }
 postgres = "0.19"
 regex = "1"
 chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
