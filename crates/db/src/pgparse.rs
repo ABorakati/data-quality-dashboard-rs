@@ -96,11 +96,11 @@ fn parse_dollar_quotes(query: &[u16], mut offset: usize) -> usize {
         if query[offset + 1] == b'$' as u16 {
             end = Some(offset + 1);
         } else if query[offset + 1] != b'$' as u16 && ident_start(query[offset + 1]) {
-            for d in offset + 2..query.len() {
-                if query[d] == b'$' as u16 {
+            for (d, &c) in query.iter().enumerate().skip(offset + 2) {
+                if c == b'$' as u16 {
                     end = Some(d);
                     break;
-                } else if query[d] == b'$' as u16 || !ident_cont(query[d]) {
+                } else if !ident_cont(c) {
                     break;
                 }
             }
@@ -143,17 +143,13 @@ fn parse_block_comment(query: &[u16], mut offset: usize) -> usize {
         offset += 2;
         while offset < query.len() {
             match query[offset - 1] {
-                c if c == b'*' as u16 => {
-                    if query[offset] == b'/' as u16 {
-                        level -= 1;
-                        offset += 1;
-                    }
+                c if c == b'*' as u16 && query[offset] == b'/' as u16 => {
+                    level -= 1;
+                    offset += 1;
                 }
-                c if c == b'/' as u16 => {
-                    if query[offset] == b'*' as u16 {
-                        level += 1;
-                        offset += 1;
-                    }
+                c if c == b'/' as u16 && query[offset] == b'*' as u16 => {
+                    level += 1;
+                    offset += 1;
                 }
                 _ => {}
             }
@@ -172,7 +168,7 @@ fn grouped(value: usize) -> String {
     let digits = value.to_string();
     let mut out = String::new();
     for (index, ch) in digits.chars().enumerate() {
-        if index > 0 && (digits.len() - index) % 3 == 0 {
+        if index > 0 && (digits.len() - index).is_multiple_of(3) {
             out.push(',');
         }
         out.push(ch);

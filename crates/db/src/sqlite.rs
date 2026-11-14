@@ -1,5 +1,8 @@
 //! SQLite connection reproducing `org.xerial:sqlite-jdbc` 3.50.3.0 as the former JDBC bridge drove it.
 
+#![deny(unsafe_op_in_unsafe_fn)]
+#![warn(clippy::undocumented_unsafe_blocks)]
+
 use crate::javacompat::{
     DbError, big_decimal_millis, check_bigint, double_decimal_text, epoch_millis_utc_date,
     epoch_millis_utc_datetime, hybrid_days, instant_string, local_date_of_epoch_millis,
@@ -26,6 +29,9 @@ const TUNING_PRAGMAS: &str = "PRAGMA mmap_size = 1073741824; PRAGMA cache_size =
 /// before SQLite initialises; if it already has, the call fails harmlessly with SQLITE_MISUSE.
 fn disable_memory_statistics() {
     static ONCE: std::sync::Once = std::sync::Once::new();
+    // SAFETY: `SQLITE_CONFIG_MEMSTATUS` takes one `int` variadic argument, which is what is passed.
+    // `sqlite3_config` is not thread-safe against other SQLite use, but `Once` serialises every
+    // caller of this function and each `SqliteConnection::open` calls it before opening anything.
     ONCE.call_once(|| unsafe {
         ffi::sqlite3_config(ffi::SQLITE_CONFIG_MEMSTATUS, 0 as c_int);
     });
@@ -54,26 +60,39 @@ fn sqlite_exception(code: c_int, message: &str) -> DbError {
             "org.sqlite.SQLiteException",
             format!("[UNKNOWN_ERROR] unknown error:{code} ({message})"),
             "",
-            (-1i32 & 0xff) as i64,
+            0xff, // Java: (-1) & 0xff
         ),
     }
 }
 
+/// The most recent error message of `db`.
+///
+/// # Safety
+/// `db` must be an open connection handle.
 unsafe fn errmsg(db: *mut ffi::sqlite3) -> String {
+    // SAFETY: `db` is open by the function's contract.
     let message = unsafe { ffi::sqlite3_errmsg(db) };
     if message.is_null() {
         return String::new();
     }
+    // SAFETY: `sqlite3_errmsg` returns a NUL-terminated string that stays valid until the next
+    // call on `db`; it is copied before then.
     unsafe { CStr::from_ptr(message) }
         .to_string_lossy()
         .into_owned()
 }
 
-/// Owns a prepared statement for the duration of one request (`sqlite3_finalize` on drop).
-struct Stmt(*mut ffi::sqlite3_stmt);
+/// Owns a prepared statement for the duration of one request (`sqlite3_finalize` on drop). The
+/// lifetime ties it to the connection that prepared it, so it cannot outlive its database handle.
+struct Stmt<'c>(
+    *mut ffi::sqlite3_stmt,
+    std::marker::PhantomData<&'c SqliteConnection>,
+);
 
-impl Drop for Stmt {
+impl Drop for Stmt<'_> {
     fn drop(&mut self) {
+        // SAFETY: `Stmt` is only built by `prepare`, from a statement it owns exclusively, and its
+        // lifetime keeps the connection open until after this finalisation.
         unsafe { ffi::sqlite3_finalize(self.0) };
     }
 }
@@ -238,14 +257,17 @@ impl SqliteConnection {
             && file_name != ":memory:"
             && !file_name.starts_with("file:")
             && !file_name.contains("mode=memory")
+            && let Ok(absolute) = std::path::absolute(&file_name)
         {
-            if let Ok(absolute) = std::path::absolute(&file_name) {
-                file_name = absolute.to_string_lossy().into_owned();
-            }
+            file_name = absolute.to_string_lossy().into_owned();
         }
         let bytes: Vec<u8> = file_name.bytes().take_while(|&b| b != 0).collect();
-        let c_name = std::ffi::CString::new(bytes).expect("NUL removed");
+        let c_name = std::ffi::CString::new(bytes).expect("interior NULs were removed above");
         disable_memory_statistics();
+        // SAFETY: `db` is the handle `sqlite3_open_v2` just returned. It is owned here, closed on
+        // every early return and otherwise handed to `rusqlite::Connection`, which closes it on
+        // drop. `c_name` is NUL-terminated and outlives the open call. The variadic
+        // `sqlite3_db_config` call passes the `int` and `int*` that `ENABLE_FKEY` expects.
         unsafe {
             let mut db: *mut ffi::sqlite3 = ptr::null_mut();
             // READWRITE | CREATE | URI, as SQLiteConfig sets by default.
@@ -271,9 +293,14 @@ impl SqliteConnection {
                 &mut previous as *mut c_int,
             );
             // sqlite-jdbc is built with SQLITE_ENABLE_MATH_FUNCTIONS; the bundled build is not.
-            crate::sqlite_math::register_math_functions(db);
             // DatabaseConnector connects through RSQLite, which loads extension-functions.c.
-            crate::sqlite_math::register_extension_functions(db);
+            let registered = crate::sqlite_math::register_math_functions(db)
+                .and_then(|()| crate::sqlite_math::register_extension_functions(db));
+            if let Err(rc) = registered {
+                let message = errmsg(db);
+                ffi::sqlite3_close(db);
+                return Err(sqlite_exception(rc, &message));
+            }
             // SQLiteConfig.apply: limits, then the 3000 ms default busy timeout.
             ffi::sqlite3_limit(db, ffi::SQLITE_LIMIT_ATTACHED, 10);
             ffi::sqlite3_limit(db, ffi::SQLITE_LIMIT_COLUMN, 2000);
@@ -281,7 +308,8 @@ impl SqliteConnection {
             ffi::sqlite3_limit(db, ffi::SQLITE_LIMIT_LENGTH, 1_000_000_000);
             ffi::sqlite3_limit(db, ffi::SQLITE_LIMIT_SQL_LENGTH, 1_000_000);
             ffi::sqlite3_busy_timeout(db, 3000);
-            let conn = rusqlite::Connection::from_handle_owned(db).expect("valid handle");
+            let conn = rusqlite::Connection::from_handle_owned(db)
+                .expect("rusqlite 0.37 (pinned) never fails to adopt an open handle");
             // Read-performance tuning only; none of these can change a query's result.
             conn.execute_batch(TUNING_PRAGMAS)
                 .map_err(|error| sqlite_exception(ffi::SQLITE_ERROR, &error.to_string()))?;
@@ -293,35 +321,50 @@ impl SqliteConnection {
     }
 
     fn db(&self) -> *mut ffi::sqlite3 {
+        // SAFETY: the handle is only used while `self` (and so the connection) is alive.
         unsafe { self.conn.handle() }
     }
 
-    unsafe fn error(&self, code: c_int) -> DbError {
+    fn error(&self, code: c_int) -> DbError {
+        // SAFETY: `self.db()` is the open handle of a live connection.
         sqlite_exception(code, &unsafe { errmsg(self.db()) })
     }
 
-    unsafe fn prepare(&self, sql: &str) -> Result<Stmt, DbError> {
+    fn prepare(&self, sql: &str) -> Result<Stmt<'_>, DbError> {
+        // `sqlite3_prepare_v2` takes the length as an `int`; a larger value would wrap negative,
+        // which SQLite reads as "up to the first NUL" in a buffer that has none.
+        let Ok(len) = c_int::try_from(sql.len()) else {
+            return Err(sqlite_exception(
+                ffi::SQLITE_TOOBIG,
+                "string or blob too big",
+            ));
+        };
         let mut stmt: *mut ffi::sqlite3_stmt = ptr::null_mut();
+        // SAFETY: the handle is open, `sql` is a readable buffer of exactly `len` bytes, and
+        // `stmt` is a valid out-pointer.
         let rc = unsafe {
             ffi::sqlite3_prepare_v2(
                 self.db(),
                 sql.as_ptr() as *const c_char,
-                sql.len() as c_int,
+                len,
                 &mut stmt,
                 ptr::null_mut(),
             )
         };
         if rc != ffi::SQLITE_OK {
-            return Err(unsafe { self.error(rc) });
+            return Err(self.error(rc));
         }
-        Ok(Stmt(stmt))
+        Ok(Stmt(stmt, std::marker::PhantomData))
     }
 
     fn run_query(&self, sql: &str) -> Result<Vec<Row>, DbError> {
         let text = single_statement(sql)?;
+        let stmt = self.prepare(&text)?;
+        let raw = stmt.0;
+        // SAFETY: `raw` is a live prepared statement owned by `stmt`, which outlives this block.
+        // Column text pointers are copied before the next `sqlite3_step`, and `read_value` is only
+        // called while the statement is positioned on a row.
         unsafe {
-            let stmt = self.prepare(&text)?;
-            let raw = stmt.0;
             let first = ffi::sqlite3_step(raw);
             match first & 0xff {
                 ffi::SQLITE_DONE => {
@@ -385,7 +428,9 @@ impl SqliteConnection {
     fn run_execute(&self, sql: &str) -> Result<(), DbError> {
         for statement in split_statements(sql)? {
             let bytes: Vec<u8> = statement.bytes().take_while(|&b| b != 0).collect();
-            let c_sql = std::ffi::CString::new(bytes).expect("NUL removed");
+            let c_sql = std::ffi::CString::new(bytes).expect("interior NULs were removed above");
+            // SAFETY: the handle is open, `c_sql` is NUL-terminated and outlives the call, and the
+            // callback and error-message out-pointer are null, which `sqlite3_exec` accepts.
             unsafe {
                 let rc = ffi::sqlite3_exec(
                     self.db(),
@@ -416,9 +461,12 @@ impl SqliteConnection {
         sql.push_str(") VALUES (");
         sql.push_str(&vec!["?"; columns.len()].join(","));
         sql.push(')');
+        let stmt = self.prepare(&sql)?;
+        let raw = stmt.0;
+        // SAFETY: `raw` is a live prepared statement owned by `stmt`; every bound parameter index
+        // is within the statement's `?` count; text is bound with SQLITE_TRANSIENT, so SQLite copies
+        // it before `text` is dropped, and its length is checked to fit an `int`.
         unsafe {
-            let stmt = self.prepare(&sql)?;
-            let raw = stmt.0;
             for row in rows {
                 ffi::sqlite3_reset(raw);
                 for (index, column) in columns.iter().enumerate() {
@@ -447,11 +495,17 @@ impl SqliteConnection {
                                 Value::String(text) => text.clone(),
                                 other => other.to_string(),
                             };
+                            let Ok(len) = c_int::try_from(text.len()) else {
+                                return Err(sqlite_exception(
+                                    ffi::SQLITE_TOOBIG,
+                                    "string or blob too big",
+                                ));
+                            };
                             ffi::sqlite3_bind_text(
                                 raw,
                                 position,
                                 text.as_ptr() as *const c_char,
-                                text.len() as c_int,
+                                len,
                                 ffi::SQLITE_TRANSIENT(),
                             )
                         }
@@ -478,12 +532,19 @@ impl SqliteConnection {
 }
 
 /// The former bridge's `readValue` for the `sqlite` dbms.
+///
+/// # Safety
+/// `stmt` must be a live prepared statement currently positioned on a row, and `column` must be
+/// below its column count.
 unsafe fn read_value(
     stmt: *mut ffi::sqlite3_stmt,
     column: c_int,
     label: &str,
     decl: &Option<String>,
 ) -> Result<Value, DbError> {
+    // SAFETY: the function contract covers every `sqlite3_column_*` call; `sqlite3_column_text` is
+    // always followed by `sqlite3_column_bytes` for the same column, and the returned buffer is
+    // copied before any other call on that column.
     unsafe {
         let value_type = ffi::sqlite3_column_type(stmt, column);
         if value_type == ffi::SQLITE_NULL {

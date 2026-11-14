@@ -185,16 +185,14 @@ fn jsonlite_results_value(value: &Value) -> Value {
     let mut results = value.clone();
     if let Some(object) = results.as_object_mut() {
         for section in ["Metadata", "CheckResults"] {
-            if let Some(section_value) = object.get_mut(section) {
-                if let Value::Array(values) = section_value {
-                    if let Some(rows) = values
-                        .iter()
-                        .map(|value| value.as_object().cloned())
-                        .collect::<Option<Vec<_>>>()
-                    {
-                        *section_value = rows_to_json(&rows);
-                    }
-                }
+            if let Some(section_value) = object.get_mut(section)
+                && let Value::Array(values) = section_value
+                && let Some(rows) = values
+                    .iter()
+                    .map(|value| value.as_object().cloned())
+                    .collect::<Option<Vec<_>>>()
+            {
+                *section_value = rows_to_json(&rows);
             }
         }
         if let Some(Value::Object(overview)) = object.get_mut("Overview") {
@@ -223,10 +221,10 @@ fn jsonlite_results_value(value: &Value) -> Value {
             }
         }
         for field in ["startTimestamp", "endTimestamp"] {
-            if let Some(value) = object.get_mut(field) {
-                if !value.is_array() {
-                    *value = Value::Array(vec![value.clone()]);
-                }
+            if let Some(value) = object.get_mut(field)
+                && !value.is_array()
+            {
+                *value = Value::Array(vec![value.clone()]);
             }
         }
     }
@@ -386,7 +384,7 @@ pub fn convert_json_results_file_case(
         };
         write_results_to_json(
             &results,
-            output_folder.expect("output folder checked above"),
+            output_folder.context("You must specify an output folder if writing to file.")?,
             filename,
         )?;
     }
@@ -443,8 +441,12 @@ fn r_double_text(value: f64) -> String {
         return "0".to_owned();
     }
     let scientific = format!("{value:.14e}");
-    let (mantissa, exponent) = scientific.split_once('e').expect("scientific notation");
-    let exponent: i32 = exponent.parse().expect("exponent");
+    let (mantissa, exponent) = scientific
+        .split_once('e')
+        .expect("`{:e}` of a finite float always has an exponent");
+    let exponent: i32 = exponent
+        .parse()
+        .expect("`{:e}` exponents are decimal integers");
     let digits: String = mantissa.chars().filter(char::is_ascii_digit).collect();
     let significant = digits.trim_end_matches('0').len().max(1);
     let negative = usize::from(value < 0.0);
@@ -462,7 +464,9 @@ fn r_double_text(value: f64) -> String {
         format!("{value:.decimals$}")
     } else {
         let mantissa = format!("{:.*e}", significant - 1, value);
-        let (mantissa, _) = mantissa.split_once('e').expect("scientific notation");
+        let (mantissa, _) = mantissa
+            .split_once('e')
+            .expect("`{:e}` of a finite float always has an exponent");
         format!(
             "{mantissa}e{}{:0>2}",
             if exponent < 0 { '-' } else { '+' },
@@ -559,10 +563,7 @@ fn write_results_to_csv_inner(
                 let value = row.get(*column).unwrap_or(&Value::Null);
                 let mut text = csv_text(value);
                 if *column == "queryText" || *column == "error" {
-                    text = text
-                        .replace('\n', " ")
-                        .replace('\r', " ")
-                        .replace('\t', " ");
+                    text = text.replace(['\n', '\r', '\t'], " ");
                 }
                 if value.is_string() {
                     quoted_r_text(&text)
@@ -809,6 +810,7 @@ pub fn write_results_to_table_for_cohorts(
     write_results_to_table_named(rows, connection, engine, dbms, &table_name)
 }
 
+#[allow(clippy::too_many_arguments)] // mirrors the parameter list of the R function
 pub fn write_json_results_to_table(
     connection: &mut dyn Connection,
     engine: &mut dyn SqlEngine,
@@ -859,6 +861,7 @@ pub fn write_json_results_to_table(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)] // mirrors the parameter list of the R function
 pub fn write_json_results_to_table_for_cohorts(
     connection: &mut dyn Connection,
     engine: &mut dyn SqlEngine,
@@ -932,6 +935,7 @@ fn query_results(
         .collect())
 }
 
+#[allow(clippy::too_many_arguments)] // mirrors the parameter list of the R function
 pub fn write_db_results_to_json(
     connection: &mut dyn Connection,
     engine: &mut dyn SqlEngine,

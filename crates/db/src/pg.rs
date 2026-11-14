@@ -61,6 +61,7 @@ fn connection_error(error: postgres::Error, host: &str, port: u16) -> DbError {
     }
     let mut source: Option<&(dyn StdError + 'static)> = Some(&error);
     while let Some(cause) = source {
+        #[allow(clippy::collapsible_if)] // kept nested to keep this hunk clear of the TLS changes
         if let Some(io) = cause.downcast_ref::<std::io::Error>() {
             if io.kind() == std::io::ErrorKind::ConnectionRefused {
                 return psql(
@@ -94,12 +95,14 @@ fn percent_decode(text: &str) -> String {
     let mut out = Vec::with_capacity(bytes.len());
     let mut i = 0;
     while i < bytes.len() {
-        if bytes[i] == b'%' && i + 2 < bytes.len() {
-            if let Ok(value) = u8::from_str_radix(&text[i + 1..i + 3], 16) {
-                out.push(value);
-                i += 3;
-                continue;
-            }
+        if bytes[i] == b'%'
+            && i + 2 < bytes.len()
+            // `get` rather than slicing: the two bytes after '%' may split a multi-byte character.
+            && let Some(Ok(value)) = text.get(i + 1..i + 3).map(|hex| u8::from_str_radix(hex, 16))
+        {
+            out.push(value);
+            i += 3;
+            continue;
         }
         out.push(if bytes[i] == b'+' { b' ' } else { bytes[i] });
         i += 1;
@@ -667,7 +670,7 @@ fn convert_value(oid: u32, text: Option<&str>) -> Result<Value, DbError> {
         // numeric
         1700 => {
             if !text.eq_ignore_ascii_case("NaN") && !is_big_decimal(trim_money(text).trim()) {
-                return Err(bad_value("BigDecimal", &trim_money(text).trim().to_owned()));
+                return Err(bad_value("BigDecimal", trim_money(text).trim()));
             }
             let fixed = trim_money(text);
             java_parse_double(&fixed)

@@ -418,10 +418,15 @@ proptest! {
 // measureValueCompleteness per (table, field), plus regular checks.
 // ---------------------------------------------------------------------------
 
+/// One table: missing, empty, and its fields (missing, empty-ish).
+type TablePlan = (bool, bool, Vec<(bool, bool)>);
+/// One regular check: table index, field index, and its flags.
+type RegularPlan = (usize, usize, bool, &'static str, bool);
+
 #[derive(Clone, Debug)]
 struct Plan {
-    tables: Vec<(bool, bool, Vec<(bool, bool)>)>, // missing, empty, fields (missing, empty-ish)
-    regulars: Vec<(usize, usize, bool, &'static str, bool)>,
+    tables: Vec<TablePlan>,
+    regulars: Vec<RegularPlan>,
 }
 
 fn plan() -> impl Strategy<Value = Plan> {

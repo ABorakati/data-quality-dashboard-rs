@@ -1,33 +1,56 @@
 //! SQLite's `SQLITE_ENABLE_MATH_FUNCTIONS` functions (src/func.c in 3.50), which sqlite-jdbc's build enables
 //! but `libsqlite3-sys`'s bundled build does not. Each callback mirrors the C implementation.
 
+#![deny(unsafe_op_in_unsafe_fn)]
+#![warn(clippy::undocumented_unsafe_blocks)]
+
+// Contract shared by every `unsafe extern "C"` callback below: SQLite calls them with a valid
+// `sqlite3_context` and an `argv` array holding exactly as many valid `sqlite3_value` pointers as
+// the argument count the function was registered with (`argc`). `register` is the only place that
+// registers them, and each registration pairs a callback with its arity.
+
 use rusqlite::ffi;
-use std::ffi::{c_char, c_int, c_void};
+use std::ffi::{CStr, c_int, c_void};
 
 type Sqlite3Value = *mut ffi::sqlite3_value;
 type Context = *mut ffi::sqlite3_context;
 
 unsafe extern "C" {
-    fn acosh(x: f64) -> f64;
-    fn asinh(x: f64) -> f64;
-    fn atanh(x: f64) -> f64;
+    // libm: SQLite's own build calls these, and std does not expose bit-identical equivalents.
+    safe fn acosh(x: f64) -> f64;
+    safe fn asinh(x: f64) -> f64;
+    safe fn atanh(x: f64) -> f64;
 }
 
 fn is_numeric(value: Sqlite3Value) -> bool {
+    // SAFETY: `value` is one of the argument values SQLite passed to the running callback.
     let kind = unsafe { ffi::sqlite3_value_numeric_type(value) };
     kind == ffi::SQLITE_INTEGER || kind == ffi::SQLITE_FLOAT
 }
 
+/// The one-argument function stored as user data by `register_math_functions`.
+///
+/// # Safety
+/// `ctx` must belong to a function registered with a `fn(f64) -> f64` as its user data.
 unsafe fn user_fn1(ctx: Context) -> fn(f64) -> f64 {
+    // SAFETY: per the function contract the user data is a non-null `fn(f64) -> f64` cast to a data
+    // pointer by `f1`; both types are pointer-sized.
     unsafe { std::mem::transmute::<*mut c_void, fn(f64) -> f64>(ffi::sqlite3_user_data(ctx)) }
 }
 
+/// The two-argument function stored as user data by `register_math_functions`.
+///
+/// # Safety
+/// `ctx` must belong to a function registered with a `fn(f64, f64) -> f64` as its user data.
 unsafe fn user_fn2(ctx: Context) -> fn(f64, f64) -> f64 {
+    // SAFETY: as for `user_fn1`, with the two-argument signature.
     unsafe { std::mem::transmute::<*mut c_void, fn(f64, f64) -> f64>(ffi::sqlite3_user_data(ctx)) }
 }
 
 /// `ceil`, `ceiling`, `floor`, `trunc`: integers pass through unchanged.
 unsafe extern "C" fn ceiling_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Value) {
+    // SAFETY: registered with one argument, so `argv[0]` is valid, and the user data is a
+    // `fn(f64) -> f64` (see the contract above).
     unsafe {
         let arg = *argv;
         match ffi::sqlite3_value_numeric_type(arg) {
@@ -41,6 +64,7 @@ unsafe extern "C" fn ceiling_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3
 }
 
 unsafe extern "C" fn math1_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Value) {
+    // SAFETY: registered with one argument and a `fn(f64) -> f64` user data.
     unsafe {
         let arg = *argv;
         if !is_numeric(arg) {
@@ -51,6 +75,7 @@ unsafe extern "C" fn math1_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Va
 }
 
 unsafe extern "C" fn math2_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Value) {
+    // SAFETY: registered with two arguments and a `fn(f64, f64) -> f64` user data.
     unsafe {
         let (a, b) = (*argv, *argv.add(1));
         if !is_numeric(a) || !is_numeric(b) {
@@ -63,47 +88,66 @@ unsafe extern "C" fn math2_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Va
     }
 }
 
-unsafe extern "C" fn log_func(ctx: Context, argc: c_int, argv: *mut Sqlite3Value) {
+/// `log(X)`, `log10(X)` and `log2(X)`: the natural logarithm of the argument divided by `divisor`.
+///
+/// # Safety
+/// `argv` must point to at least one valid value.
+unsafe fn log_unary(ctx: Context, argv: *mut Sqlite3Value, divisor: f64) {
+    // SAFETY: the caller guarantees `argv[0]` is valid.
     unsafe {
         let first = *argv;
         if !is_numeric(first) {
             return;
         }
-        let mut x = ffi::sqlite3_value_double(first);
+        let x = ffi::sqlite3_value_double(first);
         if x <= 0.0 {
             return;
         }
-        let answer;
-        if argc == 2 {
-            let b = x.ln();
-            if b <= 0.0 {
-                return;
-            }
-            let second = *argv.add(1);
-            if !is_numeric(second) {
-                return;
-            }
-            x = ffi::sqlite3_value_double(second);
-            if x <= 0.0 {
-                return;
-            }
-            answer = x.ln() / b;
-        } else {
-            answer = match ffi::sqlite3_user_data(ctx) as usize {
-                1 => x.ln() / std::f64::consts::LN_10,
-                2 => x.ln() / std::f64::consts::LN_2,
-                _ => x.ln(),
-            };
+        ffi::sqlite3_result_double(ctx, x.ln() / divisor);
+    }
+}
+
+unsafe extern "C" fn log10_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Value) {
+    // SAFETY: registered with one argument.
+    unsafe { log_unary(ctx, argv, std::f64::consts::LN_10) }
+}
+
+unsafe extern "C" fn log2_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Value) {
+    // SAFETY: registered with one argument.
+    unsafe { log_unary(ctx, argv, std::f64::consts::LN_2) }
+}
+
+/// `log(B, X)`: the logarithm of `X` to base `B`.
+unsafe extern "C" fn log_base_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Value) {
+    // SAFETY: registered with two arguments, so `argv[0]` and `argv[1]` are valid.
+    unsafe {
+        let (first, second) = (*argv, *argv.add(1));
+        if !is_numeric(first) {
+            return;
         }
-        ffi::sqlite3_result_double(ctx, answer);
+        let base = ffi::sqlite3_value_double(first);
+        if base <= 0.0 {
+            return;
+        }
+        let base_ln = base.ln();
+        if base_ln <= 0.0 || !is_numeric(second) {
+            return;
+        }
+        let x = ffi::sqlite3_value_double(second);
+        if x <= 0.0 {
+            return;
+        }
+        ffi::sqlite3_result_double(ctx, x.ln() / base_ln);
     }
 }
 
 unsafe extern "C" fn pi_func(ctx: Context, _argc: c_int, _argv: *mut Sqlite3Value) {
+    // SAFETY: `ctx` is valid (see the contract above); no argument is read.
     unsafe { ffi::sqlite3_result_double(ctx, std::f64::consts::PI) }
 }
 
 unsafe extern "C" fn sign_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Value) {
+    // SAFETY: registered with one argument.
     unsafe {
         let arg = *argv;
         if !is_numeric(arg) {
@@ -125,19 +169,25 @@ unsafe extern "C" fn sign_func(ctx: Context, _argc: c_int, argv: *mut Sqlite3Val
 
 type Callback = unsafe extern "C" fn(Context, c_int, *mut Sqlite3Value);
 
+/// Register one deterministic UTF-8 scalar function; the error is SQLite's result code.
+///
+/// # Safety
+/// `db` must be an open connection, `callback` must follow the contract above for `args`
+/// arguments, and `user` must be whatever `callback` expects from `sqlite3_user_data` (it is never
+/// freed, so it must not own memory).
 unsafe fn register(
     db: *mut ffi::sqlite3,
-    name: &str,
+    name: &CStr,
     args: c_int,
     user: *mut c_void,
     callback: Callback,
-) {
-    let mut c_name = name.as_bytes().to_vec();
-    c_name.push(0);
-    unsafe {
+) -> Result<(), c_int> {
+    // SAFETY: `name` is NUL-terminated and SQLite copies it; the remaining arguments are covered by
+    // the function's contract. No destructor is registered because `user` owns nothing.
+    let rc = unsafe {
         ffi::sqlite3_create_function_v2(
             db,
-            c_name.as_ptr() as *const c_char,
+            name.as_ptr(),
             args,
             ffi::SQLITE_UTF8 | ffi::SQLITE_DETERMINISTIC,
             user,
@@ -145,70 +195,91 @@ unsafe fn register(
             None,
             None,
             None,
-        );
+        )
+    };
+    if rc == ffi::SQLITE_OK {
+        Ok(())
+    } else {
+        Err(rc)
     }
 }
 
-/// Register every function `SQLITE_ENABLE_MATH_FUNCTIONS` adds.
-pub unsafe fn register_math_functions(db: *mut ffi::sqlite3) {
+/// Register every function `SQLITE_ENABLE_MATH_FUNCTIONS` adds. On failure the error is the
+/// SQLite result code of the first registration that failed.
+///
+/// # Safety
+/// `db` must be an open SQLite connection.
+pub(crate) unsafe fn register_math_functions(db: *mut ffi::sqlite3) -> Result<(), c_int> {
     fn f1(function: fn(f64) -> f64) -> *mut c_void {
-        function as usize as *mut c_void
+        function as *mut c_void
     }
     fn f2(function: fn(f64, f64) -> f64) -> *mut c_void {
-        function as usize as *mut c_void
+        function as *mut c_void
     }
+    let none = std::ptr::null_mut();
+    // SAFETY: `db` is open by this function's contract. Each callback is paired with its arity and
+    // user data: the one- and two-argument callbacks get a function pointer from `f1`/`f2` of the
+    // matching signature, and the others use no user data.
     unsafe {
-        register(db, "ceil", 1, f1(f64::ceil), ceiling_func);
-        register(db, "ceiling", 1, f1(f64::ceil), ceiling_func);
-        register(db, "floor", 1, f1(f64::floor), ceiling_func);
-        register(db, "trunc", 1, f1(f64::trunc), ceiling_func);
-        register(db, "ln", 1, f1(f64::ln), math1_func);
-        register(db, "log", 1, 1usize as *mut c_void, log_func);
-        register(db, "log10", 1, 1usize as *mut c_void, log_func);
-        register(db, "log2", 1, 2usize as *mut c_void, log_func);
-        register(db, "log", 2, std::ptr::null_mut(), log_func);
-        register(db, "exp", 1, f1(f64::exp), math1_func);
-        register(db, "pow", 2, f2(f64::powf), math2_func);
-        register(db, "power", 2, f2(f64::powf), math2_func);
-        register(db, "mod", 2, f2(|a, b| a % b), math2_func);
-        register(db, "acos", 1, f1(f64::acos), math1_func);
-        register(db, "asin", 1, f1(f64::asin), math1_func);
-        register(db, "atan", 1, f1(f64::atan), math1_func);
-        register(db, "atan2", 2, f2(f64::atan2), math2_func);
-        register(db, "cos", 1, f1(f64::cos), math1_func);
-        register(db, "sin", 1, f1(f64::sin), math1_func);
-        register(db, "tan", 1, f1(f64::tan), math1_func);
-        register(db, "cosh", 1, f1(f64::cosh), math1_func);
-        register(db, "sinh", 1, f1(f64::sinh), math1_func);
-        register(db, "tanh", 1, f1(f64::tanh), math1_func);
-        register(db, "acosh", 1, f1(|x| acosh(x)), math1_func);
-        register(db, "asinh", 1, f1(|x| asinh(x)), math1_func);
-        register(db, "atanh", 1, f1(|x| atanh(x)), math1_func);
-        register(db, "sqrt", 1, f1(f64::sqrt), math1_func);
+        register(db, c"ceil", 1, f1(f64::ceil), ceiling_func)?;
+        register(db, c"ceiling", 1, f1(f64::ceil), ceiling_func)?;
+        register(db, c"floor", 1, f1(f64::floor), ceiling_func)?;
+        register(db, c"trunc", 1, f1(f64::trunc), ceiling_func)?;
+        register(db, c"ln", 1, f1(f64::ln), math1_func)?;
+        register(db, c"log", 1, none, log10_func)?;
+        register(db, c"log10", 1, none, log10_func)?;
+        register(db, c"log2", 1, none, log2_func)?;
+        register(db, c"log", 2, none, log_base_func)?;
+        register(db, c"exp", 1, f1(f64::exp), math1_func)?;
+        register(db, c"pow", 2, f2(f64::powf), math2_func)?;
+        register(db, c"power", 2, f2(f64::powf), math2_func)?;
+        register(db, c"mod", 2, f2(|a, b| a % b), math2_func)?;
+        register(db, c"acos", 1, f1(f64::acos), math1_func)?;
+        register(db, c"asin", 1, f1(f64::asin), math1_func)?;
+        register(db, c"atan", 1, f1(f64::atan), math1_func)?;
+        register(db, c"atan2", 2, f2(f64::atan2), math2_func)?;
+        register(db, c"cos", 1, f1(f64::cos), math1_func)?;
+        register(db, c"sin", 1, f1(f64::sin), math1_func)?;
+        register(db, c"tan", 1, f1(f64::tan), math1_func)?;
+        register(db, c"cosh", 1, f1(f64::cosh), math1_func)?;
+        register(db, c"sinh", 1, f1(f64::sinh), math1_func)?;
+        register(db, c"tanh", 1, f1(f64::tanh), math1_func)?;
+        register(db, c"acosh", 1, f1(|x| acosh(x)), math1_func)?;
+        register(db, c"asinh", 1, f1(|x| asinh(x)), math1_func)?;
+        register(db, c"atanh", 1, f1(|x| atanh(x)), math1_func)?;
+        register(db, c"sqrt", 1, f1(f64::sqrt), math1_func)?;
         register(
             db,
-            "radians",
+            c"radians",
             1,
             f1(|x| x * (std::f64::consts::PI / 180.0)),
             math1_func,
-        );
+        )?;
         register(
             db,
-            "degrees",
+            c"degrees",
             1,
             f1(|x| x * (180.0 / std::f64::consts::PI)),
             math1_func,
-        );
-        register(db, "pi", 0, std::ptr::null_mut(), pi_func);
-        register(db, "sign", 1, std::ptr::null_mut(), sign_func);
+        )?;
+        register(db, c"pi", 0, none, pi_func)?;
+        register(db, c"sign", 1, none, sign_func)?;
     }
+    Ok(())
 }
 
 /// The bytes of a value converted to text, as `sqlite3_value_text` gives them.
+///
+/// # Safety
+/// `value` must be a valid argument value, and the result must not outlive the running callback
+/// nor any later type conversion of that same value (the conversion may free the buffer).
 unsafe fn value_text<'a>(value: Sqlite3Value) -> &'a [u8] {
+    // SAFETY: `sqlite3_value_text` is called before `sqlite3_value_bytes`, as SQLite requires, and
+    // returns either NULL or a buffer of that many bytes that stays valid under the caller's
+    // contract.
     unsafe {
         let text = ffi::sqlite3_value_text(value);
-        let len = ffi::sqlite3_value_bytes(value) as usize;
+        let len = usize::try_from(ffi::sqlite3_value_bytes(value)).unwrap_or(0);
         if text.is_null() || len == 0 {
             &[]
         } else {
@@ -223,8 +294,13 @@ unsafe fn value_text<'a>(value: Sqlite3Value) -> &'a [u8] {
 /// `start`, or 0. NULL needle or haystack gives NULL; an empty needle gives 0; `start` below 1
 /// (including a NULL `start`) searches from the beginning.
 unsafe extern "C" fn charindex_func(ctx: Context, argc: c_int, argv: *mut Sqlite3Value) {
+    // SAFETY: `argv` holds `argc` valid values (see the contract above). Both text buffers belong
+    // to different values, so reading one cannot invalidate the other, and neither outlives this call.
     unsafe {
-        let args = std::slice::from_raw_parts(argv, argc as usize);
+        let args = std::slice::from_raw_parts(argv, usize::try_from(argc).unwrap_or(0));
+        if args.len() < 2 {
+            return;
+        }
         if ffi::sqlite3_value_type(args[0]) == ffi::SQLITE_NULL
             || ffi::sqlite3_value_type(args[1]) == ffi::SQLITE_NULL
         {
@@ -249,26 +325,130 @@ unsafe extern "C" fn charindex_func(ctx: Context, argc: c_int, argv: *mut Sqlite
             characters += 1;
         }
         let mut position = 0;
-        if !needle.is_empty() && characters == skip {
-            if let Some(found) = haystack[offset..]
+        if !needle.is_empty()
+            && characters == skip
+            && let Some(found) = haystack[offset..]
                 .windows(needle.len())
                 .position(|window| window == needle)
-            {
-                let before = haystack[..offset + found]
-                    .iter()
-                    .filter(|&&b| is_start(b))
-                    .count();
-                position = before as c_int + 1;
-            }
+        {
+            let before = haystack[..offset + found]
+                .iter()
+                .filter(|&&b| is_start(b))
+                .count();
+            position = before as c_int + 1;
         }
         ffi::sqlite3_result_int(ctx, position);
     }
 }
 
-/// Register the RSQLite extension functions that DQD's translated SQL uses.
-pub unsafe fn register_extension_functions(db: *mut ffi::sqlite3) {
+/// Register the RSQLite extension functions that DQD's translated SQL uses. On failure the error is
+/// the SQLite result code.
+///
+/// # Safety
+/// `db` must be an open SQLite connection.
+pub(crate) unsafe fn register_extension_functions(db: *mut ffi::sqlite3) -> Result<(), c_int> {
+    // SAFETY: `db` is open by this function's contract; `charindex_func` accepts two or three
+    // arguments and uses no user data.
     unsafe {
-        register(db, "charindex", 2, std::ptr::null_mut(), charindex_func);
-        register(db, "charindex", 3, std::ptr::null_mut(), charindex_func);
+        register(db, c"charindex", 2, std::ptr::null_mut(), charindex_func)?;
+        register(db, c"charindex", 3, std::ptr::null_mut(), charindex_func)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Connection;
+    use crate::sqlite::SqliteConnection;
+    use serde_json::Value;
+    use std::path::Path;
+
+    fn scalar(connection: &mut SqliteConnection, expression: &str) -> Value {
+        let rows = connection
+            .query(&format!("select {expression} as x"))
+            .unwrap();
+        rows[0]["x"].clone()
+    }
+
+    fn approx(connection: &mut SqliteConnection, expression: &str, expected: f64) {
+        let value = scalar(connection, expression);
+        let actual = value
+            .as_f64()
+            .unwrap_or_else(|| panic!("{expression}: {value}"));
+        assert!(
+            (actual - expected).abs() < 1e-12,
+            "{expression}: {actual} != {expected}"
+        );
+    }
+
+    #[test]
+    fn logarithms_follow_the_sqlite_definitions() {
+        let mut connection = SqliteConnection::open(Path::new(":memory:")).unwrap();
+        approx(&mut connection, "log(100)", 2.0);
+        approx(&mut connection, "log10(1000)", 3.0);
+        approx(&mut connection, "log2(8)", 3.0);
+        approx(&mut connection, "ln(1)", 0.0);
+        approx(&mut connection, "log(2, 8)", 3.0);
+        // Non-positive arguments, a base of 1 and non-numeric text give NULL.
+        for expression in [
+            "log(-1)",
+            "log10(0)",
+            "log2(-8)",
+            "log(1, 8)",
+            "log(2, 0)",
+            "log('x')",
+        ] {
+            assert_eq!(
+                scalar(&mut connection, expression),
+                Value::Null,
+                "{expression}"
+            );
+        }
+    }
+
+    #[test]
+    fn other_math_functions_are_registered() {
+        let mut connection = SqliteConnection::open(Path::new(":memory:")).unwrap();
+        assert_eq!(scalar(&mut connection, "ceil(4)").as_i64(), Some(4));
+        approx(&mut connection, "ceil(4.2)", 5.0);
+        approx(&mut connection, "floor(-4.2)", -5.0);
+        approx(&mut connection, "power(2, 10)", 1024.0);
+        approx(&mut connection, "mod(7.5, 2)", 1.5);
+        approx(&mut connection, "pi()", std::f64::consts::PI);
+        approx(&mut connection, "degrees(pi())", 180.0);
+        approx(&mut connection, "acosh(1)", 0.0);
+        assert_eq!(scalar(&mut connection, "sign(-3)").as_i64(), Some(-1));
+        assert_eq!(scalar(&mut connection, "sign(0)").as_i64(), Some(0));
+        assert_eq!(scalar(&mut connection, "sqrt('abc')"), Value::Null);
+    }
+
+    #[test]
+    fn charindex_counts_characters_and_handles_nulls() {
+        let mut connection = SqliteConnection::open(Path::new(":memory:")).unwrap();
+        assert_eq!(
+            scalar(&mut connection, "charindex('b', 'abc')").as_i64(),
+            Some(2)
+        );
+        assert_eq!(
+            scalar(&mut connection, "charindex('z', 'abc')").as_i64(),
+            Some(0)
+        );
+        assert_eq!(
+            scalar(&mut connection, "charindex('', 'abc')").as_i64(),
+            Some(0)
+        );
+        assert_eq!(
+            scalar(&mut connection, "charindex('c', 'abcabc', 4)").as_i64(),
+            Some(6)
+        );
+        // Positions are in characters, not bytes.
+        assert_eq!(
+            scalar(&mut connection, "charindex('b', 'éb')").as_i64(),
+            Some(2)
+        );
+        assert_eq!(
+            scalar(&mut connection, "charindex(null, 'abc')"),
+            Value::Null
+        );
+        assert_eq!(scalar(&mut connection, "charindex('a', null)"), Value::Null);
     }
 }

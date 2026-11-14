@@ -167,10 +167,10 @@ impl Catalog {
             catalog.headers.fields.push("schema".into());
         }
         for row in catalog.fields.iter_mut().chain(catalog.concepts.iter_mut()) {
-            if let Some(value) = row.get_mut("cdmFieldName") {
-                if !value.is_null() {
-                    *value = Value::String(value_text(value).to_uppercase());
-                }
+            if let Some(value) = row.get_mut("cdmFieldName")
+                && !value.is_null()
+            {
+                *value = Value::String(value_text(value).to_uppercase());
             }
         }
         // Preserve the column order of R's merged data.frame.
@@ -442,7 +442,8 @@ impl Filter {
                 bail!("Unsupported embedded evaluationFilter: {expression}");
             };
             let expected = expected.trim();
-            if !(expected.starts_with('\'') && expected.ends_with('\'')) {
+            // `len() >= 2`: a lone quote both starts and ends with one but has no content to strip.
+            if expected.len() < 2 || !(expected.starts_with('\'') && expected.ends_with('\'')) {
                 bail!("Invalid embedded evaluationFilter: {expression}");
             }
             comparisons.push(Comparison {
@@ -461,9 +462,7 @@ impl Filter {
             let value = row
                 .get(&comparison.field)
                 .with_context(|| format!("object '{}' not found", comparison.field))?;
-            if value.is_null() {
-                keep = false;
-            } else if (value_text(value) == comparison.expected) != comparison.equal {
+            if value.is_null() || (value_text(value) == comparison.expected) != comparison.equal {
                 keep = false;
             }
         }
@@ -544,6 +543,17 @@ mod tests {
         let selected: Row =
             serde_json::from_value(json!({"isForeignKey":"Yes","fkDomain":"Condition"})).unwrap();
         assert!(filter.matches(&selected).unwrap());
+    }
+
+    #[test]
+    fn filter_with_a_lone_quote_is_an_error_not_a_panic() {
+        let error = Filter::parse("isForeignKey=='").unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("Invalid embedded evaluationFilter")
+        );
+        assert!(Filter::parse("isForeignKey==''").is_ok());
     }
 
     #[test]

@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 pub mod catalog;
 pub mod database;
 pub mod evaluate;

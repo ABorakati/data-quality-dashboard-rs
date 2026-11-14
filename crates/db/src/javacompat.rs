@@ -174,9 +174,9 @@ pub fn instant_string(secs: i64, nanos: u32) -> String {
         sod % 60
     );
     if nanos != 0 {
-        if nanos % 1_000_000 == 0 {
+        if nanos.is_multiple_of(1_000_000) {
             out.push_str(&format!(".{:03}", nanos / 1_000_000));
-        } else if nanos % 1000 == 0 {
+        } else if nanos.is_multiple_of(1000) {
             out.push_str(&format!(".{:06}", nanos / 1000));
         } else {
             out.push_str(&format!(".{nanos:09}"));
@@ -222,11 +222,11 @@ fn parse_big_decimal(text: &str) -> Option<Decimal> {
     let chars: Vec<char> = text.chars().collect();
     let mut i = 0;
     let mut negative = false;
-    if let Some(&c) = chars.first() {
-        if c == '+' || c == '-' {
-            negative = c == '-';
-            i = 1;
-        }
+    if let Some(&c) = chars.first()
+        && (c == '+' || c == '-')
+    {
+        negative = c == '-';
+        i = 1;
     }
     let mut digits = Vec::new();
     let mut frac = 0i64;
@@ -336,10 +336,10 @@ pub fn double_decimal_text(value: f64) -> Option<String> {
 // ---------------------------------------------------------------------------------------------
 
 fn detect_zone() -> Tz {
-    if let Ok(name) = std::env::var("DQD_DB_TIMEZONE") {
-        if let Ok(tz) = name.parse::<Tz>() {
-            return tz;
-        }
+    if let Ok(name) = std::env::var("DQD_DB_TIMEZONE")
+        && let Ok(tz) = name.parse::<Tz>()
+    {
+        return tz;
     }
     iana_time_zone::get_timezone()
         .ok()
