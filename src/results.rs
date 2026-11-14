@@ -697,7 +697,9 @@ fn write_results_to_table_named(
         })
         .collect();
     let insert_result = (|| {
-        let insert_table_name = if dbms == "sqlite" {
+        // DatabaseConnector writes SQLite and DuckDB tables through DBI's dbWriteTable, which
+        // takes "schema.table" as one literal table name (in the default schema).
+        let insert_table_name = if dbms == "sqlite" || dbms == "duckdb" {
             let literal_table_name = quote_sqlite_identifier(table_name);
             let source_table_name = table_name
                 .split_once('.')
@@ -712,13 +714,19 @@ fn write_results_to_table_named(
             // RSQLite's dbWriteTable(append = TRUE) creates the missing table from the data
             // frame's own columns, not from the DDL: a results JSON without some fields (all-NA
             // columns are absent there) or with `X_row` yields a different column set.
-            let pragma = match table_name.split_once('.') {
-                Some((schema, table)) => format!(
+            let (schema, table) = table_name.split_once('.').unwrap_or(("main", table_name));
+            let pragma = if dbms == "duckdb" {
+                format!(
+                    "SELECT column_name AS name, data_type AS type FROM information_schema.columns WHERE table_schema = '{}' AND table_name = '{}'",
+                    schema.replace('\'', "''"),
+                    table.replace('\'', "''")
+                )
+            } else {
+                format!(
                     "PRAGMA {}.table_info({})",
                     quote_sqlite_identifier(schema),
                     quote_sqlite_identifier(table)
-                ),
-                None => format!("PRAGMA table_info({literal_table_name})"),
+                )
             };
             let ddl_types: HashMap<String, String> = connection
                 .query(&pragma)?
@@ -741,17 +749,23 @@ fn write_results_to_table_named(
             let definitions: Vec<String> = columns
                 .iter()
                 .map(|column| {
-                    let declared = ddl_types
-                        .get(*column)
-                        .cloned()
-                        .unwrap_or_else(|| r_sqlite_type(&database_rows, column).to_owned());
+                    let declared = ddl_types.get(*column).cloned().unwrap_or_else(|| {
+                        let sqlite = r_sqlite_type(&database_rows, column);
+                        // duckdb's dbDataType: character VARCHAR, double DOUBLE, integer INTEGER.
+                        match (dbms, sqlite) {
+                            ("duckdb", "TEXT") => "VARCHAR",
+                            ("duckdb", "REAL") => "DOUBLE",
+                            (_, other) => other,
+                        }
+                        .to_owned()
+                    });
                     format!("{} {declared}", quote_sqlite_identifier(column))
                 })
                 .collect();
             if definitions.is_empty() {
                 // No rows, hence no column names here (R would still have them): use the DDL's.
                 connection.execute(&format!(
-                    "CREATE TABLE IF NOT EXISTS {literal_table_name} AS SELECT * FROM {source_table_name} WHERE 0"
+                    "CREATE TABLE IF NOT EXISTS {literal_table_name} AS SELECT * FROM {source_table_name} WHERE 1 = 0"
                 ))?;
             } else {
                 connection.execute(&format!(

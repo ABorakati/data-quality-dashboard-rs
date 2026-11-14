@@ -101,13 +101,32 @@ impl Rng {
     }
 }
 
-fn sqlite_options(db: &Path) -> Options {
-    let mut options = Options {
-        dbms: "sqlite".into(),
-        ..Options::default()
-    };
-    options.connection.sqlite_path = Some(db.to_path_buf());
+/// A `.duckdb` file is fuzzed on DuckDB, anything else on SQLite.
+fn is_duckdb(db: &Path) -> bool {
+    db.extension().is_some_and(|ext| ext == "duckdb")
+}
+
+fn db_options(db: &Path) -> Options {
+    let mut options = Options::default();
+    if is_duckdb(db) {
+        options.dbms = "duckdb".into();
+        // DatabaseConnector's convention: the DuckDB file is the `server`.
+        options.connection.server = Some(db.to_string_lossy().into_owned());
+    } else {
+        options.dbms = "sqlite".into();
+        options.connection.sqlite_path = Some(db.to_path_buf());
+    }
     options
+}
+
+/// The case database (`cdm.sqlite` or `cdm.duckdb`).
+fn case_db(case: &Path) -> PathBuf {
+    let duckdb = case.join("cdm.duckdb");
+    if duckdb.exists() {
+        duckdb
+    } else {
+        case.join("cdm.sqlite")
+    }
 }
 
 /// CDM tables the checks read; vocabulary and metadata tables are left alone, except where a
@@ -143,18 +162,22 @@ struct Column {
 struct Schema {
     tables: BTreeMap<String, Vec<Column>>,
     row_counts: BTreeMap<String, u64>,
+    /// DuckDB stores CDM dates as DATE (SQLite here: epoch seconds), so date mutations differ.
+    duckdb: bool,
 }
 
-fn schema(connection: &mut dyn database::Connection) -> Result<Schema> {
+fn schema(connection: &mut dyn database::Connection, duckdb: bool) -> Result<Schema> {
     let mut tables = BTreeMap::new();
     let mut row_counts = BTreeMap::new();
     for table in CLINICAL_TABLES {
+        // SQLite returns no rows for a missing table; DuckDB raises an error.
         let columns: Vec<Column> = connection
-            .query(&format!("PRAGMA table_info(\"{table}\")"))?
+            .query(&format!("PRAGMA table_info(\"{table}\")"))
+            .unwrap_or_default()
             .into_iter()
             .map(|row| Column {
                 name: row["name"].as_str().unwrap_or_default().to_owned(),
-                not_null: row["notnull"].as_i64() == Some(1),
+                not_null: row["notnull"].as_i64() == Some(1) || row["notnull"] == true,
             })
             .collect();
         if columns.is_empty() {
@@ -166,7 +189,11 @@ fn schema(connection: &mut dyn database::Connection) -> Result<Schema> {
         row_counts.insert(table.to_string(), count);
         tables.insert(table.to_string(), columns);
     }
-    Ok(Schema { tables, row_counts })
+    Ok(Schema {
+        tables,
+        row_counts,
+        duckdb,
+    })
 }
 
 /// One applied mutation: a label and the SQL statements that made it.
@@ -271,6 +298,11 @@ fn mutate(rng: &mut Rng, schema: &Schema) -> Option<Mutation> {
         "date_as_text" | "date_as_iso_integer" | "date_with_fraction" | "future_date" | "ancient_date" | "impossible_text_date" => {
             let column = pick_column(rng, &is_date)?;
             let value = match kind {
+                // DuckDB columns are typed DATE/TIMESTAMP: only in-range values of that type fit
+                // (text, integers and impossible dates are rejected, and the mutation is skipped).
+                "future_date" if schema.duckdb => "DATE '2099-12-31'".to_owned(),
+                "ancient_date" if schema.duckdb => "DATE '1779-01-01'".to_owned(),
+                "date_with_fraction" if schema.duckdb => format!("\"{column}\" + INTERVAL 12 HOUR"),
                 // GiBleed stores dates as epoch seconds; R's loader would have written these forms.
                 "date_as_text" => format!("date(\"{column}\", 'unixepoch')"),
                 "date_as_iso_integer" => format!("CAST(strftime('%Y%m%d', \"{column}\", 'unixepoch') AS INTEGER)"),
@@ -326,7 +358,7 @@ fn mutate(rng: &mut Rng, schema: &Schema) -> Option<Mutation> {
         ),
         "unicode_source_value" => {
             let column = pick_column(rng, &|c: &str| c.ends_with("_source_value"))?;
-            (format!("{table}.{column}"), vec![format!("UPDATE \"{table}\" SET \"{column}\" = 'é漢字 ''q'' \"d\" ' || char(10) || '%s' WHERE {}", some_rows(rng, schema, &table, k))])
+            (format!("{table}.{column}"), vec![format!("UPDATE \"{table}\" SET \"{column}\" = 'é漢字 ''q'' \"d\" ' || {}(10) || '%s' WHERE {}", if schema.duckdb { "chr" } else { "char" }, some_rows(rng, schema, &table, k))])
         }
         "end_before_start" => {
             let starts = columns_matching(schema, &table, |c| c.ends_with("_start_date"));
@@ -335,7 +367,7 @@ fn mutate(rng: &mut Rng, schema: &Schema) -> Option<Mutation> {
             if !schema.tables[&table].iter().any(|c| c.name == end) {
                 return None;
             }
-            (format!("{table}.{end}"), vec![format!("UPDATE \"{table}\" SET \"{end}\" = \"{start}\" - 86400 * {} WHERE {}", 1 + rng.below(400), some_rows(rng, schema, &table, k))])
+            (format!("{table}.{end}"), vec![format!("UPDATE \"{table}\" SET \"{end}\" = \"{start}\" - {} * {} WHERE {}", if schema.duckdb { "1" } else { "86400" }, 1 + rng.below(400), some_rows(rng, schema, &table, k))])
         }
         _ => unreachable!(),
     };
@@ -359,16 +391,20 @@ fn generate(
             fs::remove_dir_all(&folder)?;
         }
         fs::create_dir_all(&folder)?;
-        let db = folder.join("cdm.sqlite");
+        let db = folder.join(if is_duckdb(base) {
+            "cdm.duckdb"
+        } else {
+            "cdm.sqlite"
+        });
         fs::copy(base, &db).with_context(|| format!("copying {}", base.display()))?;
         let mut rng = Rng(seed.wrapping_mul(0x1000_0000_01B3) ^ index);
-        let mut connection = database::connect(&sqlite_options(&db))?;
+        let mut connection = database::connect(&db_options(&db))?;
         let wanted = 1 + rng.below(max_mutations.max(1));
         let mut applied = Vec::new();
         let mut attempts = 0;
         while (applied.len() as u64) < wanted && attempts < 50 {
             attempts += 1;
-            let schema = schema(connection.as_mut())?;
+            let schema = schema(connection.as_mut(), is_duckdb(&db))?;
             let Some(mutation) = mutate(&mut rng, &schema) else {
                 continue;
             };
@@ -441,8 +477,9 @@ fn cases(dir: &Path) -> Result<Vec<PathBuf>> {
 fn run_rust(dir: &Path) -> Result<()> {
     for case in cases(dir)? {
         let mut options: Options = serde_json::from_slice(&fs::read(case.join("options.json"))?)?;
-        options.dbms = "sqlite".into();
-        options.connection.sqlite_path = Some(case.join("cdm.sqlite"));
+        let connection = db_options(&case_db(&case));
+        options.dbms = connection.dbms;
+        options.connection = connection.connection;
         options.output_folder = case.join("rust");
         let outcome = match runner::execute_dq_checks(&options) {
             Ok(_) => json!({"ok": true}),
@@ -590,7 +627,9 @@ fn compare(dir: &Path, reproducers: Option<&Path>) -> Result<()> {
             if let Some(root) = reproducers {
                 let target = root.join(&name);
                 fs::create_dir_all(&target)?;
-                for file in ["cdm.sqlite", "options.json", "mutations.json", "diff.txt"] {
+                let db = case_db(&case);
+                fs::copy(&db, target.join(db.file_name().unwrap()))?;
+                for file in ["options.json", "mutations.json", "diff.txt"] {
                     fs::copy(case.join(file), target.join(file))?;
                 }
                 for side in ["r", "rust"] {

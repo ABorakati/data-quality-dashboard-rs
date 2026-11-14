@@ -282,9 +282,9 @@ impl Options {
                 self.check_severity.join(", ")
             );
         }
-        if !matches!(self.dbms.as_str(), "sqlite" | "postgresql") {
+        if !matches!(self.dbms.as_str(), "sqlite" | "postgresql" | "duckdb") {
             bail!(
-                "Unsupported dbms '{}': only 'sqlite' and 'postgresql' are supported.",
+                "Unsupported dbms '{}': only 'sqlite', 'postgresql' and 'duckdb' are supported.",
                 self.dbms
             );
         }

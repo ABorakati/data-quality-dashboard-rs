@@ -12,7 +12,12 @@ for (case in cases) {
   out <- file.path(case, "r")
   if (file.exists(file.path(out, "outcome.json"))) next # resumable batches
   options <- jsonlite::fromJSON(file.path(case, "options.json"), simplifyVector = TRUE)
-  details <- DatabaseConnector::createConnectionDetails(dbms = "sqlite", server = normalizePath(file.path(case, "cdm.sqlite"), winslash = "/"))
+  duckdb_file <- file.path(case, "cdm.duckdb")
+  details <- if (file.exists(duckdb_file)) {
+    DatabaseConnector::createConnectionDetails(dbms = "duckdb", server = normalizePath(duckdb_file, winslash = "/"))
+  } else {
+    DatabaseConnector::createConnectionDetails(dbms = "sqlite", server = normalizePath(file.path(case, "cdm.sqlite"), winslash = "/"))
+  }
   warnings <- character()
   started <- Sys.time()
   value <- tryCatch(

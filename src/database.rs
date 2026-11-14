@@ -10,7 +10,10 @@ pub fn connect(options: &Options) -> Result<Box<dyn Connection>> {
     let dbms = match options.dbms.as_str() {
         "sqlite" => Dbms::Sqlite,
         "postgresql" => Dbms::Postgresql,
-        other => bail!("Unsupported dbms '{other}': only 'sqlite' and 'postgresql' are supported."),
+        "duckdb" => Dbms::Duckdb,
+        other => bail!(
+            "Unsupported dbms '{other}': only 'sqlite', 'postgresql' and 'duckdb' are supported."
+        ),
     };
     match dbms {
         Dbms::Sqlite if config.sqlite_path.is_none() => {
@@ -18,6 +21,9 @@ pub fn connect(options: &Options) -> Result<Box<dyn Connection>> {
         }
         Dbms::Postgresql if config.server.is_none() => {
             bail!("connection.server (host/database) is required when dbms is 'postgresql'")
+        }
+        Dbms::Duckdb if config.server.is_none() && config.sqlite_path.is_none() => {
+            bail!("connection.server (database file) is required when dbms is 'duckdb'")
         }
         _ => {}
     }

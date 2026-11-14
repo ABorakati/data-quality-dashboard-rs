@@ -1,0 +1,5 @@
+[env]
+# libduckdb-sys (`download-lib`): link DuckDB's official prebuilt 2.0.0 shared library, fetched from
+# https://github.com/duckdb/duckdb/releases/download/v2.0.0/ and cached in the target directory,
+# rather than probing pkg-config/vcpkg or compiling the bundled C++ engine.
+DUCKDB_DOWNLOAD_LIB = "1"

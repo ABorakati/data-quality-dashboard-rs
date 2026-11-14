@@ -3,6 +3,7 @@
 //! Behavior (row values, error text, warnings, insert typing) reproduces what the former JDBC bridge
 //! produced with sqlite-jdbc 3.50.3.0 and the pgjdbc driver DatabaseConnector downloads (42.7.3).
 
+mod duckdb;
 mod javacompat;
 mod pg;
 mod pgparse;
@@ -21,6 +22,7 @@ pub type Row = serde_json::Map<String, serde_json::Value>;
 pub enum Dbms {
     Sqlite,
     Postgresql,
+    Duckdb,
 }
 
 #[derive(Debug, Clone)]
@@ -57,5 +59,15 @@ pub fn connect(spec: &ConnectSpec) -> anyhow::Result<Box<dyn Connection>> {
             Ok(Box::new(sqlite::SqliteConnection::open(path)?))
         }
         Dbms::Postgresql => Ok(Box::new(pg::PgConnection::connect(spec)?)),
+        Dbms::Duckdb => {
+            // DatabaseConnector passes the database file as `server`; `sqlite_path` is an alias.
+            let path = spec
+                .server
+                .as_deref()
+                .map(PathBuf::from)
+                .or_else(|| spec.sqlite_path.clone())
+                .ok_or_else(|| anyhow::anyhow!("connection.server is required for duckdb"))?;
+            Ok(Box::new(duckdb::DuckDbConnection::open(&path)?))
+        }
     }
 }

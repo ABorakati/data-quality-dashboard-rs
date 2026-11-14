@@ -93,7 +93,7 @@ These use upstream's PostgreSQL-style messages (`relation "foo" does not exist`)
 | Multiple cdm_source rows triggers warning. | `multiple-cdm-source` | `upstream::multiple_cdm_source_rows_warn_and_use_the_first_row` (warnings checked on `dqd` stderr) |
 | Execute checks on Synthea/Eunomia to test new variable executionTimeSeconds | `execution-time-seconds` | `upstream::execution_time_seconds_is_numeric` |
 | checkNames are filtered by checkSeverity | `severity-fatal` (full run) | `upstream::check_names_filtered_by_severity` |
-| Execute a single DQ check on DuckDB | — | see Explained gaps below |
+| Execute a single DQ check on DuckDB | `duckdb/expected.json` `single-check` (`tests/oracle/duckdb-cases.R`) | `duckdb::duckdb_single_check_matches_upstream_test` |
 
 The upstream snapshot tests use `dbms = "sql server"`. `dqd run` rejects that dialect, so the
 Rust test uses the library's SQL-only export for it. The oracle's SQL Server output is also
@@ -141,13 +141,19 @@ These files hold no `test_that` blocks. They set up devtools links and connectio
 
 - **Execute a single DQ check on remote databases.** Upstream loops over Oracle, PostgreSQL, SQL
   Server, Redshift, IRIS, Snowflake, Spark and BigQuery, and skips any without credentials. The
-  port supports only `sqlite` and `postgresql`. PostgreSQL has full parity coverage: the 8
+  port supports `sqlite`, `postgresql` and `duckdb`. PostgreSQL has full parity coverage: the 8
   scenarios, the preflight failures, and the full GiBleed run in `tests/parity.rs`, which run when
   `DQD_PG_PORT` is set (`scripts/parity.ps1 -Postgres`). The other dialects are out of scope by
   design (see `CHANGELOG.md`). Their SQL rendering and translation for `sql server` is still
   compared in `parity::every_check_template_renders_translates_and_splits_on_each_supported_dialect`.
-- **Execute a single DQ check on DuckDB.** The port has no DuckDB driver. DuckDB is out of scope,
-  as for the other unsupported dialects.
+DuckDB was a gap here until 2026-11-14. It is now covered by `tests/duckdb.rs` against
+`tests/oracle/duckdb-cases.R`, run with R `duckdb` 2.0.0 (engine v2.0.0) and the same engine on the
+Rust side:
+
+- upstream's single-check test;
+- the 8 database scenarios (including write-to-table and DB-to-JSON);
+- the 2 `cdm_source` preflight failures;
+- a full GiBleed run (2002 checks) at 1 and 8 threads.
 
 ## What the upstream scenarios found
 

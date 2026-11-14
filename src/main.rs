@@ -267,7 +267,7 @@ fn run() -> Result<()> {
             let dialects: Vec<Value> = reader
                 .records()
                 .filter_map(|record| match record {
-                    Ok(record) if matches!(record.get(0), Some("sqlite" | "postgresql")) => {
+                    Ok(record) if matches!(record.get(0), Some("sqlite" | "postgresql" | "duckdb")) => {
                         Some(Ok(json!({"dialect": record.get(0).unwrap_or(""), "description": record.get(1).unwrap_or("")})))
                     }
                     Ok(_) => None,

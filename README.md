@@ -6,12 +6,18 @@ This crate ports OHDSI DataQualityDashboard 2.9.0 to Rust. The target is upstrea
 
 The command-line program and library expose check execution, SQL-only export, raw check listing, results conversion and export, threshold reevaluation, database result-table I/O, and the dashboard viewer. Check thresholds, database behavior, and result values require differential validation against the pinned R package. Do not treat a successful build as proof of exact parity.
 
-Supported `dbms` values are `sqlite` and `postgresql`. Any other value, including in SQL-only mode, fails with an error. This repository does not include database credentials.
+Supported `dbms` values are `sqlite`, `postgresql` and `duckdb`. Any other value, including in SQL-only mode, fails with an error. This repository does not include database credentials.
 
 ## Requirements
 
 - Rust toolchain compatible with the 2024 edition.
-- A reachable SQLite file or PostgreSQL server holding the CDM.
+- A reachable SQLite file, DuckDB file or PostgreSQL server holding the CDM.
+- For DuckDB, DuckDB's prebuilt 2.0.0 library. The build downloads it from DuckDB's GitHub
+  release (`duckdb` crate, `download-lib`; `.cargo/config.toml` sets `DUCKDB_DOWNLOAD_LIB=1`), and
+  `cargo run`/`cargo test` find it automatically. To run a built `dqd.exe` directly on DuckDB, put
+  `duckdb.dll` from `duckdb-shared-libs-windows-amd64.tar.gz`
+  ([v2.0.0](https://github.com/duckdb/duckdb/releases/tag/v2.0.0)) next to `dqd.exe` or on `PATH`.
+  The DLL is delay-loaded, so SQLite and PostgreSQL runs do not need it.
 - R is optional and is used only by the independent upstream parity oracle. R itself needs Java through rJava and DatabaseConnector, so Java is needed only to regenerate oracle fixtures.
 
 ## Run checks
@@ -20,16 +26,21 @@ Create an options JSON file using camelCase names from upstream `executeDqChecks
 
 The `connection` object has these fields, matching DatabaseConnector connection details:
 
-| Field | `sqlite` | `postgresql` |
-|---|---|---|
-| `sqlitePath` | database file (required) | unused |
-| `server` | unused | `host/database` (required) |
-| `port` | unused | port, default 5432 |
-| `user`, `password` | unused | credentials |
+| Field | `sqlite` | `postgresql` | `duckdb` |
+|---|---|---|---|
+| `sqlitePath` | database file (required) | unused | alias for `server` |
+| `server` | unused | `host/database` (required) | database file (required) |
+| `port` | unused | port, default 5432 | unused |
+| `user`, `password` | unused | credentials | unused |
 
 ```json
 { "dbms": "postgresql", "connection": { "server": "localhost/omop", "port": 5432, "user": "dqd", "password": "" } }
+{ "dbms": "duckdb", "connection": { "server": "C:/data/cdm.duckdb" } }
 ```
+
+DuckDB follows DatabaseConnector's `createConnectionDetails(dbms = "duckdb", server = <file>)`.
+Worker threads share one DuckDB instance of the file, because DuckDB lets only one instance open
+a file at a time.
 
 ```sh
 cargo run --release -- run --config examples/options.json
@@ -50,7 +61,7 @@ cargo run -- run --config examples/options.json --sql-only true
 
 `list-checks` returns the unfiltered check catalog. It does not connect to a database.
 
-`dialects` prints the supported `dbms` values (`sqlite`, `postgresql`) with their SqlRender descriptions.
+`dialects` prints the supported `dbms` values (`sqlite`, `postgresql`, `duckdb`) with their SqlRender descriptions.
 
 ```sh
 cargo run -- dialects
@@ -68,7 +79,7 @@ cargo run -- table-to-json --config examples/options.json --output-folder out --
 ```
 
 For CSV export, pass `--columns checkId,checkName,passed,failed` to select columns. `--delimiter` takes one byte and defaults to a comma.
-SQLite result-table writes match upstream behavior: `schema.table` becomes one literal table name. `table-to-json` treats the dot as a schema separator and reads a different table.
+SQLite and DuckDB result-table writes match upstream behavior: `schema.table` becomes one literal table name. `table-to-json` treats the dot as a schema separator and reads a different table.
 
 ## Viewer
 

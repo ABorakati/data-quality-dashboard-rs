@@ -16,7 +16,11 @@ Options:
 
 - `-Checks cdmField,isRequired,...` runs a check subset. A full GiBleed run takes R about 1 to 2
   minutes per case; a subset of 7 checks takes about 1 minute.
-- `-Base <db>` mutates a different database. The default is the GiBleed oracle copy.
+- `-Base <db>` mutates a different database. The default is the GiBleed oracle copy. A `.duckdb`
+  base runs both sides on DuckDB, for example
+  `-Base tests/oracle/generated/duckdb/gibleed/cdm.duckdb`. DuckDB columns are typed, so
+  mutations that store text or integers in DATE columns fail and are skipped; DuckDB gets typed
+  DATE variants of the future, ancient and shifted-date mutations instead.
 - `-CdmVersion` and `-MaxMutations` (default 3 mutations per case) change the cases.
 
 The driver runs four steps, which can also run separately:
@@ -62,3 +66,4 @@ The databases are ignored by git. Rebuild one with `generate` and the seed and i
 | 2026-11-13 | 1 | 3 | 7 check names (1077 results each) | 5 | 0 | smoke test |
 | 2026-11-13 | 2 | 30 | all (2002 results each, 56,056 in total) | 70, all 22 kinds | 0 | R took 52 to 130 s per case. Cases 010 and 024 (a renamed `value_as_number` / `dose_era_start_date` column) end in upstream's fatal "Duplicate table names in emptyTables" error, and the port raises the identical message. |
 | 2026-11-14 | 3 | 10 | all (14,014 results) | 27, 15 kinds, up to 5 per case | 0 | Run after the switch to LF templates and the SQLite tuning. Cases 002, 003 and 008 end in upstream's fatal emptyTables error, matched exactly. |
+| 2026-11-14 | 4 | 6 | all on **DuckDB** (10,010 results) | 9, 8 kinds; 8 more skipped as invalid for typed DuckDB columns | 0 | GiBleed as DuckDB, R `duckdb` 2.0.0 against the port's DuckDB 2.0.0. Case 002 (a renamed column) ends in upstream's fatal emptyTables error, matched exactly. |
