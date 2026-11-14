@@ -21,3 +21,7 @@ hs_err_pid*.log
 /crates/sqlrender/fuzz/coverage/
 /crates/sqlrender/fuzz/target/
 /crates/sqlrender/fuzz/Cargo.lock
+
+# Differential fuzz: reproducer databases are large; regenerate from mutations.json
+/fuzz/reproducers/*/cdm.sqlite
+/fuzz-*.log
