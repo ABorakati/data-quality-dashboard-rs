@@ -22,5 +22,8 @@
     "viewer/js/bridge.js",
     "viewer/js/resume.js"
   ],
+  "related_provenance": {
+    "crates/sqlrender/data/provenance.json": "OHDSI SqlRender 1.19.7 pattern and dialect tables, kept inside the dqd-sqlrender crate so that it packages on its own"
+  },
   "copy_policy": "CSV and SQL assets listed above retain upstream bytes. Viewer assets are mapped to upstream paths; bridge.css, bridge.js, and resume.js implement the Rust host."
 }

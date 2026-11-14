@@ -3,7 +3,7 @@
   "version": "1.19.7",
   "license": "Apache-2.0",
   "upstream": "https://github.com/OHDSI/SqlRender",
-  "origin": "CRAN binary R package, package Version=1.19.7. Files retained verbatim. The Rust crate crates/sqlrender is a port of the package's Java sources; replacementPatterns.csv is the verbatim pattern table it embeds.",
+  "origin": "CRAN binary R package, package Version=1.19.7. Files retained verbatim. The Rust crate crates/sqlrender (the files live in its data/ folder) is a port of the package's Java sources; replacementPatterns.csv is the verbatim pattern table it embeds.",
   "files": [
     {
       "path": "replacementPatterns.csv",

@@ -261,9 +261,8 @@ fn run() -> Result<()> {
             println!("{}", serde_json::to_string_pretty(&output)?);
         }
         Command::Dialects => {
-            let mut reader = csv::Reader::from_reader(
-                include_bytes!("../resources/sqlrender/supportedDialects.csv").as_slice(),
-            );
+            let mut reader =
+                csv::Reader::from_reader(dqd_sqlrender::SUPPORTED_DIALECTS_CSV.as_bytes());
             let dialects: Vec<Value> = reader
                 .records()
                 .filter_map(|record| match record {

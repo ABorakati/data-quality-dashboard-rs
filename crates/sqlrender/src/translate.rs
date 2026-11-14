@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::sync::LazyLock;
 
-const PATTERNS_CSV: &str = include_str!("../../../resources/sqlrender/replacementPatterns.csv");
+const PATTERNS_CSV: &str = include_str!("../data/replacementPatterns.csv");
 
 /// Targets this crate can translate to (patterns are loaded only for these).
 const TARGET_DIALECTS: [&str; 3] = ["sqlite", "postgresql", "duckdb"];
