@@ -20,17 +20,14 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            # Look for libduckdb.so in $ORIGIN, the directory of the binary, at run time.
-            rustflags: "-C link-args=-Wl,-rpath,$ORIGIN"
+            # build.rs adds RUNPATH $ORIGIN, so the binary finds libduckdb.so beside itself.
           - os: macos-latest
             target: aarch64-apple-darwin
-            # Look for libduckdb.dylib in the directory of the binary. The rpath is UNVERIFIED: check
-            # with `otool -l dqd | grep -A2 LC_RPATH` on the first release, and adjust if needed.
-            rustflags: "-C link-args=-Wl,-rpath,@executable_path"
+            # build.rs adds an @loader_path rpath for libduckdb.dylib. UNVERIFIED on macOS: check
+            # with `otool -l dqd | grep -A2 LC_RPATH` on the first release.
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            # duckdb.dll is delay-loaded and found next to dqd.exe, so no rpath is needed.
-            rustflags: ""
+            # duckdb.dll is delay-loaded (build.rs) and found next to dqd.exe.
     steps:
       - name: Keep committed line endings (Windows)
         if: runner.os == 'Windows'
@@ -55,8 +52,6 @@ jobs:
           key: ${{ matrix.target }}
 
       - name: Build dqd (default features)
-        env:
-          RUSTFLAGS: ${{ matrix.rustflags }}
         run: cargo build --locked --release --target ${{ matrix.target }} --bin dqd
 
       - name: Stage the archive

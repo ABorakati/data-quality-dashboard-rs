@@ -107,14 +107,16 @@ jobs:
           set -euo pipefail
           limit=$((9 * 1024 * 1024))   # crates.io accepts up to 10 MB; keep a margin
           status=0
+          # Package the workspace in one go: dqd-db and the root crate depend on crates that are not
+          # on crates.io yet, which cargo resolves between the workspace members (and verifies by
+          # building each package).
+          cargo package --workspace --locked
           for pkg in data-quality-dashboard dqd-db dqd-sqlrender; do
             cargo package --list --locked -p "$pkg" > "list-$pkg.txt"
             if grep -q '^tests/oracle/' "list-$pkg.txt"; then
               echo "::error::$pkg would package tests/oracle (see its Cargo.toml exclude list)"
               status=1
             fi
-            # Fails until path dependencies also carry a version (dqd-db and the root crate).
-            cargo package --locked --no-verify -p "$pkg"
             crate=$(ls -1 target/package/"$pkg"-*.crate)
             size=$(stat -c %s "$crate")
             echo "$pkg: $size bytes ($(wc -l < "list-$pkg.txt") files)"

@@ -8,7 +8,7 @@ says "see file header" or "see font metadata" instead of guessing.
 This file covers the viewer's browser assets and the licence policy for Rust dependencies. The OHDSI
 DataQualityDashboard files that this port copies (see [resources/provenance.json](resources/provenance.json)) are
 Apache-2.0, as stated in [NOTICE](NOTICE). The SqlRender tables are described in
-[resources/sqlrender/NOTICE](resources/sqlrender/NOTICE).
+[crates/sqlrender/data/NOTICE](crates/sqlrender/data/NOTICE).
 
 ## Viewer assets (`resources/viewer`)
 

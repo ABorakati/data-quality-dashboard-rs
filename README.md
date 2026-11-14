@@ -120,6 +120,10 @@ The `connection` object has these fields, matching DatabaseConnector connection 
 { "dbms": "duckdb", "connection": { "server": "C:/data/cdm.duckdb" } }
 ```
 
+### PostgreSQL TLS
+
+`dqd` connects to PostgreSQL with TLS through rustls (pure Rust, no system OpenSSL). Choose the mode in the `server` string, pgjdbc-style: `host/database?sslmode=verify-full&sslrootcert=/path/ca.pem`. The default, `prefer`, tries TLS and falls back to plain text. `require` encrypts but does not check the server certificate, as in pgjdbc. Use `verify-ca` or `verify-full` to authenticate the server; `verify-full` also checks the host name. Without `sslrootcert` the operating system's trust store is used. Client certificates are supported through `sslcert` and `sslkey` (unencrypted PEM or DER keys). Building with `--no-default-features` removes TLS, and `require` and stronger then fail with a clear error. Details: [crates/db/README.md](crates/db/README.md).
+
 DuckDB follows DatabaseConnector's `createConnectionDetails(dbms = "duckdb", server = <file>)`.
 Worker threads share one DuckDB instance of the file, because DuckDB lets only one instance open
 a file at a time.
@@ -171,7 +175,13 @@ Place result JSON files directly inside a results directory, then start the view
 cargo run -- viewer --results-root ./results --host 127.0.0.1 --port 8080
 ```
 
-The viewer serves the browser assets and exposes read-only APIs for result files. Use `--results-file` to select the initial file. Do not expose the service to untrusted networks without a separate access-control layer.
+The viewer is self-contained: the browser assets are compiled into the binary, so `dqd viewer` works from any directory and needs no source tree. It exposes read-only APIs for result files. Use `--results-file` to select the initial file. The file list shows only valid DQD result files, so `options.json` and `timing.json` in the same folder do not appear.
+
+It is meant for local use. Do not expose it to untrusted networks without a separate access-control layer, because it serves results, including each check's SQL, without authentication.
+
+- **Host check.** The viewer returns 403 for any `Host` header that is not its bound address, as protection against DNS rebinding. With `--host 0.0.0.0` or `::` it accepts only loopback names and IP addresses and prints a warning. To reach it by a DNS name, pass that name as `--host`.
+- **Headers.** Responses carry a Content-Security-Policy and other security headers, and `/api/*` responses are not cacheable.
+- **Limits.** Each request runs on its own thread, up to 64 at once (503 above that). The HTTP library has no socket timeouts, so a client that never reads a large response holds one thread until the operating system drops the connection.
 
 ## Library
 
