@@ -1,4 +1,9 @@
-# SQLite performance tuning
+# Performance
+
+The first part covers the SQLite tuning. The last section compares SQLite with DuckDB, and the
+port with upstream R.
+
+## SQLite tuning
 
 Measured on 2026-11-14 on a 16-core Windows 11 machine with 31 GB of RAM. Other sessions shared
 the machine, so absolute times are inflated and noisy. Every cell is the median of 3 runs of a
@@ -78,3 +83,36 @@ dqd run --config <options.json> --dbms sqlite --sqlite-path <db> --num-threads N
 
 Each run was timed with `date +%s.%N` and checked with an MD5 of the results JSON after removing
 timing fields.
+
+## SQLite vs DuckDB, and the port vs R
+
+Measured on 2026-11-14 on the same machine, which was quieter than during the tuning runs above.
+The Rust times are medians of 3 runs of a release `dqd run`, with all checks and
+`writeToCsv = false`; the two engines ran back to back for each thread count and repetition.
+Every run returned the full check set with 0 SQL errors. The R times are single runs of the
+pinned package (`numThreads = 1`), taken from oracle generation or the comparison run. The machine
+was busy then, so treat them as rough.
+
+| Dataset | Engine | R, 1 thread | Rust, 1 thread | Rust, 8 threads | Rust (8 threads) vs R |
+|---|---|---|---|---|---|
+| GiBleed (CDM 5.3, 2,002 checks) | SQLite | 60.5 s | 13.4 s | 2.9 s | 21× |
+| | DuckDB | 280 s | 8.2 s | **1.7 s** | 165× |
+| MIMIC (CDM 5.3, 2,002 checks) | SQLite | 137 s | 20.3 s | 3.9 s | 35× |
+| | DuckDB | 114 s | 8.5 s | **2.0 s** | 57× |
+| Synthea27Nj (CDM 5.4, 2,384 checks) | SQLite | 132 s | 4.6 s | **0.96 s** | 138× |
+| | DuckDB | 150 s | 10.9 s | 1.9 s | 79× |
+
+- **DuckDB is faster on GiBleed and MIMIC, slower on Synthea27Nj.** In the port DuckDB beats
+  SQLite on GiBleed (1.6× at 1 thread, 1.7× at 8) and on MIMIC (2.4× and 2.0×). It loses about
+  2× on Synthea27Nj, which has only 28 people: there DuckDB's fixed per-query cost, over about
+  2,400 queries, outweighs its faster scans.
+- **The port beats R on every dataset and engine.** At 1 thread it is 4.5× to 34× faster. At its
+  default 8 threads it is 21× to 165× faster.
+- **R and the port agree on the MIMIC and Synthea27Nj DuckDB files.** The fuzz harness compared
+  them: 2,002 and 2,384 checks, 0 differences. GiBleed on DuckDB is covered by `tests/duckdb.rs`.
+
+How the DuckDB files were built: GiBleed and Synthea27Nj with `Eunomia::getDatabaseFile(...,
+dbms = "duckdb")`. MIMIC does not load into DuckDB that way: its ids (up to about 7.5e18)
+overflow the CDM DDL's `INTEGER` columns, which SQLite does not enforce. Its DuckDB file comes
+from Eunomia's own `loadDataFiles`, run after widening `integer` columns to `BIGINT` in the DDL
+that `CommonDataModel::writeDdl` writes.
