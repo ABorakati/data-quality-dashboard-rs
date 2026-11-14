@@ -40,8 +40,10 @@ allow = [
 [bans]
 # Duplicate versions are reported, not failed: transitive dependencies often disagree.
 multiple-versions = "warn"
-# A wildcard version requirement is denied, except for the workspace's own path dependencies.
-wildcards = "deny"
+# The workspace's path dependencies (dqd-db and dqd-sqlrender) have no `version`, so they count as wildcards.
+# That is reported as a warning until Cargo.toml adds versions, because publishing needs them too. Change this to
+# "deny" then, and set allow-wildcard-paths to false.
+wildcards = "warn"
 allow-wildcard-paths = true
 highlight = "all"
 # Crates that must not be used. Empty until a concrete need appears.
