@@ -2,6 +2,8 @@
 //! (`SqlRender.renderSql`), statement splitting (`SqlSplit.splitSql`) and
 //! SQL Server -> SQLite/PostgreSQL translation (`SqlTranslate`).
 
+#![forbid(unsafe_code)]
+
 mod render;
 mod split;
 mod strings;

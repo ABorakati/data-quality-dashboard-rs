@@ -57,10 +57,10 @@ fn find_spans(s: &str, open: u8, close: u8) -> Vec<Span> {
     for (i, b) in s.bytes().enumerate() {
         if b == open {
             starts.push(i);
-        } else if b == close {
-            if let Some(start) = starts.pop() {
-                spans.push(Span::new(start as isize, i as isize + 1));
-            }
+        } else if b == close
+            && let Some(start) = starts.pop()
+        {
+            spans.push(Span::new(start as isize, i as isize + 1));
         }
     }
     spans
@@ -147,9 +147,7 @@ fn preceded_by_in(start: isize, s: &str) -> bool {
     for c in prefix.chars().rev() {
         let c = c.to_ascii_lowercase();
         if !is_java_whitespace(c) {
-            if matched == 0 && c == 'n' {
-                matched += 1;
-            } else if matched == 1 && c == 'i' {
+            if (matched == 0 && c == 'n') || (matched == 1 && c == 'i') {
                 matched += 1;
             } else {
                 return false;
@@ -280,10 +278,7 @@ fn extract_defaults(s: &str) -> JavaMap {
     let pre = "{DEFAULT ";
     let post = "}";
     let mut default_end = 0usize;
-    loop {
-        let Some(default_start) = s[default_end..].find(pre).map(|i| i + default_end) else {
-            break;
-        };
+    while let Some(default_start) = s[default_end..].find(pre).map(|i| i + default_end) {
         let Some(end) = s[default_start + pre.len()..]
             .find(post)
             .map(|i| i + default_start + pre.len())
@@ -341,7 +336,7 @@ fn substitute_parameters(string: &str, parameter_to_value: &mut JavaMap) -> Stri
     }
     // Longest parameter name first (stable w.r.t. HashMap iteration order).
     let mut sorted = parameter_to_value.iter_java_order();
-    sorted.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+    sorted.sort_by_key(|entry| std::cmp::Reverse(entry.0.len()));
     for (key, value) in sorted {
         // Java: replaceAll("@" + key, escaped value); the backslash/dollar
         // escaping makes the replacement a literal.

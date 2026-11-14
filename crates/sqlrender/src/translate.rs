@@ -321,9 +321,10 @@ fn search(sql: &str, pattern: &[Block], start_token: usize) -> Option<MatchedPat
                 if token.text == top {
                     nest_stack.pop();
                 }
-            } else if token.text == "\"" || token.text == "'" {
-                nest_stack.push(token.text);
-            } else if !in_pattern_quote && token.text == "(" {
+            } else if token.text == "\""
+                || token.text == "'"
+                || (!in_pattern_quote && token.text == "(")
+            {
                 nest_stack.push(token.text);
             } else if !in_pattern_quote
                 && token.text == ")"
