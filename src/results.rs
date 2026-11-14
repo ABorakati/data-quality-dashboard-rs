@@ -408,13 +408,16 @@ pub fn dashboard_results(json_file_path: &Path) -> Result<Value> {
 
 pub fn write_results_to_json(value: &Value, output_folder: &Path, output_file: &str) -> Result<()> {
     let path = output_folder.join(output_file);
-    let mut file =
-        fs::File::create(&path).with_context(|| format!("Writing {}", path.display()))?;
+    let file = fs::File::create(&path).with_context(|| format!("Writing {}", path.display()))?;
+    // serde_json writes token by token; unbuffered, that is one system call per token.
+    let mut file = std::io::BufWriter::new(file);
     serde_json::to_writer(&mut file, &jsonlite_results_value(value))?;
     #[cfg(windows)]
     file.write_all(b"\r\n")?;
     #[cfg(not(windows))]
     file.write_all(b"\n")?;
+    file.flush()
+        .with_context(|| format!("Writing {}", path.display()))?;
     Ok(())
 }
 
@@ -534,8 +537,9 @@ fn write_results_to_csv_inner(
         })
         .collect();
     let separator = char::from(delimiter).to_string();
-    let mut file =
-        fs::File::create(csv_path).with_context(|| format!("Writing {}", csv_path.display()))?;
+    let mut file = std::io::BufWriter::new(
+        fs::File::create(csv_path).with_context(|| format!("Writing {}", csv_path.display()))?,
+    );
     write!(
         file,
         "{}",
@@ -573,6 +577,7 @@ fn write_results_to_csv_inner(
             text_mode_newlines(format!("{}\n", cells.join(&separator)))
         )?;
     }
+    file.flush()?;
     Ok(())
 }
 

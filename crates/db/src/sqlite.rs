@@ -14,6 +14,23 @@ use std::path::Path;
 use std::ptr;
 use std::sync::LazyLock;
 
+/// Per-connection read tuning, applied to every connection the runner opens (one per worker).
+/// `mmap_size` lets all workers read pages through the shared OS page cache instead of copying
+/// them into each connection's private cache; `cache_size` (negative = KiB) enlarges that private
+/// cache from the 2 MiB default. Neither changes results. `query_only` stays off because
+/// writeToTable writes through the same connections.
+const TUNING_PRAGMAS: &str = "PRAGMA mmap_size = 1073741824; PRAGMA cache_size = -65536;";
+
+/// SQLite keeps global memory statistics behind one process-wide mutex that every allocation
+/// takes, which serialises worker connections. The statistics are unused here. This must run
+/// before SQLite initialises; if it already has, the call fails harmlessly with SQLITE_MISUSE.
+fn disable_memory_statistics() {
+    static ONCE: std::sync::Once = std::sync::Once::new();
+    ONCE.call_once(|| unsafe {
+        ffi::sqlite3_config(ffi::SQLITE_CONFIG_MEMSTATUS, 0 as c_int);
+    });
+}
+
 pub struct SqliteConnection {
     conn: rusqlite::Connection,
     warnings: Vec<String>,
@@ -228,6 +245,7 @@ impl SqliteConnection {
         }
         let bytes: Vec<u8> = file_name.bytes().take_while(|&b| b != 0).collect();
         let c_name = std::ffi::CString::new(bytes).expect("NUL removed");
+        disable_memory_statistics();
         unsafe {
             let mut db: *mut ffi::sqlite3 = ptr::null_mut();
             // READWRITE | CREATE | URI, as SQLiteConfig sets by default.
@@ -263,8 +281,12 @@ impl SqliteConnection {
             ffi::sqlite3_limit(db, ffi::SQLITE_LIMIT_LENGTH, 1_000_000_000);
             ffi::sqlite3_limit(db, ffi::SQLITE_LIMIT_SQL_LENGTH, 1_000_000);
             ffi::sqlite3_busy_timeout(db, 3000);
+            let conn = rusqlite::Connection::from_handle_owned(db).expect("valid handle");
+            // Read-performance tuning only; none of these can change a query's result.
+            conn.execute_batch(TUNING_PRAGMAS)
+                .map_err(|error| sqlite_exception(ffi::SQLITE_ERROR, &error.to_string()))?;
             Ok(SqliteConnection {
-                conn: rusqlite::Connection::from_handle_owned(db).expect("valid handle"),
+                conn,
                 warnings: Vec::new(),
             })
         }
