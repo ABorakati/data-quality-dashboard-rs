@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add the speed-up over R to the README, with its scope (SQLite and DuckDB, three sample datasets) and the caveat that the R timings are rough.
+
 - Describe parity as "identical check results" with its scope (SQLite, DuckDB and PostgreSQL, apart from timestamps and timings) in the README, `CITATION.cff`, `CONTRIBUTING.md`, the `dqd-sqlrender` README and the crate description, instead of looser wording.
 
 - Run the CI and security workflows on pushes to `main` and `master`. The default branch was still `master` when the repository was prepared, so a trigger naming only `main` never fired; `master` can be dropped from both workflows once the branch is renamed to `main`.

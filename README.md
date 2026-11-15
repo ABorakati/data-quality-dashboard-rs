@@ -17,6 +17,8 @@ This crate ports OHDSI DataQualityDashboard 2.9.0 to Rust. The target is upstrea
 
 It produces identical check results to the R package, verified on SQLite, DuckDB and PostgreSQL. Run-dependent fields (timestamps and timings) are the only values that cannot match between any two runs, and the tests leave them out. The evidence, the engines and dialects covered, and the intentional differences are listed under [Status and compatibility](#status-and-compatibility).
 
+On SQLite and DuckDB it ran about 20x or more faster than R at default settings (8 threads against R's 1) and 4.5x to 34x faster single-threaded, measured on three sample datasets. The R timings are single runs on a busy machine, so treat them as rough; see [docs/performance.md](docs/performance.md).
+
 ## Status and compatibility
 
 The command-line program and library expose check execution, SQL-only export, raw check listing, results conversion and export, threshold reevaluation, database result-table I/O, and the dashboard viewer.
