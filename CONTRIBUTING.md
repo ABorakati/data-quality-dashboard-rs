@@ -1,7 +1,7 @@
 # Contributing
 
-Thank you for looking at this port. It aims to reproduce OHDSI DataQualityDashboard 2.9.0 exactly, so most of the
-rules below exist to protect that. Read [README.md](README.md) first, in particular "Status and compatibility".
+Thank you for looking at this port. It aims to produce check results identical to OHDSI DataQualityDashboard 2.9.0, so most
+of the rules below exist to protect that. Read [README.md](README.md) first, in particular "Status and compatibility".
 
 By contributing you agree that your contribution is licensed under the Apache License 2.0, the licence of this
 project (see [LICENSE](LICENSE)). Participation is covered by the [Code of Conduct](CODE_OF_CONDUCT.md).

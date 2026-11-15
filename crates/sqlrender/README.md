@@ -17,7 +17,7 @@ let sqlite = translator.translate(&sql, "sqlite", None)?;
 let statements = split_sql(&sqlite);
 ```
 
-The output is compared byte for byte with R SqlRender 1.19.7 in the repository's parity tests. The unmodified
+On every case in the repository's parity tests, the output is identical, byte for byte, to R SqlRender 1.19.7's. The unmodified
 `replacementPatterns.csv` and `supportedDialects.csv` from that release live in `data/`, with their
 `NOTICE` and `provenance.json`; the crate is a derivative work of SqlRender's Java sources, which are
 licensed under the Apache License 2.0.

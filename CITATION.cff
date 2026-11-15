@@ -17,9 +17,9 @@ date-released: "2026-11-15"
 # doi: "10.5281/zenodo.NNNNNNN"                        # the Zenodo concept DOI, once the first release is archived
 abstract: >-
   A Rust implementation of the OHDSI Data Quality Dashboard 2.9.0 for OMOP common data model databases. It runs the
-  upstream data quality checks natively against SQLite, DuckDB and PostgreSQL, with no R or Java runtime, and writes
-  the same results as the pinned upstream R package. The port is checked against that package on the Eunomia sample
-  datasets. It is not affiliated with or endorsed by OHDSI.
+  upstream data quality checks natively against SQLite, DuckDB and PostgreSQL, with no R or Java runtime, and produces
+  check results identical to those of the pinned upstream R package. The port is checked against that package on the
+  Eunomia sample datasets, leaving out timestamps and timings. It is not affiliated with or endorsed by OHDSI.
 keywords:
   - OMOP
   - OHDSI

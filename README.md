@@ -15,6 +15,8 @@
 
 This crate ports OHDSI DataQualityDashboard 2.9.0 to Rust. The target is upstream commit `b9d2a9b4a4736f7ea81415d974c72119b6f0bd11`. Catalog, SQL templates, SqlRender patterns, and dashboard assets retain upstream source data where practical. SQL rendering, translation, and splitting run in Rust (`crates/sqlrender`, a port of OHDSI SqlRender 1.19.7), and database access uses native drivers (`crates/db`). No Java runtime and no JDBC driver are needed. Runtime R is not required.
 
+It produces identical check results to the R package, verified on SQLite, DuckDB and PostgreSQL. Run-dependent fields (timestamps and timings) are the only values that cannot match between any two runs, and the tests leave them out. The evidence, the engines and dialects covered, and the intentional differences are listed under [Status and compatibility](#status-and-compatibility).
+
 ## Status and compatibility
 
 The command-line program and library expose check execution, SQL-only export, raw check listing, results conversion and export, threshold reevaluation, database result-table I/O, and the dashboard viewer.
