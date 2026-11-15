@@ -19,7 +19,7 @@ those projects. Report them to OHDSI. This port is not affiliated with OHDSI.
 
 | Version | Security fixes |
 |---|---|
-| Default branch (`master`) | Yes |
+| Default branch (`main`) | Yes |
 | Latest tagged release (`v*`) | Yes |
 | Older tagged releases | No. Upgrade to the latest release. |
 

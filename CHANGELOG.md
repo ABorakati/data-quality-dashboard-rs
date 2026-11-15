@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Run the CI and security workflows on pushes to `master` as well as `main`: the default branch is `master`, so CI never ran on a push.
+- Run the CI and security workflows on pushes to `main` and `master`. The default branch was still `master` when the repository was prepared, so a trigger naming only `main` never fired; `master` can be dropped from both workflows once the branch is renamed to `main`.
 
 - Reset the crate versions to `0.1.0` (the three crates), so the port is not mistaken for the official `2.9.0` release; the README, badges and `CITATION.cff` say it tracks DQD 2.9.0. Results files keep `dqdVersion` 2.9.0, now a constant in `src/runner.rs` that follows the upstream pin instead of the crate version, so the parity fixtures are unchanged. Earlier entries below name the version the crate carried then. Add the ORCID and affiliation to `CITATION.cff`.
 
