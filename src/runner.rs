@@ -729,7 +729,12 @@ mod tests {
             text.contains("5 checks: 2 passed, 1 failed, 1 not applicable, 1 errors"),
             "{text}"
         );
-        assert!(text.contains("Results: out/results.json"), "{text}");
+        // Paths are printed the way the platform writes them: `out/results.json` or `out\\results.json`.
+        let results = std::path::Path::new("out").join("results.json");
+        assert!(
+            text.contains(&format!("Results: {}", results.display())),
+            "{text}"
+        );
         assert!(text.contains("log_DqDashboard_My CDM.txt"), "{text}");
         assert!(text.contains("Table:   res.dqdashboard_results"), "{text}");
         assert!(text.contains("dqd viewer --results-root out"), "{text}");
