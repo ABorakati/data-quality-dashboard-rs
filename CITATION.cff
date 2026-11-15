@@ -13,7 +13,7 @@ repository-code: "https://github.com/ABorakati/data-quality-dashboard-rs"
 license: Apache-2.0
 # Keep in step with `version` in Cargo.toml and the release tag (v<version>) when you cut a release.
 version: 0.1.0
-# date-released: "YYYY-MM-DD"                          # set at release time
+date-released: "2026-11-15"
 # doi: "10.5281/zenodo.NNNNNNN"                        # the Zenodo concept DOI, once the first release is archived
 abstract: >-
   A Rust implementation of the OHDSI Data Quality Dashboard 2.9.0 for OMOP common data model databases. It runs the

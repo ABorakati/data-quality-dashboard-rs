@@ -139,7 +139,7 @@ permanent, so settle the points under "Before the first release" first.
 **Releasing**
 
 1. Log in to Zenodo with your GitHub account, open the GitHub page under your account settings, and switch the repository on.
-2. Set the version in the root `Cargo.toml` and in `CITATION.cff`, and add `date-released` to `CITATION.cff`.
+2. Set the version in the root `Cargo.toml` and in `CITATION.cff`, and update `date-released` in `CITATION.cff` to the release date.
    Do not add a `.zenodo.json`: Zenodo prefers it over `CITATION.cff`, so the two would drift apart.
 3. Tag `v<version>` and push the tag. `.github/workflows/release.yml` checks that the tag matches `Cargo.toml`, builds the
    archives and creates the GitHub release. Zenodo archives the release and mints two DOIs: one for this version and a
