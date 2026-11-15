@@ -67,11 +67,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-      # No build cache on Windows: see ci.yml (a restored cache loses duckdb.lib and linking fails).
-      - uses: Swatinem/rust-cache@v2
-        if: runner.os != 'Windows'
-        with:
-          key: ${{ matrix.target }}
+      # No build cache: release archives are built from scratch. A restored cache keeps the build output but not
+      # the DuckDB library that libduckdb-sys downloaded, so cargo sees dqd as built, never relinks, and the
+      # staging step cannot find the library (this failed the first publish).
 
       - name: Build dqd (default features)
         run: cargo build --locked --release --target ${{ matrix.target }} --bin dqd

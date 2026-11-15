@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Build the release archives without a build cache. A restored cache kept the build output but not the DuckDB library that `libduckdb-sys` downloads, so the staging step could not find it.
+
 - Let the release workflow publish from a manual run: give `publish_tag` (for example `v0.1.0`) and it creates the tag at the commit it built and publishes the release, the same as pushing the tag. Without it, a manual run is still a dry run.
 
 - Let the release workflow be run by hand as a dry run, which builds the three archives and smoke-tests each one in a clean directory (version, and a DuckDB run that proves the bundled library loads) without creating a release. The publish job runs only for a tag.
