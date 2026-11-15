@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Let the release workflow publish from a manual run: give `publish_tag` (for example `v0.1.0`) and it creates the tag at the commit it built and publishes the release, the same as pushing the tag. Without it, a manual run is still a dry run.
+
 - Let the release workflow be run by hand as a dry run, which builds the three archives and smoke-tests each one in a clean directory (version, and a DuckDB run that proves the bundled library loads) without creating a release. The publish job runs only for a tag.
 
 - Add a "Made with Claude Code" badge and an "AI-generated content" section to the README, and a note on AI-assisted contributions to `CONTRIBUTING.md`.
