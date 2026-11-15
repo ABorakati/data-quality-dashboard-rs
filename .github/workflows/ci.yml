@@ -52,13 +52,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
-      # libduckdb-sys downloads DuckDB's library to target/duckdb-download at build time and its build script
-      # output points there, so cache that directory with the build output or a cache hit fails to link.
+      # No build cache on Windows. A restored cache there reuses libduckdb-sys's build output but the DuckDB
+      # import library it points to (duckdb.lib) is missing, so linking fails with LNK1181. Cold builds link.
       - uses: Swatinem/rust-cache@v2
-        with:
-          # Bump the prefix to discard caches saved before cache-directories was added.
-          prefix-key: v1-rust
-          cache-directories: target/duckdb-download
+        if: runner.os != 'Windows'
       - run: cargo clippy --locked --workspace --all-targets -- -D warnings
 
   test:
@@ -78,13 +75,9 @@ jobs:
       # unset; the `postgresql` job below runs them. DuckDB's prebuilt library is fetched by the
       # build (`.cargo/config.toml`, DUCKDB_DOWNLOAD_LIB=1) and found by cargo test.
       - uses: dtolnay/rust-toolchain@stable
-      # libduckdb-sys downloads DuckDB's library to target/duckdb-download at build time and its build script
-      # output points there, so cache that directory with the build output or a cache hit fails to link.
+      # No build cache on Windows (see the first one above).
       - uses: Swatinem/rust-cache@v2
-        with:
-          # Bump the prefix to discard caches saved before cache-directories was added.
-          prefix-key: v1-rust
-          cache-directories: target/duckdb-download
+        if: runner.os != 'Windows'
       - run: cargo test --locked --workspace --release --no-fail-fast
 
   build:
@@ -101,13 +94,9 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      # libduckdb-sys downloads DuckDB's library to target/duckdb-download at build time and its build script
-      # output points there, so cache that directory with the build output or a cache hit fails to link.
+      # No build cache on Windows (see the first one above).
       - uses: Swatinem/rust-cache@v2
-        with:
-          # Bump the prefix to discard caches saved before cache-directories was added.
-          prefix-key: v1-rust
-          cache-directories: target/duckdb-download
+        if: runner.os != 'Windows'
       # Default features: DuckDB, PostgreSQL TLS.
       - run: cargo build --locked --workspace
       # SQLite and PostgreSQL only: no DuckDB library is linked or downloaded.
@@ -121,13 +110,9 @@ jobs:
       - uses: actions/checkout@v4
       # Keep this in step with `rust-version` in Cargo.toml.
       - uses: dtolnay/rust-toolchain@1.97
-      # libduckdb-sys downloads DuckDB's library to target/duckdb-download at build time and its build script
-      # output points there, so cache that directory with the build output or a cache hit fails to link.
+      # No build cache on Windows (see the first one above).
       - uses: Swatinem/rust-cache@v2
-        with:
-          # Bump the prefix to discard caches saved before cache-directories was added.
-          prefix-key: v1-rust
-          cache-directories: target/duckdb-download
+        if: runner.os != 'Windows'
       - run: cargo check --locked --workspace --all-targets
       - run: cargo check --locked --workspace --all-targets --no-default-features
 
@@ -188,13 +173,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      # libduckdb-sys downloads DuckDB's library to target/duckdb-download at build time and its build script
-      # output points there, so cache that directory with the build output or a cache hit fails to link.
+      # No build cache on Windows (see the first one above).
       - uses: Swatinem/rust-cache@v2
-        with:
-          # Bump the prefix to discard caches saved before cache-directories was added.
-          prefix-key: v1-rust
-          cache-directories: target/duckdb-download
+        if: runner.os != 'Windows'
       # Runs the scenario and preflight PostgreSQL tests, single-threaded as scripts/parity.ps1 does.
       # TODO: `gibleed_postgresql_run_matches_upstream_results_and_metadata` is skipped here. It reads
       # a `gibleed` schema that only the R oracle loads, from Eunomia's GiBleed database, which is
