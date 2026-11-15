@@ -50,6 +50,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.target }}
+          # See ci.yml: the DuckDB library lives outside the cached build output.
+          # Bump the prefix to discard caches saved before cache-directories was added.
+          prefix-key: v1-rust
+          cache-directories: target/duckdb-download
 
       - name: Build dqd (default features)
         run: cargo build --locked --release --target ${{ matrix.target }} --bin dqd
