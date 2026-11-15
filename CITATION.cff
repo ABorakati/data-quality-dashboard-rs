@@ -1,0 +1,55 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite it using the metadata in this file. This is an unofficial Rust port of the
+  OHDSI Data Quality Dashboard: please also cite the upstream paper listed under references.
+title: "dqd: a Rust port of the OHDSI Data Quality Dashboard"
+type: software
+authors:
+  - family-names: Borakati
+    given-names: Aditya
+    # orcid: "https://orcid.org/0000-0000-0000-0000"   # add your ORCID before the first release
+repository-code: "https://github.com/ABorakati/data-quality-dashboard-rs"
+license: Apache-2.0
+# Keep in step with `version` in Cargo.toml and the release tag (v<version>) when you cut a release.
+version: 2.9.0
+# date-released: "YYYY-MM-DD"                          # set at release time
+# doi: "10.5281/zenodo.NNNNNNN"                        # the Zenodo concept DOI, once the first release is archived
+abstract: >-
+  A Rust implementation of the OHDSI Data Quality Dashboard 2.9.0 for OMOP common data model databases. It runs the
+  upstream data quality checks natively against SQLite, DuckDB and PostgreSQL, with no R or Java runtime, and writes
+  the same results as the pinned upstream R package. The port is checked against that package on the Eunomia sample
+  datasets. It is not affiliated with or endorsed by OHDSI.
+keywords:
+  - OMOP
+  - OHDSI
+  - data quality
+  - common data model
+  - observational health data
+  - Rust
+references:
+  - type: article
+    title: "Increasing trust in real-world evidence through evaluation of observational data quality"
+    authors:
+      - family-names: Blacketer
+        given-names: Clair
+      - family-names: DeFalco
+        given-names: Frank J.
+      - family-names: Ryan
+        given-names: Patrick B.
+      - family-names: Rijnbeek
+        given-names: Peter R.
+    journal: "Journal of the American Medical Informatics Association"
+    year: 2021
+    volume: 28
+    issue: 10
+    start: 2251
+    end: 2257
+    doi: "10.1093/jamia/ocab132"
+  - type: software
+    title: "DataQualityDashboard"
+    authors:
+      - name: "Observational Health Data Sciences and Informatics"
+    repository-code: "https://github.com/OHDSI/DataQualityDashboard"
+    version: 2.9.0
+    commit: b9d2a9b4a4736f7ea81415d974c72119b6f0bd11
+    license: Apache-2.0

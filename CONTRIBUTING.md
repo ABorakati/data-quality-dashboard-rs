@@ -118,6 +118,35 @@ Do not run a formatter or editor that converts line endings on files under `test
 port does write CRLF where R does on Windows, in result CSV and SQL-only files, because that is R's behaviour. That
 is intended.
 
+## Releases and the Zenodo DOI
+
+A DOI comes from [Zenodo](https://zenodo.org), which archives a GitHub release and mints a DOI for it. It can only be
+requested by the repository owner: it needs your Zenodo login and a public repository. Zenodo records are meant to be
+permanent, so settle the points under "Before the first release" first.
+
+**Before the first release**
+
+1. Decide the version number. `Cargo.toml` is still `2.9.0`, the version of the upstream package this port tracks, which can
+   be mistaken for the official release. Something like `0.1.0` (with "tracks DQD 2.9.0" in the README) avoids that.
+2. Add your ORCID to `CITATION.cff` (the commented line under `authors`).
+3. Make the repository public. Zenodo cannot archive a private repository. Before that, read the "Open items" in
+   `THIRD_PARTY_NOTICES.md` and decide about the large fixtures in `tests/oracle`: the archive is a copy of the tagged tree,
+   including the MIMIC demo database (ODbL, with its `LICENSE.txt` and `NOTICE.txt`) and about 240 MB of fixtures.
+4. Optionally rehearse on <https://sandbox.zenodo.org>, which is separate from the real service and mints test DOIs.
+
+**Releasing**
+
+1. Log in to Zenodo with your GitHub account, open the GitHub page under your account settings, and switch the repository on.
+2. Set the version in the root `Cargo.toml` and in `CITATION.cff`, and add `date-released` to `CITATION.cff`.
+   Do not add a `.zenodo.json`: Zenodo prefers it over `CITATION.cff`, so the two would drift apart.
+3. Tag `v<version>` and push the tag. `.github/workflows/release.yml` checks that the tag matches `Cargo.toml`, builds the
+   archives and creates the GitHub release. Zenodo archives the release and mints two DOIs: one for this version and a
+   "concept" DOI that always resolves to the latest. If no record appears on Zenodo within a few minutes, publish the release
+   once by hand from the GitHub releases page.
+4. Copy the concept DOI into the DOI badge in `README.md` (the commented block under the badges) and into `CITATION.cff`
+   (`doi:`), and commit. In the Zenodo record, add a line to the description that the archive includes MIMIC-IV demo data
+   under the ODbL (see `THIRD_PARTY_NOTICES.md`).
+
 ## Writing
 
 - Use British English in prose and documentation: "licence" as a noun, "behaviour", "organisation", "serialise".

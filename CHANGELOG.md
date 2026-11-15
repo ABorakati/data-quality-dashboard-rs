@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add `CITATION.cff` (software citation plus the upstream Data Quality Dashboard paper), README badges (CI, security, release, licence, Rust version, tracked DQD version, CDM versions) and a "Citing" section, and document in `CONTRIBUTING.md` how to get a Zenodo DOI for a release. The DOI badge is a commented placeholder until the first release is archived.
+
 - Document the test data: `docs/test-data.md` says what each parity fixture is built from, where the Eunomia datasets come from, what their licences allow, and how to rebuild the fixtures. Keep the Eunomia MIMIC database, the open-access MIMIC-IV demo, in the repository under its ODbL v1.0 licence, after reading the PhysioNet, ODbL, `EunomiaDatasets` and Synthea terms: add PhysioNet's `LICENSE.txt` and a `NOTICE.txt` (source, notice, citation) beside it, as ODbL section 4.2 asks, and record the terms in `THIRD_PARTY_NOTICES.md`. Add `scripts/compare-mimic-with-physionet.py`, which compares that database with PhysioNet's CSV files cell by cell: it is a derivative, not a verbatim copy (64-bit ids stored as doubles, dates as epoch seconds, 12 `operator_concept_id` values NULL), and the notices now say so; `CONTRIBUTING.md` names it as the one non-synthetic exception.
 
 - **CI, governance and notices.** Preparation for making the repository public.

@@ -3,7 +3,15 @@
 > **Unofficial port.** Not affiliated with or endorsed by OHDSI. The OHDSI name and logo belong to OHDSI and identify the upstream project this port follows.
 
 [![CI](https://github.com/ABorakati/data-quality-dashboard-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/ABorakati/data-quality-dashboard-rs/actions/workflows/ci.yml)
+[![Security](https://github.com/ABorakati/data-quality-dashboard-rs/actions/workflows/security.yml/badge.svg)](https://github.com/ABorakati/data-quality-dashboard-rs/actions/workflows/security.yml)
+[![Release](https://img.shields.io/github/v/release/ABorakati/data-quality-dashboard-rs?include_prereleases&label=release)](https://github.com/ABorakati/data-quality-dashboard-rs/releases)
 [![Licence: Apache-2.0](https://img.shields.io/badge/licence-Apache--2.0-blue.svg)](LICENSE)
+[![Rust 1.97+](https://img.shields.io/badge/rust-1.97%2B-orange.svg)](Cargo.toml)
+[![Tracks DQD 2.9.0](https://img.shields.io/badge/tracks%20DQD-2.9.0-informational.svg)](https://github.com/OHDSI/DataQualityDashboard/tree/b9d2a9b4a4736f7ea81415d974c72119b6f0bd11)
+[![OMOP CDM 5.2 to 5.5](https://img.shields.io/badge/OMOP%20CDM-5.2%20to%205.5-lightgrey.svg)](docs/test-data.md)
+<!-- After the first Zenodo release, add the DOI badge here (concept DOI, which always resolves to the latest version):
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.NNNNNNN.svg)](https://doi.org/10.5281/zenodo.NNNNNNN)
+-->
 
 This crate ports OHDSI DataQualityDashboard 2.9.0 to Rust. The target is upstream commit `b9d2a9b4a4736f7ea81415d974c72119b6f0bd11`. Catalog, SQL templates, SqlRender patterns, and dashboard assets retain upstream source data where practical. SQL rendering, translation, and splitting run in Rust (`crates/sqlrender`, a port of OHDSI SqlRender 1.19.7), and database access uses native drivers (`crates/db`). No Java runtime and no JDBC driver are needed. Runtime R is not required.
 
@@ -202,6 +210,18 @@ cargo test --workspace --release
 The PostgreSQL scenarios run when `DQD_PG_PORT` is set to the port of a PostgreSQL server with trust authentication. They are skipped otherwise. See [CONTRIBUTING.md](CONTRIBUTING.md#test).
 
 Regenerating the fixtures needs R 4.5.2 with the pinned package, Java (for R only) and PowerShell 7. Their setup is described in [CONTRIBUTING.md](CONTRIBUTING.md#regenerating-the-parity-fixtures). Do not edit the fixtures by hand.
+
+## Citing
+
+If you use this software, cite it using [`CITATION.cff`](CITATION.cff) (GitHub's "Cite this repository" button reads it).
+Once the first release is archived on Zenodo, its DOI will appear here and in the badges above. This is an unofficial port,
+so please also cite the paper that describes the upstream Data Quality Dashboard:
+
+> Blacketer C, DeFalco FJ, Ryan PB, Rijnbeek PR. Increasing trust in real-world evidence through evaluation of observational
+> data quality. *J Am Med Inform Assoc.* 2021;28(10):2251-2257. [doi:10.1093/jamia/ocab132](https://doi.org/10.1093/jamia/ocab132)
+
+The MIMIC-IV demo database used in the parity tests has its own citation and licence: see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Provenance and license
 
