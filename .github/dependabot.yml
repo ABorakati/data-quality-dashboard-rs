@@ -9,6 +9,12 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    # rusqlite and duckdb are pinned exactly: the SQLite and DuckDB engine versions can change results, so
+    # upgrade them by hand and run the full parity suite (see CHANGELOG.md for the last rusqlite upgrade).
+    ignore:
+      - dependency-name: rusqlite
+      - dependency-name: duckdb
+      - dependency-name: libduckdb-sys
 
   # crates/sqlrender/fuzz is excluded from the workspace and has its own lock file.
   - package-ecosystem: cargo
@@ -22,3 +28,7 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # The tags of dtolnay/rust-toolchain are Rust versions, not releases: `@1.97` in the MSRV job is the declared
+    # minimum supported Rust version, and `@stable` is a branch. Change them by hand.
+    ignore:
+      - dependency-name: dtolnay/rust-toolchain
