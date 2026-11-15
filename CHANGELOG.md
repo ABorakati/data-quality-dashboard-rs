@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Apply the pending Dependabot updates: `actions/checkout` 4 to 7, `actions/upload-artifact` 4 to 7, `actions/download-artifact` 4 to 8 and `gitleaks/gitleaks-action` 2 to 3 in the workflows, and `serde_json` 1.0.151 to 1.0.154 and the transitive `sha2` 0.11.0 to 0.11.1 in `Cargo.lock`. The parity tests pass unchanged. The release dry run now also runs the artifact download and checksum steps, so `download-artifact` is exercised without publishing.
+
 - Release v0.1.0 is archived on Zenodo (concept DOI 10.5281/zenodo.24243167, v0.1.0 10.5281/zenodo.24243168). Add the DOI to the README badge, the "Citing" section and `CITATION.cff`.
 
 - Build the release archives without a build cache. A restored cache kept the build output but not the DuckDB library that `libduckdb-sys` downloads, so the staging step could not find it.

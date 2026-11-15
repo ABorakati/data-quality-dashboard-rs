@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Configuration lives in deny.toml. The advisory database is fetched at run time.
       - uses: EmbarkStudios/cargo-deny-action@v2
         with:
@@ -34,12 +34,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full history, so secrets removed from old commits are still detected.
           fetch-depth: 0
       # The action runs the gitleaks CLI. It needs a GITLEAKS_LICENSE secret only for organisation
       # accounts; this repository is under a personal account.
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

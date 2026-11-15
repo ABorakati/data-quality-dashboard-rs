@@ -47,7 +47,7 @@ jobs:
       - name: Keep committed line endings (Windows)
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Check the tag matches Cargo.toml
         if: github.ref_type == 'tag' || inputs.publish_tag != ''
@@ -160,17 +160,15 @@ jobs:
           echo "$out"
           echo "$out" | grep -q "cdm_source" || { echo "::error::the archived binary did not reach DuckDB"; exit 1; }
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dqd-${{ matrix.target }}
           path: dist/*
           if-no-files-found: error
 
   publish:
-    name: create GitHub release
+    name: checksums and release
     needs: build
-    # A manual run without publish_tag is a dry run: no release.
-    if: github.ref_type == 'tag' || inputs.publish_tag != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -180,7 +178,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       RELEASE_TAG: ${{ (github.ref_type == 'tag' && github.ref_name) || inputs.publish_tag }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
@@ -188,6 +186,8 @@ jobs:
         working-directory: dist
         run: sha256sum dqd-*.tar.gz dqd-*.zip > SHA256SUMS
       - name: Create the release
+        # A manual run without publish_tag is a dry run: everything above ran, but no release is created.
+        if: github.ref_type == 'tag' || inputs.publish_tag != ''
         run: |
           set -euo pipefail
           if [ "$GITHUB_REF_TYPE" = tag ]; then
