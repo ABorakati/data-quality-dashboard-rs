@@ -47,7 +47,7 @@ jobs:
       - name: Keep committed line endings (Windows)
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Check the tag matches Cargo.toml
         if: github.ref_type == 'tag' || inputs.publish_tag != ''

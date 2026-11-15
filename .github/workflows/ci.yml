@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
@@ -48,7 +48,7 @@ jobs:
       - name: Keep committed line endings (Windows)
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
@@ -70,7 +70,7 @@ jobs:
       - name: Keep committed line endings (Windows)
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Tests need no R and no Java. The PostgreSQL parity tests skip here because DQD_PG_PORT is
       # unset; the `postgresql` job below runs them. DuckDB's prebuilt library is fetched by the
       # build (`.cargo/config.toml`, DUCKDB_DOWNLOAD_LIB=1) and found by cargo test.
@@ -92,7 +92,7 @@ jobs:
       - name: Keep committed line endings (Windows)
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       # No build cache on Windows (see the first one above).
       - uses: Swatinem/rust-cache@v2
@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Keep this in step with `rust-version` in Cargo.toml.
       - uses: dtolnay/rust-toolchain@1.97
       # No build cache on Windows (see the first one above).
@@ -121,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Check each crate's package
         run: |
@@ -171,7 +171,7 @@ jobs:
     env:
       DQD_PG_PORT: "5432"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       # No build cache on Windows (see the first one above).
       - uses: Swatinem/rust-cache@v2
