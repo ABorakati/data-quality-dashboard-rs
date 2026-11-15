@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Let the release workflow be run by hand as a dry run, which builds the three archives and smoke-tests each one in a clean directory (version, and a DuckDB run that proves the bundled library loads) without creating a release. The publish job runs only for a tag.
+
 - Add a "Made with Claude Code" badge and an "AI-generated content" section to the README, and a note on AI-assisted contributions to `CONTRIBUTING.md`.
 
 - Add the speed-up over R to the README, with its scope (SQLite and DuckDB, three sample datasets) and the caveat that the R timings are rough.

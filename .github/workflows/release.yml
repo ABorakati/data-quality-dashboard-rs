@@ -2,9 +2,13 @@ name: Release
 
 # Runs when a version tag such as v0.1.0 is pushed. It builds the dqd binary for three platforms, bundles
 # DuckDB's shared library next to it, and creates a GitHub release. It does not publish to crates.io.
+#
+# Run it by hand (Actions, Release, Run workflow) for a dry run: the same builds, archives and smoke tests, with
+# no release created. Zenodo archives a published release and mints a permanent DOI, so check a dry run first.
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -35,6 +39,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Check the tag matches Cargo.toml
+        if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
           set -euo pipefail
@@ -107,6 +112,41 @@ jobs:
           rm -rf "$out"
           ls -l dist
 
+      - name: Smoke test the archive in a clean directory
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          name="dqd-${GITHUB_REF_NAME}-${TARGET}"
+          work="${RUNNER_TEMP}/smoke"
+          rm -rf "$work" && mkdir -p "$work"
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            7z x -o"$work" "dist/${name}.zip" > /dev/null
+            exe=dqd.exe
+          else
+            tar -xzf "dist/${name}.tar.gz" -C "$work"
+            exe=dqd
+          fi
+          cd "$work/${name}"
+          ls -l
+          # How the binary finds DuckDB's library, for the record.
+          case "$RUNNER_OS" in
+            Linux) readelf -d dqd | grep -i -E 'runpath|rpath|duckdb' || true ;;
+            macOS) otool -L dqd | grep -i duckdb || true; otool -l dqd | grep -A2 LC_RPATH || true ;;
+          esac
+          unset LD_LIBRARY_PATH DYLD_LIBRARY_PATH || true
+          "./$exe" --version
+          # Run against an empty DuckDB file. It must reach DuckDB and fail on the missing CDM table: that
+          # proves the library beside the binary loaded. A missing or unfindable library fails earlier.
+          set +e
+          out="$("./$exe" run --dbms duckdb --server "$work/smoke.duckdb" --cdm-source-name smoke \
+            --cdm-database-schema main --results-database-schema main --cdm-version 5.4 \
+            --output-folder "$work/out" 2>&1)"
+          set -e
+          echo "$out"
+          echo "$out" | grep -q "cdm_source" || { echo "::error::the archived binary did not reach DuckDB"; exit 1; }
+
       - uses: actions/upload-artifact@v4
         with:
           name: dqd-${{ matrix.target }}
@@ -116,6 +156,7 @@ jobs:
   publish:
     name: create GitHub release
     needs: build
+    if: startsWith(github.ref, 'refs/tags/')   # a manual run is a dry run: no release
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
