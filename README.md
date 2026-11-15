@@ -8,6 +8,7 @@
 [![Licence: Apache-2.0](https://img.shields.io/badge/licence-Apache--2.0-blue.svg)](LICENSE)
 [![Rust 1.97+](https://img.shields.io/badge/rust-1.97%2B-orange.svg)](Cargo.toml)
 [![Tracks DQD 2.9.0](https://img.shields.io/badge/tracks%20DQD-2.9.0-informational.svg)](https://github.com/OHDSI/DataQualityDashboard/tree/b9d2a9b4a4736f7ea81415d974c72119b6f0bd11)
+[![Made with Claude Code](https://img.shields.io/badge/made%20with-Claude%20Code-D97757?logo=anthropic&logoColor=white)](https://claude.com/claude-code)
 [![OMOP CDM 5.2 to 5.5](https://img.shields.io/badge/OMOP%20CDM-5.2%20to%205.5-lightgrey.svg)](docs/test-data.md)
 <!-- After the first Zenodo release, add the DOI badge here (concept DOI, which always resolves to the latest version):
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.NNNNNNN.svg)](https://doi.org/10.5281/zenodo.NNNNNNN)
@@ -226,6 +227,23 @@ so please also cite the paper that describes the upstream Data Quality Dashboard
 
 The MIMIC-IV demo database used in the parity tests has its own citation and licence: see
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## AI-generated content
+
+Substantial parts of this project, including code, tests, documentation, CI configuration and notices, were written by AI:
+[Claude Code](https://claude.com/claude-code), Anthropic's coding assistant, working under the direction of the maintainer,
+Aditya Borakati. Commits made by Claude Code carry a `Co-Authored-By: Claude` trailer and a link to the session.
+
+What that means for you:
+
+- **Correctness rests on tests.** The port is checked against the pinned R package by the parity tests (see
+  [Status and compatibility](#status-and-compatibility)). Review the code as you would any other, and report anything wrong
+  through an issue.
+- **Licence and data-terms notes are not legal advice.** [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and
+  [docs/test-data.md](docs/test-data.md) record what the AI read from the sources they cite. Check the originals before you
+  rely on them.
+- **Authorship.** The maintainer is the author named in [`CITATION.cff`](CITATION.cff). The AI is acknowledged here and in the
+  commit history, and is not listed as an author.
 
 ## Provenance and license
 

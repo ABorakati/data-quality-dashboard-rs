@@ -149,6 +149,12 @@ permanent, so settle the points under "Before the first release" first.
    (`doi:`), and commit. In the Zenodo record, add a line to the description that the archive includes MIMIC-IV demo data
    under the ODbL (see `THIRD_PARTY_NOTICES.md`).
 
+## AI-assisted contributions
+
+This project was developed with Claude Code (see "AI-generated content" in [README.md](README.md)). Contributions written
+with AI tools are welcome on the same terms as any other: they must pass the checks above, keep the parity rules, and
+you are responsible for what you submit. Say in the pull request if an AI tool wrote a substantial part of it.
+
 ## Writing
 
 - Use British English in prose and documentation: "licence" as a noun, "behaviour", "organisation", "serialise".

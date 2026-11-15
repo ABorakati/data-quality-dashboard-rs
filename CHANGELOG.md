@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add a "Made with Claude Code" badge and an "AI-generated content" section to the README, and a note on AI-assisted contributions to `CONTRIBUTING.md`.
+
 - Add the speed-up over R to the README, with its scope (SQLite and DuckDB, three sample datasets) and the caveat that the R timings are rough.
 
 - Describe parity as "identical check results" with its scope (SQLite, DuckDB and PostgreSQL, apart from timestamps and timings) in the README, `CITATION.cff`, `CONTRIBUTING.md`, the `dqd-sqlrender` README and the crate description, instead of looser wording.
