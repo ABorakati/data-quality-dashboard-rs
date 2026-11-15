@@ -87,7 +87,8 @@ crate's `tests/parity.rs`.
 
 ## Differences that cannot be removed
 
-* Bundled SQLite is 3.50.2 (`rusqlite 0.37`); no crates.io release bundles 3.50.3. `PRAGMA compile_options` differs.
+* Bundled SQLite is 3.54.1 (`rusqlite 0.41`), newer than the reference's 3.50.3 (sqlite-jdbc 3.50.3.0), because the
+  older releases carry a known SQLite CVE. The full parity suite passes on it. `PRAGMA compile_options` differs.
 * sqlite-jdbc `backup to`/`restore from` commands are not implemented.
 * The JDBC bridge printed non-ASCII text with the platform charset (corrupted on Windows); native output is UTF-8.
 * PostgreSQL TLS needs the default `tls` feature; the pgjdbc SSL options listed under "PostgreSQL TLS" are not all supported.

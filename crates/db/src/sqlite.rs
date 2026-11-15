@@ -309,7 +309,7 @@ impl SqliteConnection {
             ffi::sqlite3_limit(db, ffi::SQLITE_LIMIT_SQL_LENGTH, 1_000_000);
             ffi::sqlite3_busy_timeout(db, 3000);
             let conn = rusqlite::Connection::from_handle_owned(db)
-                .expect("rusqlite 0.37 (pinned) never fails to adopt an open handle");
+                .expect("rusqlite 0.41 (pinned) never fails to adopt an open handle");
             // Read-performance tuning only; none of these can change a query's result.
             conn.execute_batch(TUNING_PRAGMAS)
                 .map_err(|error| sqlite_exception(ffi::SQLITE_ERROR, &error.to_string()))?;

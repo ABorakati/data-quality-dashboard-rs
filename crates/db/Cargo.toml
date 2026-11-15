@@ -22,8 +22,9 @@ tls = ["dep:tokio-postgres-rustls", "dep:rustls", "dep:rustls-native-certs", "de
 anyhow = "1"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 dqd-sqlrender = { path = "../sqlrender", version = "0.1.0" }
-# rusqlite 0.37 bundles SQLite 3.50.2, the closest crates.io release to sqlite-jdbc 3.50.3.0's SQLite 3.50.3.
-rusqlite = { version = "=0.37.0", features = ["bundled"] }
+# rusqlite 0.41 bundles SQLite 3.54.1 (libsqlite3-sys 0.39). The reference, sqlite-jdbc 3.50.3.0, uses SQLite 3.50.3,
+# but 0.37 (SQLite 3.50.2) carries a known SQLite CVE. The parity suite passes on 3.54.1; see CHANGELOG.md.
+rusqlite = { version = "=0.41.0", features = ["bundled"] }
 # duckdb 1.20000.2 binds DuckDB 2.0.0, the engine of the R `duckdb` package DatabaseConnector 8.0.0
 # uses. `download-lib` links DuckDB's official prebuilt 2.0.0 library (duckdb.dll, staged next to the
 # build outputs) instead of compiling the C++ engine (`bundled`), which needs several GB of disk.
