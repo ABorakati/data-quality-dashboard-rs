@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Close the licence gaps in `THIRD_PARTY_NOTICES.md`, each checked against evidence: jQuery Easing is version 1.4.1 (byte-identical to the npm package) under BSD-3-Clause, with the licence text added; the Handlebars file is a development build from the master branch, not a release; the full SIL OFL 1.1 text and the font copyright holders (from the font metadata) are added, so the licence travels with the fonts; and the Font Awesome files are confirmed as 5.9.0. Only the MIMIC provenance item remains open.
+- Rewrite the README Quick start to follow the upstream Getting Started guide and to run the checks on your own database: prerequisites (a populated `cdm_source`, and that a results table is written by default), a config file for SQLite, DuckDB and PostgreSQL, running, viewing the results, and what the four check statuses mean.
+- `dqd run` now prints a short summary (the numbers of passed, failed, not applicable and error checks, and where the results and log are) instead of the full results JSON, which was several megabytes. `--print-results` prints the full JSON as before. The results file is unchanged.
+
 - Apply the pending Dependabot updates: `actions/checkout` 4 to 7, `actions/upload-artifact` 4 to 7, `actions/download-artifact` 4 to 8 and `gitleaks/gitleaks-action` 2 to 3 in the workflows, and `serde_json` 1.0.151 to 1.0.154 and the transitive `sha2` 0.11.0 to 0.11.1 in `Cargo.lock`. The parity tests pass unchanged. The release dry run now also runs the artifact download and checksum steps, so `download-artifact` is exercised without publishing.
 
 - Release v0.1.0 is archived on Zenodo (concept DOI 10.5281/zenodo.24243167, v0.1.0 10.5281/zenodo.24243168). Add the DOI to the README badge, the "Citing" section and `CITATION.cff`.

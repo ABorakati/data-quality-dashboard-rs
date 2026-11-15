@@ -51,6 +51,10 @@ struct RunArgs {
     /// Read camelCase R-compatible options from a JSON object before applying flags.
     #[arg(long)]
     config: Option<PathBuf>,
+    /// Print the full results as JSON to the terminal. By default a short summary is printed; the
+    /// results are always written to the output file.
+    #[arg(long)]
+    print_results: bool,
     #[command(flatten)]
     options: OptionArgs,
 }
@@ -252,8 +256,12 @@ fn run() -> Result<()> {
             let mut options = read_options(args.config.as_deref())?;
             args.options.apply(&mut options);
             let output = runner::execute_dq_checks(&options)?;
-            if !output.is_null() {
-                println!("{}", serde_json::to_string_pretty(&output)?);
+            if args.print_results {
+                if !output.is_null() {
+                    println!("{}", serde_json::to_string_pretty(&output)?);
+                }
+            } else if let Some(summary) = runner::run_summary(&options, &output) {
+                print!("{summary}");
             }
         }
         Command::ListChecks(args) => {

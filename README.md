@@ -74,21 +74,110 @@ cargo build --release          # the binary is target/release/dqd
 
 ## Quick start
 
-These commands use `examples/options.json`, which sets `"sqlOnly": true`. The first commands need no database.
+This runs the data quality checks on your own database, then shows the results in the dashboard. It follows the upstream
+[Getting Started guide](https://github.com/OHDSI/DataQualityDashboard/blob/main/inst/doc/DataQualityDashboard.pdf): the
+options have the same names as the arguments of its `executeDqChecks` function. You need `dqd` installed (see
+[Installation](#installation)). From a source checkout, write `cargo run --release --` where this page says `dqd`.
 
-```sh
-cargo run --release -- dialects                                       # the supported dbms values
-cargo run --release -- list-checks --config examples/options.json     # the check catalogue
-cargo run --release -- run --config examples/options.json             # writes check SQL to ./out and does not connect
+**Before you start**
+
+- A database in the OMOP common data model (CDM), version 5.2, 5.3, 5.4 or 5.5, in a SQLite file, a DuckDB file or a
+  PostgreSQL server.
+- The `cdm_source` table must have at least one row. The results carry its details so that they can be shared, and `dqd`
+  stops with "Please populate the cdm_source table" if it is empty.
+- **By default the run writes a results table**, `dqdashboard_results`, into `resultsDatabaseSchema`, as upstream does. That
+  schema must be writable. To leave the database untouched, set `"writeToTable": false`, as below.
+
+### 1. Describe your database
+
+Save this as `options.json`, with your own values. It is for a SQLite file:
+
+```json
+{
+  "dbms": "sqlite",
+  "connection": { "sqlitePath": "/path/to/cdm.sqlite" },
+  "cdmDatabaseSchema": "main",
+  "resultsDatabaseSchema": "main",
+  "cdmSourceName": "My CDM",
+  "cdmVersion": "5.4",
+  "writeToTable": false,
+  "outputFolder": "out",
+  "outputFile": "results.json"
+}
 ```
 
-To run the checks, edit `examples/options.json` (schemas, `dbms` and `connection`; see [Run checks](#run-checks)), then run with `--sql-only false`:
+| Option | Meaning |
+|---|---|
+| `dbms` | `sqlite`, `duckdb` or `postgresql` |
+| `connection` | How to reach the database. See below |
+| `cdmDatabaseSchema` | The schema that holds the CDM tables. A SQLite file has one schema, `main` |
+| `resultsDatabaseSchema` | The schema for the results table. It is used only when `writeToTable` is true |
+| `cdmSourceName` | A human-readable name for this database. It also names the log file |
+| `cdmVersion` | The CDM version your data follows |
+| `outputFolder`, `outputFile` | Where the results file and the log go |
 
-```sh
-cargo run --release -- run --config examples/options.json --sql-only false
+The `connection` block for the other two databases:
+
+```json
+{ "dbms": "duckdb", "connection": { "server": "/path/to/cdm.duckdb" } }
+{ "dbms": "postgresql", "connection": { "server": "myhost/omop", "port": 5432, "user": "me", "password": "..." } }
 ```
 
-The results are written to `outputFolder`, in the file named by `outputFile`.
+For PostgreSQL, `server` is `host/database`. The schemas are then yours, for example `"cdmDatabaseSchema": "cdm"`.
+The other options, including TLS for PostgreSQL, are in [Run checks](#run-checks) and
+[PostgreSQL TLS](#postgresql-tls).
+
+### 2. Run the checks
+
+```sh
+dqd run --config options.json
+```
+
+When it finishes, it prints a summary:
+
+```text
+Data quality checks finished in 3 secs.
+  2002 checks: 924 passed, 35 failed, 1043 not applicable, 0 errors
+Results: out/results.json
+Log:     out/log_DqDashboard_My CDM.txt
+To view the results: dqd viewer --results-root out
+```
+
+That run was on a 20 MB sample database (the synthetic GiBleed data, see [docs/test-data.md](docs/test-data.md)). A large
+CDM takes much longer; `numThreads` sets how many queries run at once. You may also see `DEPRECATION WARNING` lines. They
+are upstream's own notices about renamed checks, and they are harmless.
+
+### 3. Look at the results
+
+```sh
+dqd viewer --results-root out
+```
+
+This opens the dashboard in your browser. It serves only your own computer. The results file `out/results.json` holds every
+check with its SQL, and the `errors` folder holds the SQL of any check that failed to run.
+
+Each check ends in exactly one of four statuses. As upstream defines them, in priority order:
+
+- **Error**: a SQL error occurred while running the check.
+- **Not applicable**: the check cannot say anything about this database, for example because the table is empty or the
+  concept never occurs. It is common for more than a thousand checks not to apply. They are not failures.
+- **Failed**: the share of violating rows is above the check's threshold.
+- **Passed**: the share is below the threshold.
+
+See upstream's [check status definitions](https://github.com/OHDSI/DataQualityDashboard/blob/main/inst/doc/CheckStatusDefinitions.pdf)
+for the full rules.
+
+### Next
+
+- **Choose what runs.** `checkLevels` (`TABLE`, `FIELD`, `CONCEPT`), `checkNames`, `checkSeverity` and `tablesToExclude` limit
+  the checks. `dqd list-checks` prints the catalogue.
+- **Change the thresholds.** See upstream's
+  [thresholds guide](https://github.com/OHDSI/DataQualityDashboard/blob/main/inst/doc/Thresholds.pdf) and the
+  `tableCheckThresholdLoc`, `fieldCheckThresholdLoc` and `conceptCheckThresholdLoc` options.
+- **Export the SQL without a database.** `dqd run --config options.json --sql-only true` writes the check SQL to
+  `outputFolder`. See upstream's [SQL-only guide](https://github.com/OHDSI/DataQualityDashboard/blob/main/inst/doc/SqlOnly.pdf).
+- **Keep results elsewhere.** Set `writeToTable` or `writeToCsv`, or use the [result tools](#result-tools).
+- **See everything on the screen.** `dqd run --print-results ...` also prints the full results as JSON.
 
 ## Requirements
 

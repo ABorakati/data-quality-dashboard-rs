@@ -2,8 +2,8 @@
 
 This project is licensed under the Apache License 2.0 (see [LICENSE](LICENSE) and [NOTICE](NOTICE)). The
 material listed here comes from other authors and keeps its own licence. Where a file has a licence header, the
-header is the authority. Copyright holders are taken from the headers. Where a header does not name one, this file
-says "see file header" or "see font metadata" instead of guessing.
+header is the authority. Copyright holders come from the file headers, from the metadata of the font files, or, for
+files with no header, from the LICENSE of the official package that the file was checked against byte for byte.
 
 This file covers the viewer's browser assets and the licence policy for Rust dependencies. The OHDSI
 DataQualityDashboard files that this port copies (see [resources/provenance.json](resources/provenance.json)) are
@@ -15,28 +15,36 @@ Apache-2.0, as stated in [NOTICE](NOTICE). The SqlRender tables are described in
 | Component | Version | Files | Licence | Source | Copyright |
 |---|---|---|---|---|---|
 | jQuery | 3.7.1 | `resources/viewer/vendor/jquery/jquery.min.js` | MIT | <https://jquery.com> | OpenJS Foundation and other contributors (file header) |
-| jQuery Easing | see file header (none stated) | `resources/viewer/vendor/jquery-easing/jquery.easing.min.js` | Not stated in the file. To be confirmed before release. | jQuery Easing project | see file header |
+| jQuery Easing | 1.4.1 (identical, byte for byte, to `jquery.easing@1.4.1` on npm) | `resources/viewer/vendor/jquery-easing/jquery.easing.min.js` | BSD-3-Clause, two notices: the plugin and the easing equations. Full text below. | <https://github.com/gdsmith/jquery.easing> | © 2008 George McGinley Smith (the plugin); © 2001 Robert Penner (the easing equations). The minified file has no header: both come from the package's `LICENSE` |
 | Bootstrap | 4.3.1 | `resources/viewer/vendor/bootstrap/css/bootstrap.min.css`, `resources/viewer/vendor/bootstrap/js/bootstrap.min.js` | MIT | <https://getbootstrap.com> | The Bootstrap Authors; Twitter, Inc. (2011–2019, file header) |
 | DataTables | 1.10.18 | `resources/viewer/vendor/dt/v/dt/dt-1.10.18/` | MIT | <https://datatables.net> | SpryMedia Ltd (the Buttons headers name SpryMedia; the DataTables header gives the licence link only) |
 | DataTables Buttons | 1.5.6 | `resources/viewer/vendor/dt/buttons/1.5.6/` | MIT | <https://datatables.net> | SpryMedia Ltd (2016–2019, file headers) |
 | FileSaver.js, inside `buttons.html5.min.js` | 1.3.3 | `resources/viewer/vendor/dt/buttons/1.5.6/js/buttons.html5.min.js` | MIT | <https://github.com/eligrey/FileSaver.js> | Copyright © 2016 Eli Grey (file header) |
-| Font Awesome Free | 5.9.0 | `resources/viewer/vendor/fontawesome-free/` (CSS and `webfonts/`) | Icons: CC BY 4.0. Fonts: SIL OFL 1.1. Code: MIT. | <https://fontawesome.com> | see file header |
-| Handlebars | Banner: 5.0.0-alpha.1. Embedded `VERSION` constant: 4.1.2. See open items. | `resources/viewer/htmlwidgets/lib/handlebars-latest.js` | MIT (Expat) | <https://handlebarsjs.com> | Copyright (C) 2011-2017 by Yehuda Katz (file header) |
+| Font Awesome Free | 5.9.0 (the three `fa-brands-400` font files are identical, byte for byte, to `@fortawesome/fontawesome-free@5.9.0` on npm; `all.min.css` differs only in the line endings of its header) | `resources/viewer/vendor/fontawesome-free/` (`css/all.min.css` and `webfonts/fa-brands-400.*`) | Fonts: SIL OFL 1.1 (full text below). CSS: MIT. The CC BY 4.0 icon licence covers the SVG and JS packaging, which is not included here. | <https://fontawesome.com> | Fonts: "Copyright (c) Font Awesome" (font metadata). CSS: see the header of `all.min.css` |
+| Handlebars | A development build from Handlebars' master branch, not a release. Banner: 5.0.0-alpha.1. Embedded `VERSION` constant: 4.1.2. | `resources/viewer/htmlwidgets/lib/handlebars-latest.js` | MIT (Expat) | <https://handlebarsjs.com> | Copyright (C) 2011-2017 by Yehuda Katz (file header) |
 | Start Bootstrap Resume | 5.0.7 | `resources/viewer/css/resume.css` (Start Bootstrap stylesheet with local customisations) | MIT | <https://startbootstrap.com> | Start Bootstrap, 2013–2019 (file header) |
-| Muli (Google Fonts) | Font files `muli_v27` | `resources/viewer/vendor/googlefonts/muli_*.ttf`, `Muli-400,400i,800,800i.css` | SIL OFL 1.1 | <https://fonts.google.com> | see font metadata |
-| Saira Extra Condensed (Google Fonts) | Font files `sairaec_v11` | `resources/viewer/vendor/googlefonts/sairaec_*.ttf`, `Saira_Extra_Condensed-500,700.css` | SIL OFL 1.1 | <https://fonts.google.com> | see font metadata |
+| Muli (Google Fonts) | Font files `muli_v27` (font version 2.100) | `resources/viewer/vendor/googlefonts/muli_*.ttf`, `Muli-400,400i,800,800i.css` | SIL OFL 1.1 (full text below) | <https://fonts.google.com> | Copyright 2016 The Muli Project Authors (https://github.com/googlefonts/MuliFont) (font metadata) |
+| Saira Extra Condensed (Google Fonts) | Font files `sairaec_v11` (font version 0.072) | `resources/viewer/vendor/googlefonts/sairaec_*.ttf`, `Saira_Extra_Condensed-500,700.css` | SIL OFL 1.1 (full text below). Reserved Font Name: "Saira" | <https://fonts.google.com> | Copyright 2016 The Saira Project Authors (omnibus.type@gmail.com), with reserved font name "Saira" (font metadata) |
 
 ### Notes on specific components
 
 - **Font Awesome brand icons.** The glyphs in `fa-brands-400` are logos of other companies. They are trademarks of
-  their owners and are not covered by the icon licence. The free icons are licensed as stated above, and the CC BY
-  4.0 attribution is given in this file. The full licence is at <https://fontawesome.com/license/free>.
+  their owners and are not covered by the font licence, and must be used only to represent the company, product or
+  service they refer to. Font Awesome's own licence statement is at <https://fontawesome.com/license/free>: the SIL OFL
+  applies to the web font files and the MIT licence to the CSS, which are the parts shipped here.
 - **OHDSI logo.** `resources/viewer/img/ohdsi.png` is the OHDSI logo. It is a trademark of OHDSI and is not released under this
   project's licence. The viewer shows it to identify the upstream dashboard. This project is not affiliated with or
   endorsed by OHDSI.
-- **Google Fonts.** The Muli and Saira Extra Condensed files are distributed under the SIL Open Font License,
-  Version 1.1 (<https://openfontlicense.org>). The OFL asks that the licence accompany the font software when it is
-  redistributed. See the open items below.
+- **Fonts (OFL).** Muli, Saira Extra Condensed and the Font Awesome brands font are distributed under the SIL Open Font
+  License, Version 1.1. The OFL asks that each copy carry the copyright notice and the licence. The notices are in the
+  table above and the licence text is [below](#sil-open-font-license-11); this file ships in the release archives and
+  the fonts are embedded in the `dqd` binary. The font files are the unmodified Google Fonts files, so the Reserved
+  Font Name "Saira" is not in use by a modified version.
+- **Handlebars.** No published Handlebars release has the banner version 5.0.0-alpha.1, and the file embeds 28 inline
+  source maps (a webpack development build). Its runtime constant says 4.1.2, so it was built between release 4.1.2 and
+  the next. The licence is the MIT licence in its header, and the copyright holder is the one the header names.
+- **jQuery Easing.** The vendored file is the minified `jquery.easing.min.js` of version 1.4.1. The text of the
+  package's `LICENSE` begins "jQuery Easing v1.3.1" because the licence file was not updated for later releases.
 - **Port additions.** `resources/viewer/css/bridge.css`, `resources/viewer/js/bridge.js` and `resources/viewer/js/resume.js` are written for this port and follow the
   project licence.
 
@@ -150,19 +158,174 @@ patients and the synthetic electronic health care record. *JAMIA* 25(3), 230-238
 <https://doi.org/10.1093/jamia/ocx079>. OHDSI's `EunomiaDatasets` holds no licence or readme file in the `GiBleed` or
 `Synthea27Nj` folders; its root `LICENSE` is Apache-2.0 and does not name the datasets.
 
-## Open items before release
+## jQuery Easing licence (BSD-3-Clause)
 
-These items were found while writing this file. The owner should resolve them before the first public release.
+The text below is the `LICENSE` file of `jquery.easing@1.4.1`, unchanged. It holds both notices: the plugin and the easing
+equations.
 
-1. **jQuery Easing.** The vendored file has no version, copyright or licence header. Confirm the version and licence
-   against the upstream project, and add both to the table.
-2. **Handlebars version.** The banner of `resources/viewer/htmlwidgets/lib/handlebars-latest.js` says 5.0.0-alpha.1, but its embedded
-   `VERSION` constant is 4.1.2. Confirm which build was copied, and correct the table.
-3. **OFL full text.** The SIL OFL 1.1 asks that its licence accompany the fonts. Either add the full OFL text to this
-   file, or ship it next to the font files in the release archives.
-4. **Font copyright holders.** The OFL font holders are in the font metadata, not in the CSS. Read them from the font
-   files and add them to the table.
-5. **Where the changes were made.** The committed file differs from PhysioNet's CSVs as listed above. This repository does
+```text
+jQuery Easing v1.3.1 - http://gsgd.co.uk/sandbox/jquery/easing/
+
+Uses the built in easing capabilities added In jQuery 1.1
+to offer multiple easing options
+
+TERMS OF USE - jQuery Easing
+
+Open source under the BSD License.
+
+Copyright © 2008 George McGinley Smith
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of
+conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list
+of conditions and the following disclaimer in the documentation and/or other materials
+provided with the distribution.
+
+Neither the name of the author nor the names of contributors may be used to endorse
+or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+TERMS OF USE - EASING EQUATIONS
+Open source under the BSD License.
+Copyright © 2001 Robert Penner
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification
+are permitted provided that the following conditions are met:
+Redistributions of source code must retain the above copyright notice, this list of
+conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list
+of conditions and the following disclaimer in the documentation and/or other materials
+provided with the distribution.
+Neither the name of the author nor the names of contributors may be used to endorse
+or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
+## SIL Open Font License 1.1
+
+This licence applies to the Muli, Saira Extra Condensed and Font Awesome (brands) font files listed above. The copyright
+notices that go with it are:
+
+- Muli: Copyright 2016 The Muli Project Authors (https://github.com/googlefonts/MuliFont)
+- Saira Extra Condensed: Copyright 2016 The Saira Project Authors (omnibus.type@gmail.com), with reserved font name "Saira"
+- Font Awesome Free brands font: Copyright (c) Font Awesome
+
+The licence text is the standard SIL OFL 1.1, also at <https://openfontlicense.org>:
+
+```text
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded,
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+```
+
+## Open items
+
+1. **Where the MIMIC changes were made.** The committed file differs from PhysioNet's CSVs as listed above. This repository does
    not show whether Eunomia's loader made them or they came later. Compare the file with the `MIMIC_5.3.zip` in OHDSI's
    `EunomiaDatasets` (or with the output of `Eunomia::getDatabaseFile("MIMIC", cdmVersion = "5.3")`) to find out. The ODbL
    position does not depend on it: either way the file is a derivative, offered here under the ODbL.

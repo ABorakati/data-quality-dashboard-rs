@@ -496,6 +496,53 @@ pub fn list_dq_checks(options: &Options) -> Result<Value> {
     Ok(Catalog::load(options)?.as_list_value())
 }
 
+/// A short account of a finished run for the terminal: how many checks passed, failed, were not
+/// applicable or errored, and where the files are. `None` when `output` has no check results (SQL-only).
+///
+/// The four statuses are mutually exclusive, as upstream defines them, so they add up to the total.
+/// Upstream's own `Overview.countPassed` also counts the not applicable checks as passed.
+pub fn run_summary(options: &Options, output: &Value) -> Option<String> {
+    let checks = output.get("CheckResults")?.as_array()?;
+    let count = |flag: &str| {
+        checks
+            .iter()
+            .filter(|check| check.get(flag).and_then(Value::as_i64) == Some(1))
+            .count()
+    };
+    let took = output
+        .get("executionTime")
+        .and_then(|value| value.get(0))
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    let folder = &options.output_folder;
+    let results = if options.output_file.is_empty() {
+        folder.display().to_string()
+    } else {
+        folder.join(&options.output_file).display().to_string()
+    };
+    let log = folder.join(format!("log_DqDashboard_{}.txt", options.cdm_source_name));
+    let mut text = format!(
+        "Data quality checks finished in {took}.\n  {} checks: {} passed, {} failed, {} not applicable, {} errors\nResults: {results}\nLog:     {}\n",
+        checks.len(),
+        count("passed"),
+        count("failed"),
+        count("notApplicable"),
+        count("isError"),
+        log.display(),
+    );
+    if options.write_to_table {
+        text.push_str(&format!(
+            "Table:   {}.{}\n",
+            options.results_database_schema, options.write_table_name
+        ));
+    }
+    text.push_str(&format!(
+        "To view the results: dqd viewer --results-root {}\n",
+        folder.display()
+    ));
+    Some(text)
+}
+
 pub fn execute_dq_checks(options: &Options) -> Result<Value> {
     options.validate()?;
     let metadata = if options.sql_only {
@@ -660,6 +707,40 @@ pub fn execute_dq_checks(options: &Options) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn run_summary_counts_the_four_statuses_and_names_the_files() {
+        let check = |failed, passed, is_error, not_applicable| json!({"failed": failed, "passed": passed, "isError": is_error, "notApplicable": not_applicable});
+        let output = json!({
+            "executionTime": ["3 secs"],
+            "CheckResults": [check(0, 1, 0, 0), check(0, 1, 0, 0), check(1, 0, 0, 0), check(0, 0, 0, 1), check(0, 0, 1, 0)],
+        });
+        let options = Options {
+            cdm_source_name: "My CDM".into(),
+            results_database_schema: "res".into(),
+            output_folder: "out".into(),
+            output_file: "results.json".into(),
+            write_to_table: true,
+            ..Options::default()
+        };
+        let text = run_summary(&options, &output).unwrap();
+        assert!(text.contains("finished in 3 secs."), "{text}");
+        assert!(
+            text.contains("5 checks: 2 passed, 1 failed, 1 not applicable, 1 errors"),
+            "{text}"
+        );
+        assert!(text.contains("Results: out/results.json"), "{text}");
+        assert!(text.contains("log_DqDashboard_My CDM.txt"), "{text}");
+        assert!(text.contains("Table:   res.dqdashboard_results"), "{text}");
+        assert!(text.contains("dqd viewer --results-root out"), "{text}");
+        // With no table write there is no Table line, and SQL-only output (no results) has no summary.
+        let options = Options {
+            write_to_table: false,
+            ..options
+        };
+        assert!(!run_summary(&options, &output).unwrap().contains("Table:"));
+        assert!(run_summary(&options, &Value::Null).is_none());
+    }
 
     fn row(level: &str, name: &str) -> Value {
         json!({"checkLevel": level, "checkName": name})
