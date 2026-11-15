@@ -88,6 +88,10 @@ fn fake_server(replies: Vec<Reply>, connections: usize) -> (u16, JoinHandle<Vec<
                     Reply::YesThenGarbage => {
                         stream.write_all(b"S").unwrap();
                         stream.write_all(&[0x15, 3, 3, 0, 2, 2, 40]).unwrap(); // a fatal TLS alert
+                        // Read the client's hello before closing. Closing a socket that still holds unread
+                        // data sends a reset, and Windows then discards the alert the client has not read.
+                        let mut hello = [0u8; 4096];
+                        let _ = stream.read(&mut hello);
                     }
                 }
             } else {

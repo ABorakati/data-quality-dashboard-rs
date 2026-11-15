@@ -73,7 +73,7 @@ jobs:
       # build (`.cargo/config.toml`, DUCKDB_DOWNLOAD_LIB=1) and found by cargo test.
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --locked --workspace --release
+      - run: cargo test --locked --workspace --release --no-fail-fast
 
   build:
     name: build (${{ matrix.os }})
@@ -119,19 +119,20 @@ jobs:
           set -euo pipefail
           limit=$((9 * 1024 * 1024))   # crates.io accepts up to 10 MB; keep a margin
           status=0
+          lists="$RUNNER_TEMP"   # keep the lists outside the repository: cargo package refuses a dirty tree
           # Package the workspace in one go: dqd-db and the root crate depend on crates that are not
           # on crates.io yet, which cargo resolves between the workspace members (and verifies by
           # building each package).
           cargo package --workspace --locked
           for pkg in data-quality-dashboard dqd-db dqd-sqlrender; do
-            cargo package --list --locked -p "$pkg" > "list-$pkg.txt"
-            if grep -q '^tests/oracle/' "list-$pkg.txt"; then
+            cargo package --list --locked -p "$pkg" > "$lists/list-$pkg.txt"
+            if grep -q '^tests/oracle/' "$lists/list-$pkg.txt"; then
               echo "::error::$pkg would package tests/oracle (see its Cargo.toml exclude list)"
               status=1
             fi
             crate=$(ls -1 target/package/"$pkg"-*.crate)
             size=$(stat -c %s "$crate")
-            echo "$pkg: $size bytes ($(wc -l < "list-$pkg.txt") files)"
+            echo "$pkg: $size bytes ($(wc -l < "$lists/list-$pkg.txt") files)"
             if [ "$size" -gt "$limit" ]; then
               echo "::error::$pkg package is $size bytes, over the 9 MiB limit"
               status=1
