@@ -126,9 +126,11 @@ permanent, so settle the points under "Before the first release" first.
 
 **Before the first release**
 
-1. Decide the version number. `Cargo.toml` is still `2.9.0`, the version of the upstream package this port tracks, which can
-   be mistaken for the official release. Something like `0.1.0` (with "tracks DQD 2.9.0" in the README) avoids that.
-2. Add your ORCID to `CITATION.cff` (the commented line under `authors`).
+1. The version is `0.1.0`, deliberately not upstream's `2.9.0`, so this port is not mistaken for the official release. The
+   README says it tracks DQD 2.9.0, and results files still carry `dqdVersion` 2.9.0 (the upstream version they match, a
+   constant in `src/runner.rs`). The three crates share the number; change them together, with the `version` on the
+   path dependencies.
+2. Your ORCID and affiliation are already in `CITATION.cff`.
 3. Make the repository public. Zenodo cannot archive a private repository. Before that, read the "Open items" in
    `THIRD_PARTY_NOTICES.md` and decide about the large fixtures in `tests/oracle`: the archive is a copy of the tagged tree,
    including the MIMIC demo database (ODbL, with its `LICENSE.txt` and `NOTICE.txt`) and about 240 MB of fixtures.

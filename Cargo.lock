@@ -628,7 +628,7 @@ dependencies = [
 
 [[package]]
 name = "data-quality-dashboard"
-version = "2.9.0"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -698,7 +698,7 @@ dependencies = [
 
 [[package]]
 name = "dqd-db"
-version = "2.9.0"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -718,7 +718,7 @@ dependencies = [
 
 [[package]]
 name = "dqd-sqlrender"
-version = "1.19.7"
+version = "0.1.0"
 dependencies = [
  "regex",
  "serde_json",

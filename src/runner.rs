@@ -21,7 +21,9 @@ use crate::{
     sql::{NativeSql, SqlEngine, parameters},
 };
 
-const DQD_VERSION: &str = env!("CARGO_PKG_VERSION");
+/// The DataQualityDashboard version whose results this port reproduces. It goes into every results file as
+/// `dqdVersion`, exactly as upstream writes it, so it follows the upstream pin and not this crate's own version.
+const DQD_VERSION: &str = "2.9.0";
 static NULL: Value = Value::Null;
 
 fn get<'a>(row: &'a Row, name: &str) -> &'a Value {

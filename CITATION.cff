@@ -7,11 +7,12 @@ type: software
 authors:
   - family-names: Borakati
     given-names: Aditya
-    # orcid: "https://orcid.org/0000-0000-0000-0000"   # add your ORCID before the first release
+    orcid: "https://orcid.org/0000-0003-0457-4944"
+    affiliation: "Roger Williams Institute of Liver Studies, King's College London, 111 Coldharbour Ln, London SE5 9NT, UK"
 repository-code: "https://github.com/ABorakati/data-quality-dashboard-rs"
 license: Apache-2.0
 # Keep in step with `version` in Cargo.toml and the release tag (v<version>) when you cut a release.
-version: 2.9.0
+version: 0.1.0
 # date-released: "YYYY-MM-DD"                          # set at release time
 # doi: "10.5281/zenodo.NNNNNNN"                        # the Zenodo concept DOI, once the first release is archived
 abstract: >-

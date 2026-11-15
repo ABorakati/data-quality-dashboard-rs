@@ -1,6 +1,6 @@
 [package]
 name = "dqd-db"
-version = "2.9.0"
+version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
@@ -21,7 +21,7 @@ tls = ["dep:tokio-postgres-rustls", "dep:rustls", "dep:rustls-native-certs", "de
 [dependencies]
 anyhow = "1"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
-dqd-sqlrender = { path = "../sqlrender", version = "1.19.7" }
+dqd-sqlrender = { path = "../sqlrender", version = "0.1.0" }
 # rusqlite 0.37 bundles SQLite 3.50.2, the closest crates.io release to sqlite-jdbc 3.50.3.0's SQLite 3.50.3.
 rusqlite = { version = "=0.37.0", features = ["bundled"] }
 # duckdb 1.20000.2 binds DuckDB 2.0.0, the engine of the R `duckdb` package DatabaseConnector 8.0.0

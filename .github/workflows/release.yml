@@ -1,6 +1,6 @@
 name: Release
 
-# Runs when a version tag such as v2.9.0 is pushed. It builds the dqd binary for three platforms, bundles
+# Runs when a version tag such as v0.1.0 is pushed. It builds the dqd binary for three platforms, bundles
 # DuckDB's shared library next to it, and creates a GitHub release. It does not publish to crates.io.
 on:
   push:
