@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Release v0.1.0 is archived on Zenodo (concept DOI 10.5281/zenodo.24243167, v0.1.0 10.5281/zenodo.24243168). Add the DOI to the README badge, the "Citing" section and `CITATION.cff`.
+
 - Build the release archives without a build cache. A restored cache kept the build output but not the DuckDB library that `libduckdb-sys` downloads, so the staging step could not find it.
 
 - Let the release workflow publish from a manual run: give `publish_tag` (for example `v0.1.0`) and it creates the tag at the commit it built and publishes the release, the same as pushing the tag. Without it, a manual run is still a dry run.

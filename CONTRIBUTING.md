@@ -147,9 +147,10 @@ permanent, so settle the points under "Before the first release" first.
    `Cargo.toml`, builds the archives and creates the GitHub release. Zenodo archives the release and mints two DOIs: one for this version and a
    "concept" DOI that always resolves to the latest. If no record appears on Zenodo within a few minutes, publish the release
    once by hand from the GitHub releases page.
-4. Copy the concept DOI into the DOI badge in `README.md` (the commented block under the badges) and into `CITATION.cff`
-   (`doi:`), and commit. In the Zenodo record, add a line to the description that the archive includes MIMIC-IV demo data
-   under the ODbL (see `THIRD_PARTY_NOTICES.md`).
+4. Nothing to copy: the DOI badge in `README.md` and `doi:` in `CITATION.cff` hold the concept DOI
+   (10.5281/zenodo.24243167), which stays the same for every version. After a release, check the new Zenodo record, and
+   in its description keep the line that the archive includes MIMIC-IV demo data under the ODbL (see
+   `THIRD_PARTY_NOTICES.md`).
 
 ## AI-assisted contributions
 

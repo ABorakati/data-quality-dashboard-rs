@@ -10,9 +10,7 @@
 [![Tracks DQD 2.9.0](https://img.shields.io/badge/tracks%20DQD-2.9.0-informational.svg)](https://github.com/OHDSI/DataQualityDashboard/tree/b9d2a9b4a4736f7ea81415d974c72119b6f0bd11)
 [![Made with Claude Code](https://img.shields.io/badge/made%20with-Claude%20Code-D97757?logo=anthropic&logoColor=white)](https://claude.com/claude-code)
 [![OMOP CDM 5.2 to 5.5](https://img.shields.io/badge/OMOP%20CDM-5.2%20to%205.5-lightgrey.svg)](docs/test-data.md)
-<!-- After the first Zenodo release, add the DOI badge here (concept DOI, which always resolves to the latest version):
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.NNNNNNN.svg)](https://doi.org/10.5281/zenodo.NNNNNNN)
--->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24243167.svg)](https://doi.org/10.5281/zenodo.24243167)
 
 This crate ports OHDSI DataQualityDashboard 2.9.0 to Rust. The target is upstream commit `b9d2a9b4a4736f7ea81415d974c72119b6f0bd11`. Catalog, SQL templates, SqlRender patterns, and dashboard assets retain upstream source data where practical. SQL rendering, translation, and splitting run in Rust (`crates/sqlrender`, a port of OHDSI SqlRender 1.19.7), and database access uses native drivers (`crates/db`). No Java runtime and no JDBC driver are needed. Runtime R is not required.
 
@@ -219,7 +217,8 @@ Regenerating the fixtures needs R 4.5.2 with the pinned package, Java (for R onl
 ## Citing
 
 If you use this software, cite it using [`CITATION.cff`](CITATION.cff) (GitHub's "Cite this repository" button reads it).
-Once the first release is archived on Zenodo, its DOI will appear here and in the badges above. This is an unofficial port,
+The software is archived on Zenodo. [10.5281/zenodo.24243167](https://doi.org/10.5281/zenodo.24243167) always resolves to the
+latest version, and v0.1.0 is [10.5281/zenodo.24243168](https://doi.org/10.5281/zenodo.24243168). This is an unofficial port,
 so please also cite the paper that describes the upstream Data Quality Dashboard:
 
 > Blacketer C, DeFalco FJ, Ryan PB, Rijnbeek PR. Increasing trust in real-world evidence through evaluation of observational
